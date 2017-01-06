@@ -1,0 +1,2 @@
+# ConfigHubPlatform
+ConfigHub Platform releases
