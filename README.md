@@ -1,6 +1,6 @@
 # ConfigHubPlatform
 
-Full [Installation instructions] (http://docs.confighub.com/en/latest/pages/getting_started.html) are available at [docs.confighub.com] (http://docs.confighub.com/en/latest)
+Full [Installation instructions](http://docs.confighub.com/en/latest/pages/getting_started.html) are available at [docs.confighub.com](http://docs.confighub.com/en/latest)
 
 ## System requirements
 
