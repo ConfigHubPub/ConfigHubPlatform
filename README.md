@@ -28,7 +28,7 @@ docker run -d \
     -e DB_API_USERNAME=<username> \
     -e DB_API_PASSWORD=<password> \
     --name confighub \
-    confighub/confighub-v1.6.3:latest
+    confighub/confighubplatform:latest
 ```
 
 You may also use PostgreSQL database with
