@@ -19,22 +19,18 @@ Execute with following:
 docker run -d \
     -p 8080:80 \
     -p 8443:443 \
-    -e DB_MAIN_URL=jdbc:mysql://<databaseHost>:3306/ConfigHub \
-    -e DB_MAIN_DRIVER=com.mysql.jdbc.Driver \
-    -e DB_MAIN_USERNAME=<username> \
-    -e DB_MAIN_PASSWORD=<password> \
-    -e DB_API_URL=jdbc:mysql://<databaseHost>:3306/ConfigHubClientRequests \
-    -e DB_API_DRIVER=com.mysql.jdbc.Driver \
-    -e DB_API_USERNAME=<username> \
-    -e DB_API_PASSWORD=<password> \
+    -e DB_URL=jdbc:mysql://<databaseHost>:3306/ConfigHub \
+    -e DB_DRIVER=com.mysql.jdbc.Driver \
+    -e DB_USERNAME=<username> \
+    -e DB_PASSWORD=<password> \
     --name confighub \
     confighub/confighubplatform:latest
 ```
 
 You may also use PostgreSQL database with
 ```
-    -e DB_MAIN_DRIVER=org.postgresql.Driver
-    -e DB_MAIN_URL=jdbc:postgresql://<databaseHost>:5432/ConfigHubPSQL
+    -e DB_DRIVER=org.postgresql.Driver
+    -e DB_URL=jdbc:postgresql://<databaseHost>:5432/ConfigHubPSQL
 ```
 
 And you may specify parameters from the `/confighub-<version>/confighub.sh`.  Shown are default values
