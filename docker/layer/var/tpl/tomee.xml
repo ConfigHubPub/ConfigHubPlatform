@@ -1,22 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <tomee>
     <Resource id="ConfigHubMainDS" type="DataSource">
-        JdbcDriver = ${DB_MAIN_DRIVER}
-        JdbcUrl = ${DB_MAIN_URL}
-        UserName = ${DB_MAIN_USERNAME}
-        Password = ${DB_MAIN_PASSWORD}
-
-        JtaManaged = false
-        validationQuery="SELECT 1"
-        maxWaitTime = 2 seconds
-        maxActive = 200
-    </Resource>
-
-    <Resource id="ConfigHubApiRequestsDS" type="DataSource">
-        JdbcDriver = ${DB_API_DRIVER}
-        JdbcUrl = ${DB_API_URL}
-        UserName = ${DB_API_USERNAME}
-        Password = ${DB_API_PASSWORD}
+        JdbcDriver = ${DB_DRIVER}
+        JdbcUrl = ${DB_URL}
+        UserName = ${DB_USERNAME}
+        Password = ${DB_PASSWORD}
 
         JtaManaged = false
         validationQuery="SELECT 1"
