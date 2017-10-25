@@ -1,14 +1,9 @@
 #!/usr/bin/env bash
 
-if [ -z ${DB_MAIN_DRIVER+x} ]; then echo "DB_MAIN_DRIVER not set!" exit 1; fi
-if [ -z ${DB_MAIN_URL+x} ]; then echo "DB_MAIN_URL not set!" exit 1; fi
-if [ -z ${DB_MAIN_USERNAME+x} ]; then echo "DB_MAIN_USERNAME not set!" exit 1; fi
-if [ -z ${DB_MAIN_PASSWORD+x} ]; then echo "DB_MAIN_PASSWORD not set!" exit 1; fi
-
-if [ -z ${DB_API_DRIVER+x} ]; then echo "DB_API_DRIVER not set!" exit 1; fi
-if [ -z ${DB_API_URL+x} ]; then echo "DB_API_URL not set!" exit 1; fi
-if [ -z ${DB_API_USERNAME+x} ]; then echo "DB_API_USERNAME not set!" exit 1; fi
-if [ -z ${DB_API_PASSWORD+x} ]; then echo "DB_API_PASSWORD not set!" exit 1; fi
+if [ -z ${DB_DRIVER+x} ]; then echo "DB_DRIVER not set!" exit 1; fi
+if [ -z ${DB_URL+x} ]; then echo "DB_URL not set!" exit 1; fi
+if [ -z ${DB_USERNAME+x} ]; then echo "DB_USERNAME not set!" exit 1; fi
+if [ -z ${DB_PASSWORD+x} ]; then echo "DB_PASSWORD not set!" exit 1; fi
 
 echo "Writing database credentials to /confighub/server/conf/tomee.xml"
 envsubst < /var/tpl/tomee.xml > /confighub/server/conf/tomee.xml
