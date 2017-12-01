@@ -10,9 +10,9 @@ The ConfigHub server application has the following prerequisites:
 - MySQL 5.0 or later, or PostgreSQL 9 or later (latest stable version is recommended)
 - Oracle Java SE 8 or later (latest stable update is recommended)
 
-## Upgrading?
+## Upgrading from a previous version?
 
-If upgrading from a previous version, read the release notes - database schema upgrades may be required.
+Please read the release notes - database schema upgrades may be required.
 
 
 ## Docker ConfigHub Platform
