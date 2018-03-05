@@ -1,0 +1,202 @@
+
+
+    <!--<div class="row">-->
+        <!--<div class="col-xs-12">-->
+            <!--<h3><strong>Name and Description</strong></h3>-->
+        <!--</div>-->
+    <!--</div>-->
+
+
+    <style>
+        .table td.h {
+            font-size: 16px !important;
+            /*font-weight: 600;*/
+            /*background-color: #f7f7f7;*/
+            color: #888;
+            padding: 25px 0 !important;
+        }
+        .table td.h strong {
+            color: #000;
+        }
+
+        .table>thead:first-child>tr:first-child>td,
+        .table td {
+            border: 1px solid #ddd;
+            font-size: 13px;
+            text-align: center;
+        }
+        .table td i.fa-check {
+            color: #2fd120;
+            font-size: 16px;
+        }
+
+        .table td i.fa-question-circle {
+            margin-left: 5px;
+            color: #87abb9;
+        }
+        .table td.t {
+            text-align: left;
+        }
+        .table td.bl {
+            background-color: #fff;
+            border: none !important;
+        }
+
+        .table tr.ps td {
+            border-bottom: none !important;
+        }
+
+        .table td.nb {
+            border-bottom: none !important;
+        }
+        .table td.nt {
+            border-top: none !important;
+        }
+
+    </style>
+
+    <div class="row">
+        <div class="col-md-12 hidden-sm hidden-xs">
+
+            <table class="table table-striped">
+                <thead>
+                <tr>
+                    <td class="bl"></td>
+                    <td class="h">
+                        <div>Context Size</div>
+                        <strong>1 Level</strong>
+                    </td>
+                    <td class="h">
+                        <div>Context Size</div>
+                        <strong>2 Levels</strong>
+                    </td>
+                    <td class="h">
+                        <div>Context Size</div>
+                        <strong>3 Levels</strong>
+                    </td>
+                    <td class="h">
+                        <div>Context Size</div>
+                        <strong>4 Levels</strong>
+                    </td>
+                </tr>
+                </thead>
+
+                <tbody>
+                <tr>
+                    <td class="t">
+                        Archive retention
+                        <i bs-tooltip
+                           data-placement="right"
+                           data-animation="am-flip-x"
+                           data-title="{{ tooltip.archive }}"
+                           class="fa fa-question-circle"></i>
+                    </td>
+                    <td>1 month</td>
+                    <td>3 months</td>
+                    <td>9 months</td>
+                    <td>1 year</td>
+                </tr>
+
+                <tr>
+                    <td class="t">
+                        Value Data-Types
+                        <i bs-tooltip
+                           data-placement="right"
+                           data-animation="am-flip-x"
+                           data-title="{{ tooltip.dataType }}"
+                           class="fa fa-question-circle"></i>
+                    </td>
+                    <td>
+                        <nz-toggle
+                                tip-false="'Disabled'"
+                                tip-true="'Enabled'"
+
+                                width="32"
+                                height="16"
+                                ng-model="active"></nz-toggle>
+
+                    </td>
+                    <td><i class="fa fa-check"></i></td>
+                    <td><i class="fa fa-check"></i></td>
+                    <td><i class="fa fa-check"></i></td>
+                </tr>
+
+                <tr>
+                    <td class="t">
+                        Context Grouping
+                        <i bs-tooltip
+                           data-placement="right"
+                           data-animation="am-flip-x"
+                           data-title="{{ tooltip.cluster }}"
+                           class="fa fa-question-circle"></i>
+                    </td>
+                    <td>--</td>
+                    <td><i class="fa fa-check"></i></td>
+                    <td><i class="fa fa-check"></i></td>
+                    <td><i class="fa fa-check"></i></td>
+                </tr>
+
+                <tr>
+                    <td class="t">
+                        Access Controls
+                        <i bs-tooltip
+                           data-placement="right"
+                           data-animation="am-flip-x"
+                           data-title="{{ tooltip.access }}"
+                           class="fa fa-question-circle"></i>
+                    </td>
+                    <td>--</td>
+                    <td>+ $10/mo</td>
+                    <td><i class="fa fa-check"></i></td>
+                    <td><i class="fa fa-check"></i></td>
+                </tr>
+
+                <tr>
+                    <td class="t">
+                        Security & Encryption
+                        <i bs-tooltip
+                           data-placement="right"
+                           data-animation="am-flip-x"
+                           data-title="{{ tooltip.security }}"
+                           class="fa fa-question-circle"></i>
+                    </td>
+                    <td>--</td>
+                    <td>+ $10/mo</td>
+                    <td><i class="fa fa-check"></i></td>
+                    <td><i class="fa fa-check"></i></td>
+                </tr>
+                </tbody>
+
+                <tfoot>
+                <tr class="ps">
+                    <td class="bl"></td>
+                    <td class="h nb">FREE</td>
+                    <td class="h nb">$12/mo</td>
+                    <td class="h nb">$160/mo</td>
+                    <td class="h nb">$320/mo</td>
+                </tr>
+                <tr>
+                    <td class="bl"></td>
+                    <td class="nt">
+                        <button class="btn btn-success">Create repository</button>
+                    </td>
+                    <td class="nt">
+                        <button class="btn btn-success">Create repository</button>
+                    </td>
+                    <td class="nt">
+                        <button class="btn btn-success">Create repository</button>
+                    </td>
+                    <td class="nt">
+                        <button class="btn btn-success">Create repository</button>
+                    </td>
+                </tr>
+                </tfoot>
+
+            </table>
+
+        </div>
+    </div>
+
+
+
+

@@ -1,0 +1,350 @@
+<style>
+
+    .feature-toggle {
+        vertical-align: top;
+        padding: 0 !important;
+    }
+    .feature-text {
+        margin-left: 10px;
+        font-size: 13px;
+    }
+
+    .feature-text .title {
+        font-size: 16px;
+    }
+
+    .features-table td {
+        padding: 20px 8px !important;
+        border-top: none !important;
+        border-bottom: 1px solid #ddd;
+    }
+
+    .features-table tr:last-child td {
+        border-bottom: none !important;
+    }
+    .table.features-table {
+        margin-bottom: 0;
+    }
+    .nz-toggle-wrap {
+        margin: 0;
+    }
+</style>
+
+<div class="row">
+    <div class="col-xs-12">
+
+
+        <div class="alert alert-danger" role="alert" ng-if="featureMessage">{{ featureMessage }}</div>
+
+        <!--Security-->
+        <div class="panel panel-form">
+            <div class="panel-heading">
+                Security
+            </div>
+
+            <div class="panel-body">
+
+                <table class="table features-table">
+                    <tr>
+                        <td>
+                            <nz-toggle
+                                tip-false="'Disabled'"
+                                tip-true="'Enabled'"
+                                class="square"
+                                width="32"
+                                height="16"
+                                ng-disabled="togglesDisabled"
+                                ng-model="features.accessControlEnabled"></nz-toggle>
+                        </td>
+                        <td>
+                            <div class="feature-text">
+                                <h5 class="title">
+                                    Access control management
+                                </h5>
+
+                                <p>
+                                    Lets you control specific read/write access controls that apply to teams.
+                                    For example, developers might not have write access to production configuration.
+                                </p>
+
+                                <span ng-if="!isNew && repository.accessControlEnabled">
+                                    <a ui-sref="repo.teams({owner: repository.owner, name: repository.name })">
+                                        Manage teams, members and access controls
+                                    </a>
+                                </span>
+                            </div>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td>
+                            <nz-toggle
+                                    tip-false="'Disabled'"
+                                    tip-true="'Enabled'"
+                                    class="square"
+                                    width="32"
+                                    height="16"
+                                    ng-disabled="togglesDisabled"
+                                    ng-model="features.securityProfilesEnabled"></nz-toggle>
+                        </td>
+                        <td>
+                            <div class="feature-text">
+                                <h5 class="title">
+                                    Security groups & value encryption
+                                </h5>
+
+                                <div class="alert alert-danger" role="alert" ng-if="sgMessage">{{ sgMessage }}</div>
+
+                                <div class="alert alert-warning" role="warning" ng-if="activeProfiles">
+                                    <p>
+                                        This repository has {{ activeProfiles }} active Security-Profile(s) defined.<br>
+                                        Before disabling security profiles you must disassociate all property keys from
+                                        existing security profiles.
+                                    </p>
+                                </div>
+
+                                <p>
+                                    Data you want to keep private is password-protected and optionally encrypted.
+                                    Applications or users with the password for specific security profiles have access to the data.
+                                </p>
+
+                                <span ng-if="!isNew && repository.securityProfilesEnabled">
+                                    <a ui-sref="repo.security-profiles({owner: repository.owner, name: repository.name })">
+                                        Manage security profiles
+                                    </a>
+                                </span>
+
+                            </div>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+
+        <!--API Settings-->
+        <div class="panel panel-form">
+            <div class="panel-heading">
+                API Settings
+            </div>
+
+            <div class="panel-body">
+
+                <table class="table features-table">
+
+                    <tr>
+                        <td>
+                            <nz-toggle
+                                    tip-false="'Disabled'"
+                                    tip-true="'Enabled'"
+                                    class="square"
+                                    width="32"
+                                    height="16"
+                                    ng-disabled="togglesDisabled"
+                                    ng-model="features.tokenlessAPIPull"></nz-toggle>
+                        </td>
+                        <td>
+                            <div class="feature-text">
+
+                                <h5 class="title">
+                                    Allow API PULL without a token
+                                </h5>
+
+                                <p>
+                                    If enabled, API PULL request without a token is allowed.  In this case,
+                                    <span class="mono">[accountName]/[repositoryName]</span> needs to be appended
+                                    to the request URL.
+                                </p>
+
+                            </div>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td>
+                            <nz-toggle
+                                    tip-false="'Disabled'"
+                                    tip-true="'Enabled'"
+                                    class="square"
+                                    width="32"
+                                    height="16"
+                                    ng-disabled="togglesDisabled"
+                                    ng-model="features.tokenlessAPIPush"></nz-toggle>
+                        </td>
+                        <td>
+                            <div class="feature-text">
+
+                                <h5 class="title">
+                                    Allow API PUSH without a token
+                                </h5>
+
+                                <p>
+                                    If enabled, API PUSH request without a token is allowed.  In this case,
+                                    <span class="mono">[accountName]/[repositoryName]</span> needs to be appended
+                                    to the request URL.
+                                </p>
+
+                            </div>
+                        </td>
+                    </tr>
+
+                </table>
+            </div>
+        </div>
+
+        <!--Context Settings-->
+        <div class="panel panel-form">
+            <div class="panel-heading">
+                Context Settings
+            </div>
+
+            <div class="panel-body">
+
+                <table class="table features-table">
+                    <tr>
+                        <td>
+                            <nz-toggle
+                                tip-false="'Disabled'"
+                                tip-true="'Enabled'"
+                                class="square"
+                                width="32"
+                                height="16"
+                                ng-disabled="togglesDisabled"
+                                ng-model="features.contextClustersEnabled"></nz-toggle>
+                        </td>
+                        <td>
+                            <div class="feature-text">
+                                <h5 class="title">
+                                    Context grouping
+                                </h5>
+
+                                <div class="alert alert-danger" role="alert" ng-if="ccMessage">{{ ccMessage }}</div>
+
+                                <div class="alert alert-warning" role="warning" ng-if="activeClusters">
+                                    <p>
+                                        This repository has {{ activeClusters }} active clusters.
+                                        Before disabling Context Clusters, remove clusters, or remove their associations to nodes.
+                                    </p>
+                                </div>
+
+                                <p>
+                                    Grouping of context items allows greater control over abstraction for shared
+                                    configuration elements.
+                                </p>
+                            </div>
+                        </td>
+                    </tr>
+
+
+                    <tr>
+                        <td>
+                            <nz-toggle
+                                    tip-false="'Disabled'"
+                                    tip-true="'Enabled'"
+                                    class="square"
+                                    width="32"
+                                    height="16"
+                                    ng-disabled="togglesDisabled"
+                                    ng-model="features.adminContextControlled"></nz-toggle>
+                        </td>
+                        <td>
+                            <div class="feature-text">
+                                <h5 class="title">
+                                    Context elements managed by
+                                    <span ng-if="features.isPersonal">the repository owner</span>
+                                    <span ng-if="!features.isPersonal">admins and owners only</span>
+                                </h5>
+
+                                <div class="alert alert-danger" role="alert" ng-if="ccMessage">{{ ccMessage }}</div>
+
+                                <p ng-if="features.isPersonal">
+                                    If enabled, only the owner of this repository can
+                                    can add/edit/delete context elements for this repository.
+                                </p>
+
+                                <p ng-if="!features.isPersonal">
+                                    If enabled, only admins and owners of the organization "{{ repo.owner }}"
+                                    can add/edit/delete context elements for this repository.
+                                </p>
+                            </div>
+                        </td>
+                    </tr>
+
+                </table>
+
+
+            </div>
+        </div>
+
+        <!--Key-Value Settings-->
+        <div class="panel panel-form">
+            <div class="panel-heading">
+                Key-Value Settings
+            </div>
+
+            <div class="panel-body">
+
+                <table class="table features-table">
+
+                    <tr>
+                        <td>
+                            <nz-toggle
+                                    tip-false="'Disabled'"
+                                    tip-true="'Enabled'"
+                                    class="square"
+                                    width="32"
+                                    height="16"
+                                    ng-disabled="togglesDisabled"
+                                    ng-model="features.valueTypeEnabled"></nz-toggle>
+                        </td>
+                        <td>
+                            <div class="feature-text">
+
+                                <h5 class="title">
+                                    Value data-type enforcement
+                                </h5>
+
+                                <div class="alert alert-danger" role="alert" ng-if="vdtMessage">
+                                    <p>{{ vdtMessage }}</p>
+
+                                    <p class="padded-top" ng-if="keys">
+                                        This repository has {{ keys.length }} property keys that use non-Text value-data-type.<br>
+                                        Before disabling value-data-types, switch all property keys to Text.
+                                    </p>
+
+                                </div>
+
+
+                                <p>
+                                    Control the input format and display per key, and allow client to pull type-specific
+                                    values (i.e. Integer, Boolean, List, etc.)
+                                </p>
+
+                            </div>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+
+
+        <div class="padded-top" ng-if="!hideFeaturesBtns">
+            <button type="button"
+                    tabindex="12"
+                    ng-click="saveFeatures()"
+                    class="btn btn-success">
+                Save changes
+            </button>
+
+            <button type="button"
+                    tabindex="15"
+                    ng-click="cancelFeatures()"
+                    class="btn btn-default">
+                Reset
+            </button>
+        </div>
+
+    </div>
+
+</div>
+
+

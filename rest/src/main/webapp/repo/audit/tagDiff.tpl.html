@@ -1,0 +1,59 @@
+<div ng-if="record.revType != 'Modify'">
+
+    <div class="single-add" ng-if="record.revType == 'Add'"></div>
+    <div class="single-del" ng-if="record.revType == 'Delete'"></div>
+    <div class="table-content">
+
+        <div ng-show="entry.readme != ''">
+            <span class="readme" ng-bind-html="entry.readme | linky:'_blank'"></span>
+        </div>
+
+        <div>
+            <span class="f-key name">Tag name: </span>
+            <span class="f-value">{{ entry.name }}</span>
+        </div>
+
+
+        <div>
+            <span class="diff tag-dt">{{ entry.ts | amDateFormat:tsFormat }} <span class="tz">Local time</span></span>
+        </div>
+
+    </div>
+
+</div>
+
+
+<div ng-if="record.revType == 'Modify'">
+
+    <pre class="diff semantic readme" ng-if="readmeDiff"
+         line-diff
+         left-obj="diff.readme ? diff.readme : ''"
+         right-obj="entry.readme ? entry.readme : ''"></pre>
+
+    <div class="noselect"></div>
+    <div class="table-content">
+
+        <div ng-if="showReadme">
+            <span ng-if="!readmeDiff" class="readme" ng-bind-html="entry.readme | linky:'_blank'"></span>
+        </div>
+
+        <div>
+            <span class="f-key name">Tag name: </span>
+            <span class="f-value" ng-if="nameChange">
+                <span class="diff semantic" semantic-diff left-obj="diff.name" right-obj="entry.name"></span>
+            </span>
+            <span class="f-value" ng-if="!nameChange">{{ entry.name }}</span>
+        </div>
+
+        <div ng-if="!tsChange">
+            <span class="diff tag-dt">{{ entry.ts | amDateFormat:tsFormat }} <span class="tz">Local time</span></span>
+        </div>
+
+    </div>
+
+    <div ng-if="tsChange">
+        <pre class="diff val tag-dt" line-diff left-obj="ot" right-obj="ct"></pre>
+    </div>
+
+
+</div>

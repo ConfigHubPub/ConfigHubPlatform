@@ -1,0 +1,43 @@
+<div>
+    <div class="bs-callout bs-callout-danger" ng-show="message">{{ message }}</div>
+
+    <h3>{{ isNew ? 'Create new ' : 'Edit '}}
+        <a href ui-sref="repo.context({owner: $stateParams.owner, name: repoName })">
+            {{ ci.depthLabel | lowercase }}</a> context item
+    </h3>
+
+    <div>Context item used by {{ ci.count }} properties </div>
+
+    <div class="chForm standalone">
+
+        <div class="section">
+
+            <div class="ie-readme">
+
+                <span class="readme" ng-if="!isCommentEnabled"><a href ng-click="enableComment()">Add comment</a></span>
+                <textarea ng-if="isCommentEnabled"
+                          ui-keydown="{esc: 'disableEditor()'}"
+                          ngEscape="disableEditor()"
+                          placeholder="Comment"
+                          ng-model="comment"
+                          tabindex="1"
+                          class="msd-elastic form-control form-value no-glow readme"></textarea>
+            </div>
+
+            <input type="text"
+                   autofocus="autofocus"
+                   placeholder="{{ ci.depthLabel }} name"
+                   ng-model="ci.name"
+                   class="form-control">
+
+            <div class="control-buttons">
+                <a tabindex="3" class="btn btn-default" ng-click="revert()">Cancel</a>
+                <a tabindex="4" ng-click="save()" class="btn btn-success pad-left">{{ isNew ? 'Save' : 'Update'}} context item</a>
+
+                <a ng-if="!isNew" tabindex="5" class="btn btn-danger pull-right" ng-click="delete()">Delete</a>
+            </div>
+
+        </div>
+
+    </div>
+</div>

@@ -1,0 +1,34 @@
+<div class="depth-header">
+    <div ng-if="!labelEditor" class="context-label">
+        {{ getLabel() }}
+        &nbsp;/&nbsp;<a href ng-click="editLabel()" tooltip="Rename {{ label }}">edit</a>
+        &nbsp;/&nbsp;<a href
+                        ui-sref="repo.newContextItem({owner: $stateParams.owner, name: repoName, depthLabel: getLabel() })"
+                        tooltip="Create new {{ label }}">new</a>
+    </div>
+    <div ng-if="labelEditor" class="context-label context-label-form">
+
+        <form name="labelForm">
+            <div class="input-group">
+                <input type="text"
+                       class="form-control label-input"
+                       name="{{ depth.depth }}"
+                       autofocus="autofocus"
+                       ui-keydown="{esc: 'disableEdit()'}"
+                       ngEscape="disableEdit()"
+                       ng-model="label">
+
+                <div class="input-group-btn">
+                    <button type="button"
+                            tooltip="Cancel label change"
+                            ng-click="disableEdit()"
+                            class="btn btn-default"><i class="fa fa-close"></i></button>
+                    <button type="button"
+                            tooltip="Save label"
+                            ng-click="updateLabel(label)"
+                            class="btn btn-success"><i class="fa fa-check"></i></button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>

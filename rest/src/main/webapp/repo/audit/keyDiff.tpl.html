@@ -1,0 +1,102 @@
+<div ng-if="record.revType != 'Modify'">
+
+    <div class="single-add" ng-if="record.revType == 'Add'"></div>
+    <div class="single-del" ng-if="record.revType == 'Delete'"></div>
+    <div class="table-content">
+        <div ng-show="entry[1].readme != ''">
+            <span class="readme" ng-bind-html="entry[1].readme | linky:'_blank'"></span>
+        </div>
+        <div class="annotation" ng-if="entry[1].deprecated">@Deprecated</div>
+        <div class="annotation" ng-if="entry[1].vdt != 'Text'">
+            <i class="fa fa-code"></i>
+            <span class="cont">{{ entry[1].vdt }}</span>
+        </div>
+        <div class="annotation" ng-if="entry[1].spName">
+            <i class="fa fa-lock"></i>
+            <span class="cont">
+                <a href
+                   ui-sref="repo.security-profiles({owner: account, name: repoName, profile: entry.spName })">
+                    {{ entry[1].spName }}
+                </a>
+            </span>
+        </div>
+
+        <a class="key" ui-sref="repo.key({owner:account, name:repoName, key:entry.key})">{{ entry.key }}</a>
+
+        <div class="annotation push" ng-if="entry[1].pushEnabled">
+            <span class="cont"><i class="fa fa-upload"></i> Push</span>
+        </div>
+
+    </div>
+
+</div>
+
+
+<div ng-if="record.revType == 'Modify'">
+
+    <pre class="diff semantic readme" ng-if="readmeDiff"
+         line-diff
+         left-obj="diff.readme ? diff.readme : ''"
+         right-obj="entry[1].readme ? entry[1].readme : ''"></pre>
+
+    <div class="noselect"></div>
+    <div class="table-content">
+
+        <div ng-if="showReadme">
+            <span ng-if="!readmeDiff" class="readme" ng-bind-html="entry[1].readme | linky:'_blank'"></span>
+        </div>
+
+        <div ng-if="objKeyPresent(diff, 'pushEnabled')">
+            <span class="diff semantic annotation"
+                  semantic-diff
+                  left-obj="diff.pushEnabled ? 'Push' : ''"
+                  right-obj="entry[1].pushEnabled ? 'Push' : ''"></span>
+        </div>
+
+        <div ng-if="objKeyPresent(diff, 'deprecated')">
+            <span class="diff semantic annotation"
+                  semantic-diff
+                  left-obj="diff.deprecated ? '@Deprecated' : ''"
+                  right-obj="entry[1].deprecated ? '@Deprecated' : ''"></span>
+        </div>
+
+        <div ng-if="showVdt">
+            <div class="diff semantic annotation">@Type:
+                <span ng-if="vdtDiff">
+                    <del class="diff semantic cont">{{ diff.vdt ? diff.vdt : '' }}</del>
+                    <ins class="diff semantic cont">{{ entry[1].vdt ? entry[1].vdt : '' }}</ins>
+                </span>
+                <span ng-if="!vdtDiff && entry[1].vdt != 'Text'">
+                    <span class="cont" ng-if="!vdtDiff">{{ entry[1].vdt }}</span>
+                </span>
+            </div>
+        </div>
+
+        <div ng-if="showSp">
+            <div class="diff annotation">
+                <i class="fa fa-lock"></i>
+                <span semantic-diff ng-if="spDiff"
+                      class="semantic cont"
+                      left-obj="diff.spName ? diff.spName : ''"
+                      right-obj="entry[1].spName ? entry[1].spName : ''"></span>
+                <span class="cont" ng-if="!spDiff">
+                    <a href
+                       ui-sref="repo.security-profiles({owner: account, name: repoName, profile: entry.spName })">
+                        {{ entry[1].spName }}
+                    </a>
+                </span>
+            </div>
+        </div>
+
+
+
+        <a ng-if="!keyDiffSet"
+           class="key"
+           ui-sref="repo.key({owner:account, name:repoName, key:entry.key})">{{ entry.key }}</a>
+
+    </div>
+    <pre ng-if="keyDiffSet" class="diff key" line-diff left-obj="diff.key" right-obj="''"></pre>
+    <pre ng-if="keyDiffSet" class="diff key" line-diff left-obj="''" right-obj="entry.key"></pre>
+
+
+</div>

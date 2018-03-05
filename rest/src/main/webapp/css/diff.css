@@ -1,0 +1,501 @@
+.record .context * {
+    font-size: 12px;
+}
+.record .file
+{
+    font-family: Consolas, "Liberation Mono", Menlo, Courier, monospace;
+    font-size: 12px;
+}
+
+pre.diff {
+    display: table !important;
+}
+
+.diff.readme {
+    white-space: nowrap;
+    overflow: scroll;
+
+}
+
+.password-change {
+    position: relative;
+    top: 5px;
+    margin: 5px 0;
+}
+
+.password-change:after {
+    content: 'Password changed!';
+    background-color: #fff699;
+    border: none;
+    color: #333;
+    border-radius: 0;
+    font-weight: 600;
+    padding: 2px 10px;
+    margin: 5px 0 5px -10px;
+}
+
+.record-header {
+    background-color: #fff;
+    border-bottom: 1px solid #eee;
+    font-size: 12px;
+    color: #333;
+    padding: 2px 15px;
+
+}
+
+.padded {
+    padding-left: 15px !important;
+    padding-right: 15px !important;
+}
+
+.f-key.name {
+    font-weight: 600;
+    /*color: #a71d5d;*/
+}
+.f-key {
+    line-height: 20px;
+    color: #333;
+    /*a71d5d;*/
+}
+.f-value {
+    padding-left: 5px;
+    font-weight: 400;
+    line-height: 20px;
+}
+
+.dropdown-menu>.active>a {
+    background-color: cornflowerblue;
+}
+
+.select-check {
+    padding: 2px 0;
+    margin-left: 15px !important;
+    margin-right: -5px;
+}
+
+.obj-type {
+    font-weight: 600;
+}
+
+.dlbl:before {
+    color: #b1b1b1;
+    font-family: FontAwesome;
+    font-weight: normal;
+    font-style: normal;
+    width: 18px;
+    display: inline-block;
+    text-align: center;
+}
+
+.obj-type:before
+{
+    color: #b1b1b1;
+    font-family: FontAwesome;
+    padding-right: 8px;
+    font-weight: normal;
+    font-size: 18px;
+    float: left;
+    position: relative;
+    top: -2px;
+}
+
+.dlbl.repo:before,
+.obj-type.repo:before {
+    content: "\f013";
+}
+
+.dlbl.props:before,
+.obj-type.props:before {
+    content: "\f085";
+}
+
+.dlbl.files:before,
+.obj-type.files:before {
+    content: "\f0f6";
+}
+
+.dlbl.cmp:before,
+.obj-type.cmp:before {
+    content: "\f24e";
+}
+
+.dlbl.security:before,
+.obj-type.security:before {
+    content: "\f023";
+}
+
+.dlbl.tags:before,
+.obj-type.tags:before {
+    content: "\f02c";
+}
+
+.dlbl.pull:before,
+.obj-type.pull:before {
+    content: "\f21e";
+}
+
+.dlbl.token:before,
+.obj-type.token:before {
+    content: "\f0a3";
+}
+
+.dlbl.team:before,
+.obj-type.team:before {
+    content: "\f0c0";
+}
+
+.panel-diff .panel-body {
+    background-color: #fff;
+    padding: 0;
+}
+
+.panel-diff .panel-body h5 {
+    font-weight: normal;
+}
+
+.panel-diff {
+    margin-bottom: 30px;
+    border: 1px solid #ddd;
+    -webkit-border-radius: 3px 3px 0 0;
+    -moz-border-radius: 3px 3px 0 0;
+    border-radius: 3px 3px 0 0;
+}
+
+.panel-diff .panel-body {
+    overflow-x: auto;
+    overflow-y: hidden;
+    border: none;
+}
+
+.panel-diff .panel-heading {
+    font-size: 13px;
+    font-weight: normal;
+    padding: 12px 15px 10px;
+    background-color: #f7f7f7;
+    border: none;
+    border-bottom: 1px solid #eee;
+    color: #333;
+}
+
+.panel-diff .panel-comment {
+    background-color: #fbfbfb;
+    border-bottom: 1px solid #eee;
+    font-size: 12px;
+    color: #666;
+    padding: 7px;
+}
+
+.del, .ins {
+    display: table-row;
+}
+
+.change-comment a {
+    font-size: 12px;
+}
+.change-comment:before {
+    /*content: "\f10d";*/
+
+    content: "\f27b";
+    color: #bcc7d7;
+    font-family: FontAwesome;
+    padding-right: 5px;
+}
+
+.change-comment .comment {
+    font-family: Consolas, "Liberation Mono", Menlo, Courier, monospace;
+}
+
+
+.panel-diff .panel-footer {
+    font-size: 11px;
+    font-family: Consolas, "Liberation Mono", Menlo, Courier, monospace;
+}
+
+
+.record.last-record .a-record {
+    border-bottom: none;
+    padding: 0;
+}
+
+.record .a-record {
+    padding: 0;
+    border-bottom: 3px double #ddd;
+}
+
+.ctxes:before {
+    border-right: 1px solid #eee;
+    background-color: #edf2f9;
+    color: #333;
+    padding: 1px 10px;
+    font-family: Consolas, "Liberation Mono", Menlo, Courier, monospace;
+    font-size: 12px !important;
+    margin-right: 10px;
+    max-width: 27px;
+    width: 27px;
+    display: inline-block;
+
+}
+
+.table-content .tag-dt {
+    font-size: 11px;
+    padding-top: 2px;
+}
+
+.diff.tag-dt .tz {
+    font-weight: normal;
+}
+
+.table-content.ctxes {
+    padding: 5px 10px;
+}
+
+.ctxes div.row {
+    margin-top: 2px;
+    margin-bottom: 2px;
+}
+
+pre.diff {
+    padding: 0;
+    background-color: transparent;
+    border: none;
+    border-radius: 0;
+    margin: 0;
+    width: 100%;
+}
+
+pre.diff.readme {
+    font-family: Consolas, "Liberation Mono", Menlo, Courier, monospace;
+    font-size: 12px;
+    color: #969896 !important;
+    /*padding-bottom: 5px;*/
+}
+
+pre.diff.val {
+    font-family: Consolas, "Liberation Mono", Menlo, Courier, monospace;
+}
+
+pre.diff.key div,
+pre.diff.val div
+{
+    line-height: 18px;
+}
+
+.ins {
+    background: #eaffea;
+}
+
+ins {
+    background: #a6f3a6;
+}
+
+
+.del {
+    background: #ffecec;
+}
+
+del {
+    background: #f8cbcb;
+}
+
+.ctx-diff {
+    font-size: 11px;
+}
+
+.semantic.ins, ins.semantic, .semantic ins,
+.semantic.del, del.semantic, .semantic del {
+    line-height: 18px;
+}
+
+div.noselect,
+div.single-add,
+div.single-del,
+.table-content {
+    display: table-cell;
+    vertical-align: middle;
+}
+
+.match .noselect:before {
+    content: '.';
+    color: transparent;
+}
+
+.table-content {
+    margin: 0 !important;
+    padding: 10px;
+    font-size: 13px;
+}
+
+.table-content p.subtext {
+    font-size: 11px;
+    color: #666;
+    padding: 2px 0 0 0;
+    margin: 0;
+}
+
+.ins .noselect,
+.single-add {
+    background-color: #e3fee0 !important;
+}
+
+.del .noselect,
+.single-del {
+    background-color: #fbe9e9 !important;
+}
+
+.encrypted-val {
+    padding: 3px 0 2px 0 !important;
+    color: #333 !important;
+}
+
+a:hover .noselect,
+a .noselect {
+    text-decoration: none;
+}
+
+.single-add, .single-del {
+    padding: 2px 15px;
+}
+
+.single-add:before {
+    content: '+';
+}
+
+.single-del:before {
+    content: '-';
+    /*color: #555;*/
+    /*font-family: FontAwesome;*/
+}
+
+.encrypted-val:before {
+    font-family: FontAwesome;
+    content: '\f023';
+    font-size: 11px;
+}
+
+.single-add,
+.single-del,
+.encrypted-val,
+.noselect {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    background-color: #f8fafd;
+    color: #333;
+    padding: 1px 0px;
+    text-align: center;
+    font-family: Consolas, "Liberation Mono", Menlo, Courier, monospace;
+    font-size: 12px !important;
+    margin-right: 10px;
+    max-width: 27px;
+    min-width: 27px;
+    width: 27px;
+    display: inline-block;
+}
+
+.revision {
+    color: #777;
+    font-size: 11px;
+}
+
+
+
+/*------------------------------------------------------*/
+
+
+.cmp-attn {
+    background: #fcb7bb;
+    border-color: #D47472 !important;
+    height: 25px;
+}
+
+.cmp-mod {
+    background: #fcd051;
+    border-color: #fcd051 !important;
+}
+.cmp-mod-remove {
+    background: rgba(252, 208, 81, 0.34);
+}
+.cmp-mod-add {
+    background: rgba(252, 208, 81, 0.34);
+}
+.cmp-blank {
+    background-color: #fde8e9;
+}
+
+.cmp-attn, .cmp-blank {
+    -webkit-background-size: 5px 5px;
+    -moz-background-size: 5px 5px;
+    -o-background-size: 5px 5px;
+    background-size: 5px 5px;
+}
+
+.cmp-col {
+    vertical-align: top;
+}
+.cmp-col-key {
+    vertical-align: bottom !important;
+    line-height: 1.55 !important;
+}
+.cmp-col.left { padding: 0 10px; }
+.cmp-col.right { padding: 0 0 0 10px; }
+
+.cmp-col.left,
+.cmp-col.right {
+    width: 50% !important;
+    min-width: 50% !important;
+    max-width: 50% !important;
+}
+
+.cmp-sep {
+    width: 1% !important;
+    min-width: 1% !important;
+    max-width: 1% !important;
+}
+
+.cmp-sep.vals {
+    border: 1px solid #efefef;
+    border-top: none;
+    border-bottom: none;
+}
+
+.cmp-sep.no-br {
+    border: none  !important;
+}
+
+table.cmp, table.cmp tr>td {
+    border-top: 0;
+    border-bottom: 0;
+    padding: 0;
+    margin: 0;
+    font-size: 13px;
+    /*height: 100%;*/
+}
+
+
+/*---------------------------------------------------*/
+
+.diff-value {
+    border-top: 1px solid #eee !important;
+}
+
+.diff-value .d2h-diff-tbody > tr > td pre code
+{
+    padding: 0;
+}
+
+.diff-value .d2h-diff-tbody > tr > td pre {
+    display: inline-table !important;
+    padding: 0;
+    margin: 0;
+    background-color: transparent;
+    border: none;
+    line-height: 20px;
+}
+
+.diff-code-line {
+    background-color: #fee8e9;
+}
+

@@ -1,0 +1,88 @@
+.ui-switch {
+    background: #fff;
+    border: 1px solid #a13a31;
+    position: relative;
+    display: inline-block;
+    box-sizing: content-box;
+    overflow: visible;
+    width: 52px;
+    height: 17px;
+    padding: 0px;
+    margin: 0px;
+    -webkit-border-radius: 3px;
+    -moz-border-radius: 3px;
+    border-radius: 3px;
+    cursor: pointer;
+    /*box-shadow: rgb(223, 223, 223) 0px 0px 0px 0px inset;*/
+    transition: 0.1s ease-out all;
+    -webkit-transition: 0.1s ease-out all;
+    top: -1px;
+    background-color: #e15144;
+
+    -webkit-box-shadow: 0px 0px 3px -1px rgba(0,0,0,0.5) !important;
+    -moz-box-shadow: 0px 0px 3px -1px rgba(0,0,0,0.5) !important;
+    box-shadow: 0px 0px 3px -1px rgba(0,0,0,0.5) !important;
+
+}
+.ui-switch.wide {
+    width:100px;
+}
+.ui-switch  small {
+    background: #fff;
+    -webkit-border-radius: 2px;
+    -moz-border-radius: 2px;
+    border-radius: 2px;
+    width: 14px;
+    height: 17px;
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    transition: 0.1s ease-out all;
+    -webkit-transition: 0.1s ease-out all;
+}
+.ui-switch.checked {
+    border-color: #234b80;
+    background-color: #346fbe;
+}
+.ui-switch.wide.checked  {
+    left: 28px;
+}
+.ui-switch.small.checked {
+    left: 38px;
+}
+.ui-switch.wide.checked small {
+    left:86px;
+}
+.ui-switch .ui-switch-text {
+    font-size:12px;
+    font-weight: normal;
+    position: relative;
+    top: 0;
+}
+
+.ui-switch .off {
+    display:block;
+    z-index: 0;
+    color:#fff;
+}
+
+.ui-switch .on {
+    display:none;
+    z-index: 0;
+    color:#fff;
+}
+.ui-switch .off,
+.ui-switch .on {
+    position: relative;
+    top: 0;
+    text-align: center;
+
+    /*left: 22px;*/
+}
+.ui-switch.checked .off {
+    display:none;
+}
+.ui-switch.checked .on {
+    display:block;
+
+}

@@ -1,0 +1,15 @@
+Release:
+{{ tagLabel }}
+<a type="button"
+   style="font-weight: 500;"
+   class="no-hover"
+   data-placement="bottom-left"
+   data-content="popover.content"
+   data-template-url="/repo/editor/timePopover.tpl.html"
+   data-animation="am-flip-x"
+   data-auto-close="1"
+   bs-popover>
+    <span ng-if="timeLabel">{{ timeLabel | amDateFormat:tsFormat }}</span>
+    <span ng-if="!timeLabel">latest</span>
+    <i class="fa fa-caret-down"></i>
+</a>

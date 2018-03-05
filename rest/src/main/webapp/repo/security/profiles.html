@@ -1,0 +1,118 @@
+<div class="container padded-top30" ng-controller="SecureGroupsController">
+
+    <div bs-affix class="row">
+        <div class="col-xs-12">
+            <div class="main-editor toolbar">
+
+                <div class="row">
+
+                    <div class="col-sm-6 col-md-6">
+                        <div class="input-group input-group-sm" style="margin-bottom: 6px;">
+                            <span class="input-group-addon" id="sizing-addon3"><i class="fa fa-search"></i></span>
+                            <input type="text"
+                                   ng-model="searchQuery"
+                                   class="form-control input-sm"
+                                   autofocus="true"
+                                   spellcheck="false"
+                                   placeholder="Search by name..."
+                                   ng-model-options="{ updateOn: 'default blur', debounce: { 'default': 500, 'blur': 0 } }">
+                        </div>
+                    </div>
+
+                    <div class="col-sm-6 col-md-6 col-xs-12">
+                        <div role="group" class="text-right-not-xs"  style="margin-bottom: 6px;">
+
+                            <button style="margin-right: 3px;"
+                                    class="btn btn-primary btn-sm"
+                                    ng-disabled="ut < type.demo"
+                                    analytics-on="click"
+                                    analytics-event="New Security Group"
+                                    ng-click="newSecurityProfile()">
+                                <span class="fa fa-plus"></span>&nbsp; New
+                            </button>
+
+                            <div class="vertical-separator"></div>
+
+                            <dir-pagination-controls template-url="/repository/templates/dirPaginationSimple.tpl.html"></dir-pagination-controls>
+                        </div>
+                    </div>
+                </div>
+
+
+            </div>
+        </div>
+    </div>
+
+
+    <div class="loading entry" ng-if="!initialized">
+        <i class="fa fa-spinner fa-spin fa-3x fa-fw"></i>
+    </div>
+
+    <div class="alert alert-danger" ng-show="message">{{ message }}</div>
+
+    <div class="no-config" ng-if="!profiles || profiles.length == 0">
+        No security groups found.
+        <a ng-click="newSecurityProfile()">Create new</a> security group.
+    </div>
+
+    <div class="row" ng-show="initialized && profiles && profiles.length > 0">
+        <div class="col-lg-12">
+
+            <div class="col-lg-12">
+                <div class="row faux-table-header sorters">
+                    <div class="col-sm-5 col-12-xs"><a ng-click="sortBy('name')">Security Profile</a></div>
+                    <div class="col-sm-4 hidden-xs"><a ng-click="sortBy('cipher')">Cipher</a></div>
+                    <div class="col-sm-1 hidden-xs"><a ng-click="sortBy('keys')">Keys</a></div>
+                    <div class="col-sm-1 hidden-xs"><a ng-click="sortBy('files')">Files</a></div>
+                    <div class="col-sm-1 hidden-xs"><a ng-click="sortBy('tokens')">Tokens</a></div>
+                </div>
+            </div>
+
+            <div dir-paginate="profile in profiles | orderMixObjectBy:sortField:reverse | filter:searchQuery | itemsPerPage: pageSizes.selectedOption.id  track by profile.name"
+                 class="col-lg-12 faux-table access-log"
+                 current-page="currentPage">
+
+                <div class="row main link" ng-click="getProfile(profile)">
+                    <div class="col-xs-12 col-sm-5 file-link-col">
+                        <p class="item">
+                            <i class="fa fa-lock"></i>
+                            {{ profile.name }}
+                        </p>
+                    </div>
+                    <div class="col-sm-4 hidden-xs">
+                        <p class="item cipher">
+                            {{ profile.cipher }}
+                        </p>
+                    </div>
+                    <div class="col-sm-1 hidden-xs">
+                        <p class="item">
+                            {{ profile.keys }}
+                        </p>
+                    </div>
+                    <div class="col-sm-1 hidden-xs">
+                        <p class="item">
+                            {{ profile.files }}
+                        </p>
+                    </div>
+                    <div class="col-sm-1 hidden-xs">
+                        <p class="item">
+                            {{ profile.tokens }}
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="t-foot" ng-show="profiles.length > 10 && initialized">
+        <div class="summary">
+            <select class="form-control page-size input-xs"
+                    ng-options="option.name for option in pageSizes.sizes track by option.id"
+                    ng-change="pageSizeUpdate()"
+                    ng-model="pageSizes.selectedOption"></select>
+            / {{ profiles.length }} profiles
+        </div>
+        <dir-pagination-controls template-url="/repository/templates/dirPagination.tpl.html"></dir-pagination-controls>
+    </div>
+
+</div>

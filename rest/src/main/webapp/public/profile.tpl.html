@@ -1,0 +1,86 @@
+<div class="panel panel-form">
+
+    <div class="panel-heading">Public profile</div>
+    <div class="panel-body">
+
+        <div class="row">
+            <div class="col-sm-5">
+
+                <div id="profileMessages"></div>
+
+                <div class="form-group">
+                    <div class="form-field-head">
+                        <span ng-if="isPersonal">Your name:</span>
+                        <span ng-if="!isPersonal">Organization name:</span>
+                    </div>
+                    <input type="text"
+                           class="form-control"
+                           ng-model="account.name"
+                           tabindex="3">
+                </div>
+
+                <div class="form-group">
+                    <div class="form-field-head">
+                        Company:
+                    </div>
+                    <input type="text"
+                           class="form-control"
+                           ng-model="account.company"
+                           tabindex="4">
+                </div>
+
+                <div class="form-group">
+                    <div class="form-field-head">
+                        URL:
+                    </div>
+                    <input type="text"
+                           class="form-control"
+                           ng-model="account.website"
+                           tabindex="5">
+                </div>
+
+                <div class="row">
+                    <div class="col-sm-6">
+                        <div class="form-group">
+                            <div class="form-field-head">
+                                City:
+                            </div>
+                            <input type="text"
+                                   class="form-control"
+                                   ng-model="account.city"
+                                   tabindex="6">
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="form-group">
+                            <div class="form-field-head">
+                                Country:
+                            </div>
+                            <selectize config='countryConfig'
+                                       tabindex="7"
+                                       options="countries"
+                                       ng-model="account.country"></selectize>
+                        </div>
+                    </div>
+                </div>
+
+
+                <div>
+                    <button type="button"
+                            ng-click="updatePublicProfile()"
+                            tabindex="8"
+                            class="btn btn-success">
+                        Update profile
+                    </button>
+                </div>
+
+            </div>
+
+            <div class="col-md-6 col-md-offset-1">
+
+            </div>
+        </div>
+
+    </div>
+
+</div>

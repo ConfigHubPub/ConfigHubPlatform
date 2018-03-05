@@ -1,0 +1,444 @@
+
+<div class="slider" ng-if="token.edited && token.editable">
+
+    <div ng-class="{'token-form-edit inner-editor': token.isNew, 'token-edit': !token.isNew}">
+
+        <div class="form-horizontal">
+
+            <div class="alert alert-danger" role="alert" ng-if="errorMessage">{{ errorMessage }}</div>
+
+            <div class="ie-context form-group" ng-if="!token.isNew">
+                <div class="row">
+                    <div class="col-xs-2">
+                        <label class="form-field-head control-label"
+                               style="padding-left: 0"
+                               ng-class="{'text-left': !token.isNew}">Active:</label>
+                    </div>
+                    <div class="col-xs-10" style="width: 100px">
+                        <nz-toggle
+                                tip-false="'Disabled'"
+                                tip-true="'Active'"
+                                class="value-toggle square"
+                                ng-disabled="!token.editable && !isAdmin"
+                                width="32"
+                                height="16"
+                                ng-model="token.f.active"></nz-toggle>
+                    </div>
+                </div>
+            </div>
+
+            <!--Name-->
+            <div class="ie-context form-group">
+                <label class="form-field-head control-label"
+                       ng-class="{'col-sm-2': token.isNew, 'col-sm-12 text-left': !token.isNew}">
+                    Name:
+                </label>
+                <div ng-class="{'col-sm-10': token.isNew, 'col-sm-12': !token.isNew}">
+                    <input type="text"
+                           class="form-control"
+                           ng-model="token.f.name"
+                           tabindex="1"
+                           style="max-width: 300px;">
+
+                </div>
+            </div>
+
+            <!--Expiration-->
+            <div class="ie-context form-group">
+                <label class="form-field-head control-label"
+                       ng-class="{'col-sm-2': token.isNew, 'col-sm-12 text-left': !token.isNew}">
+                    Expiration:
+                </label>
+                <div ng-class="{'col-sm-10': token.isNew, 'col-sm-12': !token.isNew}">
+                    <button type="button" class="btn btn-sm btn-default" data-animation="am-flip-x" bs-dropdown
+                            aria-haspopup="true" aria-expanded="false">
+                        {{ token.f.expires ? 'Date selected' : 'Never' }}
+                        <span class="caret"></span>
+                    </button>
+
+                    <ul class="dropdown-menu" role="menu">
+                        <li><a ng-click="setExpirationNever()">Never</a></li>
+                        <li role="separator" class="divider"></li>
+                        <li><a ng-click="setExpirationDays(1)">1 day</a></li>
+                        <li><a ng-click="setExpirationDays(3)">3 days</a></li>
+                        <li><a ng-click="setExpirationDays(7)">7 days</a></li>
+                        <li><a ng-click="setExpirationDays(30)">30 days</a></li>
+                        <li role="separator" class="divider"></li>
+                        <li><a ng-click="setCustomExpiration()">Custom</a></li>
+                    </ul>
+
+                    <span class="expiration-date" ng-if="token.f.expires">{{ token.f.expires | amDateFormat:tsFormat }}</span>
+
+                    <div ng-show="showCustomDate" class="form-inline padded-top5">
+                        <input type="date"
+                               style="width: 100px;"
+                               class="form-control"
+                               ng-model="token.f.expires"
+                               placeholder="yyyy-MM-dd"
+                               required />
+
+                        <input type="time"
+                               style="width: 100px;"
+                               class="form-control"
+                               ng-model="token.f.expires"
+                               placeholder="HH:mm a"
+                               required />
+
+                    </div>
+
+                </div>
+            </div>
+
+            <hr>
+
+            <!--Key Push Override-->
+            <div class="ie-context form-group">
+                <label class="form-field-head control-label"
+                       ng-class="{'col-sm-2': token.isNew, 'col-sm-12 text-left': !token.isNew}">
+                    Key Push Override:
+                </label>
+                <div ng-class="{'col-sm-10': token.isNew, 'col-sm-12': !token.isNew}">
+
+                    <button type="button"
+                            class="btn btn-sm btn-default"
+                            data-animation="am-flip-x"
+                            ng-disabled="!token.editable"
+                            bs-dropdown
+                            aria-haspopup="true"
+                            aria-expanded="false">
+                        {{ token.f.forceKeyPushEnabled ? "Enabled" : "Disabled" }}
+                        <span class="caret"></span>
+                    </button>
+
+                    <ul class="dropdown-menu" role="menu">
+                        <li><a ng-click="selectPushOverride(false)">Disable</a></li>
+                        <li><a ng-click="selectPushOverride(true)">Enable</a></li>
+                    </ul>
+
+                    <p class="sub">
+                        On API Push, modify keys and values regardless of key's "Push" selection
+                    </p>
+
+                </div>
+            </div>
+
+            <!--Access Rules-->
+            <div class="ie-context form-group">
+                <label class="form-field-head control-label"
+                       ng-class="{'col-sm-2': token.isNew, 'col-sm-12 text-left': !token.isNew}">
+                    Push Access Rules:
+                </label>
+                <div ng-class="{'col-sm-10': token.isNew, 'col-sm-12': !token.isNew}">
+
+                    <div ng-show="isAdmin">
+                        <button type="button"
+                                class="btn btn-sm btn-default"
+                                data-animation="am-flip-x"
+                                ng-disabled="!token.editable"
+                                bs-dropdown
+                                aria-haspopup="true"
+                                aria-expanded="false">
+                            {{ token.f.rulesTeam ? token.f.rulesTeam : 'None' }}
+                            <span class="caret"></span>
+                        </button>
+
+                        <ul class="dropdown-menu" role="menu">
+                            <li><a ng-click="setAccessRulesTeam(null)">None</a></li>
+
+                            <li role="separator" class="divider"></li>
+                            <li class="dropdown-header">Choose a Team</li>
+                            <li ng-repeat="(team, attribs) in teams">
+                                <a ng-click="setAccessRulesTeam(team)">{{ team }}</a>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <div ng-show="!isAdmin">
+                        <strong>Team:</strong> {{ teamMember }}
+                    </div>
+
+                    <p class="sub">
+                        On API Push, access rules defined for selected team will be enforced
+                    </p>
+
+                </div>
+            </div>
+
+            <hr>
+
+            <!--Security Groups-->
+            <div class="ie-context form-group">
+                <label class="form-field-head control-label"
+                       ng-class="{'col-sm-2': token.isNew, 'col-sm-12 text-left': !token.isNew}">
+                    Security Groups:
+                </label>
+                <div ng-class="{'col-sm-10': token.isNew, 'col-sm-12': !token.isNew}">
+
+                    <selectize config='SGConfig'
+                               options="groups"
+                               ng-model="token.f.sps"></selectize>
+
+                    <p class="sub">
+                        On API Pull, decrypt files and values assigned to these security groups
+                    </p>
+
+                </div>
+            </div>
+
+            <!--Visible By-->
+            <div class="ie-context form-group">
+                <label class="form-field-head control-label"
+                       ng-class="{'col-sm-2': token.isNew, 'col-sm-12 text-left': !token.isNew}">
+                    Used By:
+                </label>
+                <div ng-class="{'col-sm-10': token.isNew, 'col-sm-12': !token.isNew}">
+
+
+
+                    <button type="button"
+                            class="btn btn-sm btn-default"
+                            data-animation="am-flip-x"
+                            bs-dropdown
+                            ng-disabled="!token.editable"
+                            aria-haspopup="true"
+                            aria-expanded="false">
+                            <span ng-switch="token.f.managedBy">
+                                <span ng-switch-when="User">
+                                    <span ng-if="u.username == token.f.user">Only you</span>
+                                    <span ng-if="u.username != token.f.user">{{ token.f.user }}</span>
+                                </span>
+                                <span ng-switch-when="Admins">Admins / Owners</span>
+                                <span ng-switch-when="All">Everyone</span>
+                                <span ng-switch-when="Team">{{ token.f.managingTeam }}</span>
+                            </span>
+
+                        <span class="caret"></span>
+                    </button>
+
+
+
+                    <ul class="dropdown-menu" role="menu">
+                        <li><a ng-click="selectVisibleByAuthor()">Only you</a></li>
+
+                        <li ng-show="isAdmin" role="separator" class="divider"></li>
+                        <li ng-show="isAdmin" ng-class="{'disabled': !isAdmin}"><a
+                                ng-click="selectVisibleByAdmins()">Admins / Owners</a></li>
+
+                        <li ng-show="isAdmin" role="separator" class="divider"></li>
+                        <li ng-show="isAdmin"><a ng-click="selectVisibleByEveryone()">Everyone</a></li>
+
+                        <li ng-show="isAdmin" role="separator" class="divider"></li>
+                        <li ng-show="isAdmin" class="dropdown-header">Choose a Team</li>
+                        <li ng-show="isAdmin" ng-repeat="(team, attribs) in teams"
+                            ng-class="{'disabled': !isAdmin && team != teamMember}">
+                            <a ng-click="selectVisibleByTeam(team)">{{ team }}</a>
+                        </li>
+                        <li ng-show="!isAdmin">
+                            <a ng-click="selectVisibleByTeam(teamMember)"><b>Team: </b>{{ teamMember }}</a>
+                        </li>
+                    </ul>
+
+
+                </div>
+            </div>
+
+            <div class="ie-value-controls row" ng-if="token.isNew">
+                <div class="col-sm-10 col-sm-offset-2">
+
+                    <button type="button"
+                            ng-click="save()"
+                            ng-disabled="ut < type.member"
+                            tabindex="8"
+                            class="btn btn-success">
+                        Create API token
+                    </button>
+
+                    <button type="button"
+                            ng-click="cancelAddToken(token)"
+                            tabindex="8"
+                            class="btn btn-default">
+                        Cancel
+                    </button>
+
+                </div>
+            </div>
+
+
+            <div class="padded-top30" ng-if="!token.isNew">
+                <button class="btn btn-success btn-sm"
+                        ng-click="save()"
+                        ng-disabled="ut < type.member"
+                        type="button">
+                    Update
+                </button>
+
+                <button class="btn btn-default btn-sm"
+                        ng-click="cancel()"
+                        type="button">
+                    Cancel
+                </button>
+
+                <div class="btn-group pull-right" role="group">
+                    <button type="button"
+                            class="btn btn-sm btn-danger dropdown-toggle"
+                            ng-disabled="!token.deletable || ut < type.member"
+                            bs-dropdown
+                            data-placement="bottom-right"
+                            aria-expanded="false">
+                        <i class="fa fa-trash"></i>
+                        <i class="fa fa-caret-down"></i>
+                    </button>
+                    <ul class="dropdown-menu delete" role="menu">
+                        <li><a ng-click="deleteToken(token)">Confirm delete</a></li>
+                    </ul>
+                </div>
+            </div>
+
+
+        </div>
+    </div>
+</div>
+
+
+
+
+
+
+<div class="slider token-element" ng-if="!token.edited || (token.edited && !token.editable)">
+
+    <div class="alert alert-danger" role="alert" ng-if="errorMessage">{{ errorMessage }}</div>
+
+    <div class="token-attribs">
+        <span class="token-attrib expired-token" ng-show="token.expired">Expired</span>
+        <span class="token-attrib private-token" ng-show="token.user == user().username">Personal Token</span>
+    </div>
+
+
+    <!--<div ng-if="token.expired" class="expired_label"><span>Expired</span></div>-->
+
+    <!--Token name-->
+    <div class="tk-name">
+        <span ng-if="token.name">{{ token.name }}</span>
+        <span ng-hide="hideTokenEdit">
+            / <a ng-click="editToken()" eat-click-if="ut < type.demo">edit</a>
+        </span>
+    </div>
+
+    <div class="create-use">
+        <span ng-class="{'enabled': token.active, 'disabled': !token.active }">{{ token.active ? 'Active' : 'Disabled' }}</span>
+        / created <span am-time-ago="token.createdOn"></span>
+    </div>
+
+
+    <!--Expiration-->
+    <div class="line-item">
+    <span>
+        <label class="form-field-head control-label">Expiration: </label>
+        <!--<span class="sps-head"></span>-->
+        <span ng-if="token.expires">{{  token.expires | amDateFormat:tsFormat }}</span>
+        <span ng-if="!token.expires">Never</span>
+    </span>
+    </div>
+
+    <hr>
+
+    <div class="line-item">
+    <span>
+        <label class="form-field-head control-label">Push Override: </label>
+        <span ng-class="{'disabled': !token.forceKeyPushEnabled, 'enabled': token.forceKeyPushEnabled}">{{ token.forceKeyPushEnabled ? 'Enabled' : 'Disabled'}}</span>
+    </span>
+    </div>
+
+    <div class="line-item">
+    <span>
+        <label class="form-field-head control-label">Push Access Rules: </label>
+        <span ng-if="!token.rulesTeam">--</span>
+        <a ng-if="token.rulesTeam"
+           ui-sref="repo.teams({owner: repository.owner, name: repository.name, team: token.rulesTeam })">{{ token.rulesTeam }}</a>
+    </span>
+    </div>
+
+    <hr>
+
+    <div class="line-item">
+    <span>
+        <label class="form-field-head control-label">Used By: </label>
+        <span ng-switch="token.managedBy">
+            <span ng-switch-when="User"><a class="user-prefix" ui-sref="owner({accountName: token.user})">{{ token.user }}</a></span>
+            <span ng-switch-when="Admins">Admins / Owners</span>
+            <span ng-switch-when="All">Everyone</span>
+            <span ng-switch-when="Team"><a
+                    ui-sref="repo.teams({owner: repository.owner, name: repository.name, team: token.managingTeam })">{{ token.managingTeam }}</a></span>
+        </span>
+    </span>
+    </div>
+
+
+    <div class="line-item slider">
+        <label class="form-field-head control-label">Security Groups:</label>
+        <span ng-show="!token.edited">
+        <span ng-if="!token.sps">--</span>
+        <span>
+            <span ng-repeat="sp in token.sps">
+                <a href ui-sref="repo.security-profiles({owner: account, name: repoName, profile: sp })">
+                    {{ sp }}</a><span ng-if="!$last">, </span>
+            </span>
+        </span>
+    </span>
+
+        <div ng-if="token.edited">
+
+            <selectize config='SGConfig'
+                       options="groups"
+                       ng-model="token.f.sps"></selectize>
+
+            <p class="sub">
+                On API Pull, decrypt files and values assigned to these security groups
+            </p>
+
+        </div>
+
+
+    </div>
+
+    <div ng-if="token.token && !token.edited" class="line-item">
+        <hr>
+        <pre select-on-click class="token-display">{{ token.token }}</pre>
+    </div>
+
+
+
+    <div ng-if="token.edited">
+
+
+        <button class="btn btn-success btn-sm"
+                ng-click="save()"
+                ng-disabled="ut < type.member"
+                type="button">
+            Update
+        </button>
+
+        <button class="btn btn-default btn-sm"
+                ng-click="cancel()"
+                type="button">
+            Cancel
+        </button>
+
+        <div class="btn-group pull-right" role="group">
+            <button type="button"
+                    class="btn btn-sm btn-danger dropdown-toggle"
+                    ng-disabled="!token.deletable || ut < type.member"
+                    bs-dropdown
+                    data-placement="bottom-right"
+                    aria-expanded="false">
+                <i class="fa fa-trash"></i>
+                <i class="fa fa-caret-down"></i>
+            </button>
+            <ul class="dropdown-menu delete" role="menu">
+                <li><a ng-click="deleteToken(token)">Confirm delete</a></li>
+            </ul>
+        </div>
+
+    </div>
+
+</div>

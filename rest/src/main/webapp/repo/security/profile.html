@@ -1,0 +1,242 @@
+<div class="padded-top30" ng-controller="SecureGroupController">
+
+    <div class="container">
+        <div class="token-form-edit">
+        <div class="inner-value-form" ng-if="initialized">
+            <div class="form-horizontal">
+
+                <div class="alert alert-danger" role="alert" ng-if="aProfile.message">{{ aProfile.message }}</div>
+
+                <div class="ie-context form-group" ng-class="{ 'has-error' : errorName }">
+                    <div class="row">
+                        <label class="form-field-head control-label col-sm-2"
+                               style="padding-left: 0">Security Group Name:</label>
+
+                        <div class="col-sm-6 ">
+                            <input type="text"
+                                   tabindex="11"
+                                   class="form-control"
+                                   ng-model="aProfile.name"
+                                   autofocus="autofocus"
+                                   required>
+                        </div>
+                    </div>
+                </div>
+
+
+                <div class="ie-context form-group">
+                    <div class="row">
+                        <label class="form-field-head control-label col-sm-2"
+                               style="padding-left: 0">Encryption Cipher:</label>
+
+                        <div class="col-sm-6 cipher-select">
+                            <selectize tabindex="10"
+                                       config='CipherConfig'
+                                       options="ciphers"
+                                       ng-model="aProfile.cipher"></selectize>
+
+                        </div>
+                    </div>
+                </div>
+
+                <div class="ie-value-controls row">
+                    <div class="col-sm-10 col-sm-offset-2">
+
+                        <div class="padded-top">
+                            <button type="button"
+                                    tabindex="12"
+                                    ng-click="updateProfile()"
+                                    ng-disabled="ut < type.member"
+                                    class="btn btn-success">
+                                Save changes
+                            </button>
+
+                            <button type="button"
+                                    tabindex="15"
+                                    ng-click="cancelEdit()"
+                                    class="btn btn-default">
+                                Cancel
+                            </button>
+
+                            <span class="btn-group pull-right">
+
+                                <button type="button"
+                                        class="btn btn-danger dropdown-toggle"
+                                        bs-dropdown
+                                        data-placement="bottom-right"
+                                        ng-disabled="ut < type.member"
+                                        aria-expanded="false">
+                                    <i class="fa fa-trash"></i>
+                                    <i class="fa fa-caret-down"></i>
+                                </button>
+                                <ul class="dropdown-menu delete pull-right" role="menu">
+                                    <li><a ng-click="deleteProfile()">Delete group</a></li>
+                                </ul>
+                            </span>
+
+                            <button type="button"
+                                    tabindex="13"
+                                    ng-click="changePassword()"
+                                    ng-disabled="ut < type.member"
+                                    class="btn btn-default pull-right margin-right5">
+                                <i class="fa fa-key margin-right5"></i>
+                                <span ng-if="isPrivAccount">Change / recover password</span>
+                                <span ng-if="!isPrivAccount">Change password</span>
+                            </button>
+
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    </div>
+
+    <div class="assignment-separator">Assignments</div>
+
+    <div ng-if="initialized" class="margin-top30 padded-left20 padded-right20">
+
+        <div class="row">
+
+            <!--Properties-->
+            <div class="col-xs-12 col-md-4" ng-controller="EditorController">
+                <div class="team-col">
+
+                    <h4><a ui-sref="repo.editor({owner: repository.owner, name: repository.name })">Properties</a></h4>
+
+                    <div class="alert alert-danger" role="alert" ng-if="aProfile.keyMessage">
+                        {{ aProfile.keyMessage }}
+                    </div>
+
+                    <div class="toolbar">
+                        <div class="row">
+
+                            <div class="col-xs-8 search" style="margin-top: 1px">
+                                <div class="input-group input-group-sm">
+                                    <span class="input-group-addon" id="sizing-addon3"><i class="fa fa-search"></i></span>
+                                    <input type="text"
+                                           ng-model="searchQuery"
+                                           ng-list=" "
+                                           ng-trim="false"
+                                           class="form-control input-sm"
+                                           autofocus="true"
+                                           spellcheck="false"
+                                           placeholder="Search keys..."
+                                           ng-model-options="{ updateOn: 'default blur', debounce: { 'default': 500, 'blur': 0 } }">
+                                </div>
+                            </div>
+
+                            <div class="col-xs-4">
+                                <div role="group" style="text-align: right">
+
+                                    <dir-pagination-controls
+                                            template-url="/repository/templates/dirPaginationSimple.tpl.html"></dir-pagination-controls>
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <div class="entries">
+
+                        <div class="loading" ng-if="!propertiesLoaded">
+                            <i class="fa fa-spinner fa-spin fa-3x fa-fw"></i>
+                        </div>
+
+                        <div class="padded-top" ng-if="propertiesLoaded && (!config || config.length == 0)">
+                            <span class="dim">No keys assigned to this security group.</span>
+                        </div>
+
+                        <div style="padding-top: 10px;">
+                            <div dir-paginate="entry in config | orderObjectBy:'key':reverse | keyFilter:searchQuery:true | itemsPerPage: pageSizes.selectedOption.id"
+                                 current-page="currentPage"
+                                 ng-if="propertiesLoaded">
+
+                                <div repo-entry entry="entry" ng-cloak></div>
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <div class="t-foot" ng-if="initialized && config.length > pageSize">
+                        <div class="summary">
+
+                            <select class="form-control page-size input-xs"
+                                    ng-options="option.name for option in pageSizes.sizes track by option.id"
+                                    ng-model="pageSizes.selectedOption"></select>
+                            / {{ config.length }} keys
+                        </div>
+                        <dir-pagination-controls template-url="/repository/templates/dirPagination.tpl.html"></dir-pagination-controls>
+                    </div>
+
+                </div>
+            </div>
+
+            <!--Files-->
+            <div class="col-xs-12 col-md-4">
+                <div class="team-col">
+                    <h4><a ui-sref="repo.files({owner: repository.owner, name: repository.name })">Files</a></h4>
+
+                    <div class="row">
+                        <div class="col-lg-12">
+
+                            <div class="col-lg-12">
+                                <div class="row faux-table-header sorters" style="margin-top: 0">
+
+                                    <div class="col-12-xs padded-left30">File name</div>
+
+                                </div>
+                            </div>
+
+                            <div class="no-config" ng-if="(!files || files.length == 0)">
+                                No files found
+                            </div>
+
+                            <div dir-paginate="file in files | orderMixObjectBy:sortField:reverse | filter:searchQuery | itemsPerPage: pageSizes.selectedOption.id  track by $index"
+                                 class="col-lg-12 faux-table access-log"
+                                 ng-show="files && files.length > 0"
+                                 current-page="currentPage">
+
+                                <div class="row main link" ng-click="getFile(file)">
+                                    <div class="col-xs-12 file-link-col">
+                                        <p class="item">
+                                            <i class="fa fa-file-text-o"></i>
+                                            <span class="file-link">{{ file.fullPath }}</span>
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!--Tokens-->
+            <div class="col-xs-12 col-md-4">
+                <div class="team-col">
+                <h4><a ui-sref="repo.tokens({owner: repository.owner, name: repository.name })">Tokens</a></h4>
+                <div ng-show="tokens && tokens.length > 0">
+
+                    <div ng-repeat="token in tokens | orderBy: 'name'">
+
+                        <div class="panel panel-default panel-token"
+                             ng-class="{'panel-warning': token.expire, 'user': token.managedBy == 'User', 'editable': token.editable}">
+                            <div class="panel-body">
+                                <div token></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+
+
+
+</div>

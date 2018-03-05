@@ -1,0 +1,54 @@
+<div ng-if="record.revType != 'Modify'">
+
+    <div class="single-add" ng-if="record.revType == 'Add'"></div>
+    <div class="single-del" ng-if="record.revType == 'Delete'"></div>
+    <div class="table-content">
+
+        <span class="f-key name">Team: </span>
+        <span class="f-value">{{ record.entry.name }}</span>
+
+    </div>
+
+</div>
+
+
+
+<div ng-if="record.revType == 'Modify'">
+
+    <div class="noselect"></div>
+    <div class="table-content">
+
+        <div>
+            <span class="f-key name">Team: </span>
+            <span class="f-value">{{ record.entry.name }}</span>
+        </div>
+
+        <div ng-if="objKeyPresent(diff, 'newMembers') || objKeyPresent(diff, 'removedMembers')">
+            <span class="f-key">Member change: </span>
+            <span class="f-value">
+                <del class="diff semantic" ng-repeat="u in diff.removedMembers">{{ u.un }}</del>
+                <ins class="diff semantic" ng-repeat="u in diff.newMembers">{{ u.un }}</ins>
+            </span>
+        </div>
+
+        <div ng-if="objKeyPresent(diff, 'unmatchedEditable')">
+            <span class="f-key">Rules setup: </span>
+            <span class="f-value">
+                <del class="diff semantic">{{ diff.unmatchedEditable ? 'Read/Write' : 'Read-Only' }}</del>
+                <ins class="diff semantic">{{ !diff.unmatchedEditable ? 'Read/Write' : 'Read-Only' }}</ins>
+                if matching rule is not found
+            </span>
+        </div>
+
+
+        <div ng-if="objKeyPresent(diff, 'stopOnFirstMatch')">
+            <span class="f-key">Rules setup: </span>
+            <span class="f-value">
+                <ins class="diff semantic">{{ genRuleProcessTypes[!diff.stopOnFirstMatch] }}</ins>
+            </span>
+        </div>
+
+
+    </div>
+
+</div>

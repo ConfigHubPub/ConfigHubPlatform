@@ -1,0 +1,105 @@
+<!--<link href="/repo/team/teams.css"  rel="stylesheet">-->
+
+<div class="container padded-top30 tokens">
+
+    <div ng-controller="TokenController">
+
+        <div bs-affix class="row">
+            <div class="col-xs-12">
+                <div class="main-editor toolbar">
+
+                    <div class="row">
+
+                        <div class="col-sm-6 col-md-6">
+                            <div class="input-group input-group-sm" style="margin-bottom: 6px;">
+                                <span class="input-group-addon" id="sizing-addon3"><i class="fa fa-search"></i></span>
+                                <input type="text"
+                                       ng-focus="searchFocus=true"
+                                       ng-blur="searchFocus=false;"
+                                       ng-model="searchQuery"
+                                       ng-list=" "
+                                       ng-trim="false"
+                                       ng-change="searchTokens(searchQuery)"
+                                       class="form-control input-sm"
+                                       autofocus="true"
+                                       spellcheck="false"
+                                       placeholder="Search by name, token, team or security..."
+                                       ng-model-options="{ updateOn: 'default blur', debounce: { 'default': 500, 'blur': 0 } }">
+                            </div>
+                        </div>
+
+                        <div class="col-sm-6 col-md-6 col-xs-12">
+                            <div role="group" class="text-right-not-xs"  style="margin-bottom: 6px;">
+
+                                <button class="btn btn-primary btn-sm"
+                                        ng-disabled="ut < type.demo"
+                                        analytics-on="click"
+                                        analytics-event="New Security Group"
+                                        ng-click="addToken()">
+                                    <span class="fa fa-plus"></span>&nbsp; New
+                                </button>
+                                <div class="vertical-separator"></div>
+
+                                <button
+                                        class="btn btn-sm btn-default only-icon"
+                                         bs-tooltip
+                                         data-title="Toggle all/resolved keys"
+                                         data-trigger="hover"
+                                         ng-model="showAll"
+                                         ng-change="showAllToggle()"
+                                         bs-checkbox>
+                                All
+                                </button>
+                                <div class="vertical-separator"></div>
+
+                                <dir-pagination-controls template-url="/repository/templates/dirPaginationSimple.tpl.html"></dir-pagination-controls>
+                            </div>
+                        </div>
+                    </div>
+
+
+                </div>
+            </div>
+        </div>
+
+        <div class="row padded-top">
+
+            <div class="col-xs-12">
+                <div ng-if="newTokenEnabled" class="slider">
+                    <div token ng-init="token=newToken"></div>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="row padded-top">
+            <div class="no-data" ng-show="initialized && tokens.length == 0">
+                There are no tokens defined for this repository.
+            </div>
+        </div>
+
+
+        <div ng-show="tokens && tokens.length > 0">
+
+            <div class="row">
+                <div ng-if="initialized"
+                     ng-repeat="tokenCol in tokens"
+                     class="col-xs-12 col-sm-6 col-md-4">
+
+                    <div ng-repeat="token in tokenCol">
+                        <div class="panel panel-default panel-token"
+                             ng-class="{'panel-warning': token.expire, 'user': token.managedBy == 'User', 'editable': token.token}">
+                            <div class="panel-body">
+                                <div token></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+        </div>
+
+
+    </div>
+</div>

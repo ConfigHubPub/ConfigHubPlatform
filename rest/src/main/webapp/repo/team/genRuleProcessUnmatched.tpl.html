@@ -1,0 +1,44 @@
+<div>
+    <div ng-if="!aTeam.d.isEditingUnprocessedMatch" class="slider">
+        <div class="edit-rule"><a href ng-click="editGenUnprocessedMatch()">edit</a></div>
+        <span class="rw" ng-if="aTeam.d.unmatchedEditable">Read/Write</span>
+        <span class="ro" ng-if="!aTeam.d.unmatchedEditable">Read-Only</span>
+        if matching rule is not found
+    </div>
+    <div ng-if="aTeam.d.isEditingUnprocessedMatch" class="slider">
+        <div class="tt">
+            <div class="cl bn r-conn">
+                <div class="btn-group" role="group">
+
+                    <button type="button"
+                            class="btn btn-sm btn-default"
+                            ng-class="{'ro': !aTeam.d.unmatchedEditable, 'rw': aTeam.d.unmatchedEditable }"
+                            bs-dropdown
+                            aria-haspopup="true"
+                            aria-expanded="false">
+                        {{ accessType[aTeam.d.unmatchedEditable ? 'rw' : 'ro'] }}
+                        <span class="caret"></span>
+                    </button>
+                    <ul class="dropdown-menu" role="menu">
+                        <li ng-repeat="(k, v) in accessType">
+                            <a href ng-click="aTeam.d.unmatchedEditable = k == 'rw'">{{ v }}</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <div class="cl if-tag nbl l-conn">if matching rule is not found</div>
+        </div>
+
+        <div class="tt ctrl-buttons">
+            <div>
+                <button type="button"
+                        class="btn btn-sm btn-success"
+                        ng-disabled="ut < type.admin"
+                        ng-click="updateGenUnprocessedMatch()">Update</button>
+                <button type="button"
+                        class="btn btn-sm btn-default"
+                        ng-click="cancelGenUnprocessedMatch()">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>

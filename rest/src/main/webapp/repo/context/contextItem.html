@@ -1,0 +1,396 @@
+<link href="/repo/context/contextItems.css"  rel="stylesheet">
+
+<div class="container padded-top30" ng-controller="ExistingCiController">
+    <div ng-if="initialized">
+
+        <div class="alert alert-danger" role="alert" ng-if="!canManageContext">
+            Only owners and administrators of this repository are allowed to manage context elements.
+        </div>
+
+        <div class="row">
+            <div class="col-xs-12 aTeam-head teams">
+                <h3 ng-if="!isNew">
+                    <span class="dim">{{ ci.depthLabel }}:</span>
+                    <strong>{{ ci.name }}</strong>
+                </h3>
+                <h3 ng-if="isNew">
+                    New <span class="dim">{{ ci.depthLabel }}</span>
+                </h3>
+
+                <span class="dim">
+                    / <a href ui-sref="repo.context({owner: account, name: repoName })">view all</a>
+                </span>
+
+            </div>
+        </div>
+
+
+        <div class="row">
+            <div class="col-md-5">
+
+                <div class="panel panel-form">
+                <div class="panel-body">
+
+                    <div class="alert alert-danger" role="alert" ng-if="errorMessage">{{ errorMessage }}</div>
+
+                    <div class="row">
+                        <div ng-class="{'col-xs-7' : ci.contextClustersEnabled, 'col-xs-12' : !ci.contextClustersEnabled}">
+                            <div class="form-group">
+                                <div class="form-field-head">
+                                    Name:
+                                </div>
+                                <input type="text"
+                                       class="form-control"
+                                       ng-model="$parent.newName"
+                                       autofocus="autofocus"
+                                       tabindex="1"
+                                       ng-change="validateNameChange()"
+                                       ng-disabled="!canManageContext"
+                                       requred>
+                            </div>
+                        </div>
+
+                        <div class="col-xs-5" ng-show="ci.contextClustersEnabled">
+                            <div class="form-group">
+                                <div class="form-field-head">
+                                    Type:
+                                </div>
+
+                                <button
+                                   data-animation="am-flip-x"
+                                   data-html="1"
+                                   class="btn btn-default"
+                                   bs-dropdown
+                                   ng-disabled="ut < type.member || !canManageContext"
+                                   data-placement="bottom-left"
+                                   aria-haspopup="true"
+                                   aria-expanded="false">
+                                    <span class="lgroup inline" ng-if="ci.type == 'Group'" style="margin-right: 5px;"></span>
+                                    <span class="lmember inline" ng-if="ci.type == 'Member'" style="margin-right: 5px;"></span>
+                                    {{ getCiType() }} <i class="fa fa-caret-down"></i>
+                                </button>
+                                <ul class="dropdown-menu ci-type">
+                                    <li>
+                                        <a href ng-click="setType('Standalone')">
+                                            Default
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href ng-click="setType('Group')">
+                                            <span class="lgroup inline"></span>&nbsp;&nbsp;
+                                            Context Group
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href ng-click="setType('Member')">
+                                            <span class="lmember inline"></span>&nbsp;&nbsp;
+                                            Group Member
+                                        </a>
+                                    </li>
+                                </ul>
+
+
+                            </div>
+                        </div>
+                    </div>
+
+                    <div ng-show="ci.contextClustersEnabled && !standalone" class="padded-top30">
+
+                        <style>
+                            .assignment-wrapper {
+                                padding: 1px 8px 3px 8px;
+                                margin-top: -2px;
+                                border: 1px solid #ddd;
+                                border-top: none;
+                                -webkit-border-radius: 0 0 2px 2px;
+                                -moz-border-radius: 0 0 2px 2px;
+                                border-radius: 0 0 2px 2px;
+                            }
+                        </style>
+
+
+
+                        <div class="form-group">
+
+                            <div class="slider" ng-hide="standalone">
+
+                                <div class="form-field-head">
+                                    <span ng-if="ci.type == 'Member'">Assign this context item to group(s):</span>
+                                    <span ng-if="ci.type == 'Group'">Assign member(s) to this context group:</span>
+                                </div>
+
+                                <div style="background-color: #fff;">
+                                    <div class="toolbar">
+                                        <div class="row">
+
+                                            <div class="col-xs-8 search" style="margin-top: 1px">
+                                                <div class="input-group input-group-sm">
+                                                    <span class="input-group-addon"><i class="fa fa-search"></i></span>
+                                                    <input type="text"
+                                                           ng-model="ciSearchQuery"
+                                                           ng-trim="false"
+                                                           class="form-control input-sm"
+                                                           autofocus="true"
+                                                           spellcheck="false"
+                                                           placeholder="Filter {{ ci.depthLabel | lowercase }}..."
+                                                           ng-model-options="{ updateOn: 'default blur', debounce: { 'default': 500, 'blur': 0 } }">
+                                                </div>
+                                            </div>
+
+                                            <div class="col-xs-4">
+                                                <div role="group" style="text-align: right">
+
+                                                    <button class="btn btn-sm btn-default only-icon"
+                                                            bs-tooltip
+                                                            data-title="Toggle all/assigned {{ ci.depthLabel }}"
+                                                            ng-model="showAllCis"
+                                                            ng-change="toggleAllCis()"
+                                                            bs-checkbox>
+                                                        All
+                                                    </button>
+                                                    <div class="vertical-separator"></div>
+
+                                                    <dir-pagination-controls
+                                                            pagination-id="cis"
+                                                            template-url="/repository/templates/dirPaginationSimple.tpl.html"></dir-pagination-controls>
+
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="assignment-wrapper">
+
+                                        <div class="no-data" ng-show="0 == iterableAssignments().length">
+                                            <span ng-if="assigned[ci.type].length == 0">
+                                                <span ng-if="isCluster()">
+                                                    There are no members assigned.
+                                                </span>
+                                                <span ng-if="isNode()">
+                                                    Not assigned to any context group.
+                                                </span>
+                                            </span>
+                                        </div>
+
+                                        <div dir-paginate="assigned in iterableAssignments() | orderObjectBy:'name':ciReverse | filter:ciSearchQuery | itemsPerPage:ciPageSizes.selectedOption.id:'cis'"
+                                             current-page="ciCurrentPage"
+                                             pagination-id="cis"
+                                             ng-show="initialized"
+                                             class="dot-separated-list">
+
+                                            <div class="listing dotted-bottom">
+
+                                                <div class="ci-type">
+                                                    <span class="lgroup list" ng-if="assigned.type == 'Group'"></span>
+                                                    <span class="lmember list" ng-if="assigned.type == 'Member'"></span>
+                                                </div>
+
+                                                <a class="context-key" ui-sref="repo.contextItem({owner: account, name: repoName, contextItem: assigned.name, depthLabel: ci.depthLabel })">{{ assigned.name }}</a>
+
+                                                <div class="key-ctrl pull-right">
+                                                    <div class="btn-group" ng-if="assigned.state == 1">
+                                                        <button type="button"
+                                                                class="btn btn-xs xss btn-success"
+                                                                ng-click="assign(assigned, 'add')"
+                                                                ng-disabled="ut < type.member"
+                                                                data-placement="bottom-right"
+                                                                aria-haspopup="true"
+                                                                aria-expanded="false">
+                                                            <span ng-if="isCluster()">Add member</span>
+                                                            <span ng-if="isNode()">Join group</span>
+                                                        </button>
+                                                    </div>
+
+                                                    <div class="btn-group" ng-if="assigned.state == 2">
+                                                        <button type="button"
+                                                                class="btn btn-xs xss btn-warning"
+                                                                ng-click="assign(assigned, 'del')"
+                                                                ng-disabled="ut < type.member"
+                                                                data-placement="bottom-right"
+                                                                aria-haspopup="true"
+                                                                aria-expanded="false">
+                                                            <span ng-if="isCluster()">Remove member</span>
+                                                            <span ng-if="isNode()">Leave group</span>
+                                                        </button>
+                                                    </div>
+                                                </div>
+
+
+                                            </div>
+                                        </div>
+
+                                        <div class="row" ng-if="initialized && ciCount > 10" style="margin-bottom: 10px;">
+                                            <div class="col-xs-12">
+                                                <div class="t-foot" >
+                                                    <dir-pagination-controls pagination-id="cis"
+                                                                             template-url="/repository/templates/dirPagination.tpl.html"></dir-pagination-controls>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="padded-top30">
+                        <button type="button"
+                                ng-click="save()"
+                                tabindex="2"
+                                ng-disabled="ut < type.member || !canManageContext"
+                                class="btn btn-success">
+                            <span ng-if="isNew">Create</span>
+                            <span ng-if="!isNew">Update</span>
+                        </button>
+
+                        <button type="button"
+                                tabindex="3"
+                                ng-click="cancel()"
+                                class="btn btn-default">
+                            Cancel
+                        </button>
+
+                        <div class="btn-group pull-right" role="group" ng-if="!isNew">
+                            <button type="button"
+                                    tabindex="4"
+                                    ng-disabled="ut < type.member || !canManageContext"
+                                    class="btn btn-danger dropdown-toggle" bs-dropdown aria-expanded="false">
+                                <i class="fa fa-trash"></i>
+                                <i class="fa fa-caret-down"></i>
+                            </button>
+                            <ul class="dropdown-menu delete" role="menu">
+                                <li><a tabindex="6" ng-click="deleteCi()" style="white-space:normal">Confirm delete</a></li>
+                            </ul>
+                        </div>
+                    </div>
+
+                </div>
+                </div>
+            </div>
+
+
+
+        </div>
+
+        <!--Properties-->
+        <div class="row padded-top45" ng-if="!isNew">
+            <div class="col-xs-12">
+
+                <div class="team-col">
+                    <h4>
+                        Properties associated with {{ ci.name }}
+                    </h4>
+
+                    <div ng-controller="EditorController" ng-if="chosenContext">
+                        <!-- Toolbar -->
+                        <div class="row">
+                            <div class="col-xs-12">
+                                <div class="toolbar">
+                                    <div class="row">
+                                        <div class="col-md-5 col-xs-12 search" style="margin-top: 1px">
+                                            <div class="input-group input-group-sm">
+                                                <span class="input-group-addon" id="sizing-addon3"><i class="fa fa-search"></i></span>
+                                                <input type="text"
+                                                       ng-model="searchQuery"
+                                                       ng-list=" "
+                                                       ng-trim="false"
+                                                       class="form-control input-sm"
+                                                       autofocus="true"
+                                                       spellcheck="false"
+                                                       placeholder="Search keys, comments, values and context..."
+                                                       ng-model-options="{ updateOn: 'default blur', debounce: { 'default': 500, 'blur': 0 } }">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-7 col-xs-12">
+                                            <div role="group" style="text-align: right">
+
+                                                <button style="margin-right: 3px;"
+                                                        class="btn btn-primary btn-sm"
+                                                        ng-disabled="ut < type.member"
+                                                        ng-click="showNewPropertyForm()">
+                                                    <span class="fa fa-plus"></span>&nbsp; New
+                                                </button>
+
+                                                <div class="vertical-separator"></div>
+
+                                                <button class="btn btn-sm btn-default only-icon"
+                                                        bs-tooltip
+                                                        data-title="Toggle all/resolved keys"
+                                                        ng-model="allKeys"
+                                                        ng-change="allKeyToggle()"
+                                                        bs-checkbox>
+                                                    All
+                                                </button>
+
+                                                <button class="btn btn-sm btn-default only-icon"
+                                                        bs-tooltip
+                                                        data-title="Toggle sort order"
+                                                        ng-click="toggleReverse()">
+                                                    <i ng-if="!reverse" class="fa fa-sort-alpha-asc"></i>
+                                                    <i ng-if="reverse" class="fa fa-sort-alpha-desc"></i>
+                                                </button>
+
+                                                <button class="btn btn-sm btn-default only-icon"
+                                                        bs-tooltip
+                                                        data-title="Context display"
+                                                        ng-click="toggleContextLineup()">
+                                                    <i ng-if="!lineupContext" class="fa fa-align-justify"></i>
+                                                    <i ng-if="lineupContext" class="fa fa-align-right"></i>
+                                                </button>
+
+                                                <div class="vertical-separator"></div>
+
+                                                <dir-pagination-controls
+                                                        template-url="/repository/templates/dirPaginationSimple.tpl.html"></dir-pagination-controls>
+
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="entries">
+
+                            <div class="slider" ng-if="!propertiesLoaded || loading">
+                                <div class="row" id='kitt'>
+                                    <div class='col-xs-1 col-xs-offset-1 one'></div>
+                                    <div class='col-xs-1 two'></div>
+                                    <div class='col-xs-1 three'></div>
+                                    <div class='col-xs-1 four'></div>
+                                    <div class='col-xs-1 five'></div>
+                                    <div class='col-xs-1 six'></div>
+                                    <div class='col-xs-1 seven'></div>
+                                    <div class='col-xs-1 eight'></div>
+                                    <div class='col-xs-1 nine'></div>
+                                    <div class='col-xs-1 ten'></div>
+                                </div>
+                            </div>
+
+                            <div new-property></div>
+
+                            <div dir-paginate="entry in config | orderObjectBy:'key':reverse | keyFilter:searchQuery:true | itemsPerPage: pageSize track by entry.id"
+                                 current-page="currentPage"
+                                 ng-if="propertiesLoaded">
+
+                                <div repo-entry entry="entry" ng-cloak></div>
+                            </div>
+                        </div>
+
+                        <div class="t-foot" ng-show="config.length > pageSize && propertiesLoaded">
+                            <div class="summary">
+                                <select class="form-control page-size input-xs" ng-model="pageSize" ng-change="pageSizeUpdate()">
+                                    <option value="10">10</option>
+                                    <option value="25">25</option>
+                                    <option value="50">50</option>
+                                </select>
+                                / {{ config.length }} keys
+                            </div>
+                            <dir-pagination-controls template-url="/repository/templates/dirPagination.tpl.html"></dir-pagination-controls>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

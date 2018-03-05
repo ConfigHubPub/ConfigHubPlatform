@@ -1,0 +1,34 @@
+<div class="popover">
+    <div class="arrow"></div>
+    <h3 class="popover-title">Choose a date/time</h3>
+    <div class="popover-content">
+
+        <div class="form-group">
+            <div class="form-group">
+
+                <bs-datepicker ng-model="inlineDatepicker.date" data-bs-show="inlineDatepicker.show"></bs-datepicker>
+
+
+                <input type="text"
+                       size="10"
+                       class="form-control"
+                       ng-model="sharedDate"
+                       data-start-view="1"
+                       data-autoclose="1"
+                       placeholder="Date"
+                       bs-datepicker>
+            </div>
+            <div class="form-group">
+                <input type="text"
+                       size="8"
+                       class="form-control"
+                       ng-model="sharedDate"
+                       data-time-format="h:mm:ss a"
+                       data-autoclose="1"
+                       placeholder="Time"
+                       bs-timepicker>
+            </div>
+        </div>
+
+    </div>
+</div>

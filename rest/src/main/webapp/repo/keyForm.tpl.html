@@ -1,0 +1,298 @@
+<form novalidate>
+
+    <div class="inner-editor">
+
+        <div class="warning floatingTop" ng-show="!entry.f.k[side].keydata.isKeyEditable">
+            You do not have write access for this key.
+        </div>
+
+        <div class="form-horizontal">
+
+            <!--Comment-->
+            <div class="ie-context form-group">
+                <label class="form-field-head col-sm-1 control-label">
+                    Readme:
+                </label>
+                <div class="col-sm-11">
+                    <textarea ui-keydown="{esc: 'disableKeyEditor()'}"
+                              ngEscape="disableKeyEditor()"
+                              ng-model="entry.f.k[side].keydata.readme"
+                              ng-disabled="!entry.f.k[side].keydata.isKeyEditable"
+                              tabindex="1"
+                              class="msd-elastic form-control form-value readme"></textarea>
+                </div>
+            </div>
+
+
+            <div class="ie-context form-group ">
+
+                <label class="form-field-head col-sm-1 control-label"
+                       style="{{repository.securityProfilesEnabled || repository.valueTypeEnabled ? 'margin-top: 19px' : '' }}">
+                    Key:
+                </label>
+                <div class="col-sm-11">
+                    <div class="value-attributes">
+                        <span class="va-sec" ng-if="repository.valueTypeEnabled">
+                            <span class="annotation dark">Type:</span>
+                            <a type="button"
+                               class="annotation"
+                               data-animation="am-flip-x"
+                               bs-dropdown
+                               aria-haspopup="true"
+                               aria-expanded="false">
+                                {{ entry.f.k[side].keydata.vdt }}
+                            </a>
+                            <ul class="dropdown-menu annotation-dropdown" role="menu">
+                                <li ng-repeat="dt in dts" ng-class="{'sep': dt.sep}">
+                                    <a ng-click="chooseVdt(dt.value)" ng-if="!dt.sep">
+                                        <span class="spn">{{ dt.name }}</span>
+                                    </a>
+                                </li>
+                            </ul>
+                        </span>
+
+                        <span class="va-sec" ng-if="repository.securityProfilesEnabled">
+                            <span class="annotation dark"><i class="fa fa-lock"></i> Security:</span>
+                            <a type="button"
+                               class="annotation"
+                               data-animation="am-flip-x"
+                               bs-dropdown
+                               aria-haspopup="true"
+                               aria-expanded="false">
+                                {{ entry.f.k[side].keydata.spName ? entry.f.k[side].keydata.spName : 'Off' }}
+                            </a>
+                            <ul class="dropdown-menu annotation-dropdown" role="menu">
+                                <li class="sep">
+                                    <a ng-click="chooseSP(null)">Off</a>
+                                </li>
+                                <li ng-repeat="sp in encryptionProfiles | orderBy:name">
+                                    <a ng-click="chooseSP(sp)">
+                                        <span class="spn">{{ sp.name }}</span>
+                                        <span class="spc" ng-if="sp.encryptionEnabled">| {{ sp.cipher }}</span>
+                                    </a>
+                                </li>
+                            </ul>
+                        </span>
+
+
+                        <span class="va-sec">
+                            <span class="annotation dark"><i class="fa fa-upload"></i> Push:</span>
+                            <a type="button"
+                               class="annotation"
+                               data-animation="am-flip-x"
+                               bs-dropdown
+                               aria-haspopup="true"
+                               aria-expanded="false">
+                                {{ entry.f.k[side].keydata.pushEnabled ? 'Enabled' : 'Disabled' }}
+                            </a>
+                            <ul class="dropdown-menu annotation-dropdown" role="menu">
+                                <li><a ng-click="choosePush(true)">Enabled</a></li>
+                                <li><a ng-click="choosePush(false)">Disabled</a></li>
+                            </ul>
+                        </span>
+
+                    </div>
+
+                    <!--Key-->
+                    <div class="ie-context">
+
+                        <script type="text/ng-template" id="keyTpl.html">
+                            <a tabindex="-1" class="auto-c aKey">
+                                <span class="key">{{ match.model.key }}</span>
+                            </a>
+                        </script>
+
+                        <div class="input-group">
+                            <input type="text"
+                                   id="key_{{side}}_{{entry.newProperty ? 'new' : entry.id}}"
+                                   tabindex="2"
+                                   class="form-control form-value key"
+                                   spellcheck="false"
+                                   ng-model="entry.f.k[side].key"
+                                   data-container="body"
+                                   data-placement="bottom-left"
+                                   data-min-length="3"
+                                   data-trigger="focus"
+                                   data-animation="slide"
+                                   data-template="/repo/common/key-complete.tpl.html"
+                                   data-limit="20"
+                                   ng-disabled="!entry.f.k[side].keydata.isKeyEditable"
+                                   bs-options="k for k in getKeys($viewValue)"
+                                   ng-change="keyChange()"
+                                   ng-model-options="{ updateOn: 'default blur', debounce: { 'default': 400, 'blur': 0 } }"
+                                   bs-typeahead="typeahead">
+
+                            <span class="input-group-btn">
+                                <button class="btn btn-default deprecated"
+                                        ng-model="entry.f.k[side].keydata.deprecated"
+                                        bs-checkbox
+                                        type="button"><span class="annotation">@Deprecated</span></button>
+                            </span>
+                        </div>
+
+                    </div>
+            </div>
+
+        </div>
+
+
+
+            <div class="error-message slider" role="alert"  ng-show="errorType == 'invalidKey'">
+                <div class="col-sm-offset-1">
+                    {{ invalidKey }}
+                </div>
+            </div>
+
+            <div class="error-message slider" role="alert"  ng-show="errorType == 'encryption'">
+                <div class="col-sm-offset-1">
+                    <p>
+                        <b>Security group</b> miss-match between <code class="key"><small>{{ entry.key }}</small></code>
+                                              and <code class="key"><small>{{ entry.f.k[side].key }}</small></code> keys.
+                    </p>
+                    <br>
+                    Key merging is allowed when:
+                    <ol>
+                        <li>Keys belong to same or no security group;</li>
+                        <li>They have same value type;</li>
+                        <li>Merged values have no context conflicts;</li>
+                        <li>You have write permissions to both keys.</li>
+                    </ol>
+                </div>
+            </div>
+
+            <div class="error-message slider" role="alert"  ng-show="errorType == 'vdt'">
+                <div class="col-sm-offset-1">
+                    <p>
+                        <b>Value data type</b> miss-match between <code class="key"><small>{{ entry.key }}</small></code>
+                                               and <code class="key"><small>{{ entry.f.k[side].key }}</small></code> keys.
+                    </p>
+                    <br>
+                    Key merging is allowed when:
+                    <ol>
+                        <li>Keys belong to same or no security group;</li>
+                        <li>They have same value type;</li>
+                        <li>Merged values have no context conflicts;</li>
+                        <li>You have write permissions to both keys.</li>
+                    </ol>
+                </div>
+            </div>
+
+            <div class="error-message slider" role="alert"  ng-if="errorType == 'conflict'">
+                <div class="col-sm-offset-1">
+                    <b>Value context conflict!</b><br>
+                    Specified key exists and contains values with the
+                    same context as values assigned to the current key
+                    <code class="key"><small>{{ entry.key }}</small></code>.<br>
+                    These conflicts need to be resolved before two keys can be merged.
+                </div>
+            </div>
+
+            <div class="error-message slider" role="alert"  ng-if="errorType == 'toKeyCannotChange'">
+                <div class="col-sm-offset-1">
+                    You are restricted from writing a key
+                    <code class="key"><small>{{ entry.f.k[side].key }}</small></code>
+                    by the access control set up for your team.  Contact repository owner/admin
+                    if you feel this is in error.
+                </div>
+            </div>
+
+            <div class="error-message slider" role="alert"  ng-if="errorType == 'fromKeyCannotChange'">
+                <div class="col-sm-offset-1">
+                    You are restricted from modifying a key
+                    <code class="key"><small>{{ entry.key }}</small></code>
+                    by the access control set up for your team.  Contact repository owner/admin
+                    if you feel this is in error.
+                </div>
+            </div>
+
+            <div class="error-message slider" role="alert"  ng-if="merging && merging.merging && !errorMessage">
+                <div class="col-sm-offset-1">
+                    Saving will combine {{ entry[side].uses }} existing
+                    <ng-pluralize count="entry[side].uses" when="{ '1': 'value', 'other': 'values'}"></ng-pluralize>
+                    from key <span class="key"><small>{{ entry.key }}</small></span> with
+                    {{ merging.uses - entry[side].uses }} existing
+                    <ng-pluralize count="uses - entry[side].uses" when="{ '1': 'value', 'other': 'values'}"></ng-pluralize>
+                    of key <span class="key"><small>{{ entry.f.k[side].key }}</small></span>.
+                </div>
+            </div>
+
+            <div class="error-message slider" role="alert" ng-if="errorMessage">
+                <div class="col-sm-offset-1">
+                    {{ errorMessage }}
+                </div>
+            </div>
+
+
+
+
+            <div class="ie-key-controls row" ng-if="!entry.newProperty">
+                <div class="col-sm-11 col-sm-offset-1">
+                    <div class="btn-group" role="group">
+                        <button type="button"
+                                class="btn btn-sm btn-success comment-btn"
+                                data-placement="bottom-left"
+                                data-content="popover.content"
+                                data-template-url="repo/changeComment.tpl.html"
+                                data-animation="am-flip-x"
+                                change-comment
+                                bs-popover>
+                            <i class="fa fa-commenting-o"></i>
+                        </button>
+                        <button tabindex="3"
+                                ng-disabled="errorType || !entry.f.k[side].keydata.isKeyEditable"
+                                ng-click="saveKey()"
+                                class="btn btn-success btn-sm">Save key change</button>
+                    </div>
+                    <button tabindex="4"
+                            class="btn btn-default btn-sm pad-left"
+                            ng-click="disableKeyEditor(side)">Cancel</button>
+
+                    <div ng-if="!property.isNew && !entry.newProperty" class="btn-group pull-right" role="group">
+                        <button type="button"
+                                tabindex="5"
+                                data-placement="bottom-right"
+                                ng-disabled="errorType || !entry.f.k[side].keydata.isKeyEditable"
+                                class="btn btn-danger dropdown-toggle" bs-dropdown aria-expanded="false">
+                            <i class="fa fa-trash"></i>
+                            <i class="fa fa-caret-down"></i>
+                        </button>
+                        <ul class="dropdown-menu delete" role="menu">
+                            <li><a tabindex="6" ng-click="deleteAllValues()" style="white-space:normal">Delete key & values</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+
+
+
+
+
+
+
+            <div class="in-form-assignments" ng-if='entry.f.k[side].keydata.uses > 0'>
+                <div class="row">
+                <div class="col-sm-offset-1 col-sm-11">
+                    <a class="siblings form-key-btn"
+                       tooltip-popup-delay='300'
+                       tooltip="{{ entry.allValues ? 'Resolved values' : 'All values'}}"
+                       ng-click="toggleAllValuesForEditedKey()">
+                        <ng-pluralize
+                                count="entry.f.k[side].keydata.uses"
+                                when="{ '1': '1 {{ mergingTag() }} value',
+                                'other': '{{ entry.f.k[side].keydata.uses }} {{ mergingTag() }} values'}">
+                        </ng-pluralize> assigned <i style="padding-left: 3px;" class='fa ' ng-class="entry.allValues ? 'fa-caret-up' : 'fa-caret-down'"></i>
+                    </a>
+                    <span class="form-key-btn dim" ng-if='entry.f.k[side].keydata.uses == 0'> New key </span>
+                </div>
+                </div>
+            </div>
+
+
+
+
+
+        </div>
+
+    </div>
+</form>

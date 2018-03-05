@@ -1,0 +1,11 @@
+<button class="btn btn-sm btn-default only-icon"
+        ng-click="setCurrent(pagination.current - 1)"
+        ng-class="{ disabled : pagination.current == 1 }">
+    <i class="fa fa-chevron-left"></i>
+</button>
+
+<button class="btn btn-sm btn-default only-icon"
+        ng-class="{ disabled : pagination.current >= pagination.last || !pagination.last }"
+        ng-click="setCurrent(pagination.current + 1)">
+    <i class="fa fa-chevron-right"></i>
+</button>

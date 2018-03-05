@@ -1,0 +1,66 @@
+<div class="popover" tabindex="-1" ng-show="content">
+    <div class="arrow"></div>
+
+    <div class="popover-content" style="border-radius: 3px">
+        <form name="popoverForm">
+
+            <div class="form-group">
+                <div class="form-field-head">
+                    Select a tag
+                </div>
+                <selectize config='bTagSelectConfig'
+                           options="B.repoContext.tags"
+                           ng-change="B.tagChange(B.selectedTag)"
+                           ng-model="B.selectedTag"></selectize>
+            </div>
+
+            <div class="form-group">
+
+                <div class="form-field-head">
+                    Or, set date and time
+                </div>
+
+                <div class="row">
+                    <div class="col-xs-6" style="padding-right: 2px">
+                        <div class="input-group">
+                            <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                            <input type="text"
+                                   class="form-control"
+                                   ng-change="B.changeDate(B.timeToSet)"
+                                   ng-model="B.timeToSet"
+                                   data-animation="am-flip-x"
+                                   data-autoclose="1"
+                                   data-min-date="{{ repository.creationTs | date:'shortDate' }}"
+                                   data-max-date="today"
+                                   placeholder="Date"
+                                   bs-datepicker>
+                        </div>
+                    </div>
+                    <div class="col-xs-6" style="padding-left: 2px">
+                        <div class="input-group">
+                            <span class="input-group-addon"><i class="fa fa-clock-o"></i></span>
+                            <input type="text"
+                                   class="form-control"
+                                   ng-change="B.changeDate(B.timeToSet)"
+                                   ng-model="B.timeToSet"
+                                   data-animation="am-flip-x"
+                                   data-time-format="h:mm a"
+                                   data-autoclose="1"
+                                   placeholder="Time"
+                                   bs-timepicker>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+
+            <div class="form-actions padded-top">
+                <button type="button" class="btn btn-warning" ng-click="B.setDayTime();$hide()">Set</button>
+                <button type="button" class="btn btn-default" ng-click="$hide()">Close</button>
+
+                <button type="button" class="btn btn-success pull-right" ng-click="B.goLive();$hide()">Live</button>
+            </div>
+        </form>
+    </div>
+</div>

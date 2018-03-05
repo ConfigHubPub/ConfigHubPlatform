@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="WARN">
+    <Appenders>
+        <File name="FILE"
+              fileName="${sys:log.path}/configHub.log"
+              ignoreExceptions="false">
+            <PatternLayout pattern="%highlight{%d %p %m%n}{FATAL=red, ERROR=red, INFO=white, WARN=yellow, DEBUG=green}" />
+        </File>
+    </Appenders>
+    <Loggers>
+        <Root level="INFO">
+            <AppenderRef ref="FILE" />
+        </Root>
+    </Loggers>
+</Configuration>

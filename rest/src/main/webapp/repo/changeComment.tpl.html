@@ -1,0 +1,17 @@
+<div class="popover comment-form" id="changeCommentField">
+    <div class="arrow"></div>
+
+    <div class="popover-content" style="border-radius: 3px">
+        <form name="popoverForm">
+            <label class="form-field-head control-label">Change comment:</label>
+            <textarea ng-trim="false"
+                      id="changeCommentFieldText"
+                      ng-model="changeComment"
+                      ng-change="updateComment(changeComment)"
+                      tabindex="3"
+                      style="white-space: pre-wrap"
+                      msd-elastic="\n"
+                      class="form-control form-value change-comment"></textarea>
+        </form>
+    </div>
+</div>

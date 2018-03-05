@@ -1,0 +1,39 @@
+<div class="key key-text">{{directory.name}}</div>
+
+<div class="inline-editor moveto-editor">
+
+    <div class="moveToEl">
+        <input type="text"
+               id="moveToFolder"
+               tabindex="1"
+               class="form-control directory-name input-sm"
+               style="width: 400px; "
+               spellcheck="false"
+               ng-model="$parent.directory.f.path"
+               data-container="body"
+               data-placement="bottom-left"
+               data-min-length="3"
+               data-trigger="focus"
+               data-animation="slide"
+               data-template="/repo/common/key-complete.tpl.html"
+               data-limit="20"
+               bs-options="k for k in getDirectories($viewValue)"
+               ng-model-options="{ updateOn: 'default blur', debounce: { 'default': 400, 'blur': 0 } }"
+               bs-typeahead="typeahead">
+        <p class="sub-note">
+            Enter full path of the <strong><u>move to</u></strong> location.
+        </p>
+
+    </div>
+
+    <div class="padded-top">
+        <button class="btn btn-success btn-sm" ng-click="moveContent()">Move content</button>
+        <button class="btn btn-default btn-sm" ng-click="cancelContentMove()">Cancel</button>
+    </div>
+
+
+    <div ng-if="errorMessage" class="error-message slider" role="alert">
+        {{ errorMessage }}
+    </div>
+
+</div>

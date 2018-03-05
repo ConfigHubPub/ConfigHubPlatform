@@ -1,0 +1,33 @@
+<div class="account-head-wrapper-tabs">
+    <div class="container">
+
+        <div bs-tabs data-bs-active-pane="selectedTabIndex" data-template="/public/tab-template.tpl.html">
+            <div class="aTab" title="Repositories" bs-pane onmouseover="this.title='';">
+                <div class="repo-frame">
+                    <div ng-include='"/public/repositories.tpl.html"'></div>
+                </div>
+            </div>
+
+            <div class="aTab" title="Organizations" bs-pane ng-if="showSettings" onmouseover="this.title='';">
+                <div class="repo-frame">
+                    <div ng-include='"/public/organizations.tpl.html"'></div>
+                </div>
+            </div>
+
+            <div class="aTab" title="Public profile" bs-pane ng-if="showSettings" onmouseover="this.title='';">
+                <div class="repo-frame">
+                    <div ng-include='"/public/profile.tpl.html"'></div>
+                </div>
+            </div>
+
+            <div class="aTab" title="Account settings" bs-pane ng-if="showSettings" onmouseover="this.title='';">
+                <div class="repo-frame">
+                    <div ng-include='"/public/userAccountSettings.tpl.html"'></div>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+</div>
+

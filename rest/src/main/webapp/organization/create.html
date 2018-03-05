@@ -1,0 +1,61 @@
+<div class="container padded-top30" ng-controller="CreateOrganizationsController">
+
+    <div class="row">
+        <div class="col-sm-6">
+
+            <h1 class="padded-bottom50" style="margin-top: 0">Create an organization</h1>
+
+            <div class="alert alert-danger" role="alert" ng-show="message">{{ message }}</div>
+
+            <!--Organization-->
+            <div class="padded-bottom50">
+
+                <div class="panel panel-form">
+                    <div class="panel-body">
+                    <div class="form-group" ng-class="{ 'has-error' : errorName }">
+                        <div class="form-field-head">Organization name</div>
+                        <input type="text"
+                               class="form-control label-input"
+                               ng-model="organization.name"
+                               autofocus="autofocus"
+                               tabindex="1"
+                               ng-change="validateNameChange()"
+                               ng-model-options="{ updateOn: 'default blur', debounce: { default: 500, blur: 0 } }"
+                               requred>
+                        <div class="help-block" ng-show="errorName != null">
+                            {{ errorName }}
+                        </div>
+
+                    </div>
+                    </div>
+                </div>
+
+            </div>
+
+
+            <div class="">
+                <button class="btn btn-success" ng-click="createOrganization()" type="button">Create organization</button>
+            </div>
+
+        </div>
+
+
+        <div class="col-sm-6">
+            <div class="pull-right">
+                <div class="passive-info-wrapper">
+                    <div class="header">Organizations</div>
+                    <div class="body">
+                        <ul>
+                            <li>Repository management</li>
+                            <li>Unlimited contributors</li>
+                            <li>Organize collaborators in teams</li>
+                            <li>Fine-grained permissions</li>
+                            <li>SSL Protection</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>

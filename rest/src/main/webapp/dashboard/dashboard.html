@@ -1,0 +1,63 @@
+
+<div class="container padded-top45">
+    <div class="row">
+        <div class="col-xs-121 padded-bottom45 padded-left10 padded-right10" ng-class="{'hidden-lg hidden-md': !sideBySide }">
+            <div ng-include='"dashboard/dashboard-repos.tpl.html"'></div>
+        </div>
+
+
+        <div ng-class="{'col-md-7': !sideBySide, 'col-xs-12': sideBySide}">
+
+            <div ng-show="initialized">
+                <div ng-if="repositories">
+                    <h3 class="dash">
+                        Activity in:
+                        <span ng-if="repositories.length > 1">
+                            <a data-html="1"
+                               bs-dropdown
+                               aria-haspopup="true"
+                               aria-expanded="false">
+                                {{ selectedRepo.account }}/{{ selectedRepo.name }}
+                                <i class="fa fa-caret-down" ng-if="repositories.length > 1"></i>
+                            </a>
+                            <ul class="dropdown-menu" role="menu">
+                                <li ng-repeat="repository in repositories">
+                                    <a ng-click="selectRepo(repository)">{{ repository.account }}/{{ repository.name }}</a>
+                                </li>
+                            </ul>
+                        </span>
+                        <span ng-if="repositories.length == 1">
+                            {{ selectedRepo.account }}/{{ selectedRepo.name }}
+                        </span>
+                    </h3>
+                    <div repo-audit ng-if="initialized"></div>
+                </div>
+
+                <div ng-show="initialized && !repositories" class="pro-tip">
+
+                    <h3>Welcome to ConfigHub</h3>
+
+                    <p class="padded-top">
+                        <strong>What would you like to do next?</strong>
+                    </p>
+
+                    <ul style="max-width: 400px;">
+                        <li>Create a <a ui-sref="createRepo">repository</a> or an
+                            <a ui-sref="createOrganization">organization</a>?
+                        </li>
+                        <li class="padded-top5">
+                            To join an existing repository, you need to be added by the repository's owner or administrator.
+                        </li>
+                    </ul>
+
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-5"
+             ng-class="{'hidden-sm hidden-xs': !sideBySide, 'hidden': sideBySide}">
+            <div ng-include='"dashboard/dashboard-repos.tpl.html"'></div>
+        </div>
+
+    </div>
+</div>

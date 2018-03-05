@@ -1,0 +1,127 @@
+<div ng-if="record.revType == 'Add'">
+
+    <div class="single-add"></div>
+    <div class="table-content">
+        <span class="f-key name">New Repository: </span>
+        <!--<span class="f-value">-->
+        <!--<div>-->
+            <a ui-sref="owner({accountName: entry.owner})">{{ entry.owner }}</a> / {{ entry.name }}
+        <!--</div>-->
+
+        <div ng-if="entry.description" class="repository-description">
+            {{ entry.description }}
+        </div>
+        </span>
+    </div>
+
+</div>
+
+<div ng-if="record.revType == 'Modify' && !newCtx">
+
+    <div class="noselect"></div>
+    <div class="table-content">
+
+        <div ng-if="objKeyPresent(diff, 'name')">
+            <span class="f-key name">Repository: </span>
+            <span class="f-value">
+                <span class="diff semantic" semantic-diff left-obj="diff.name" right-obj="entry.name"></span>
+            </span>
+        </div>
+
+        <div ng-if="objKeyPresent(diff, 'owner')" class="f-value">
+            <span class="f-key name">Repository: </span>
+            owner changed
+            <del class="diff semantic"><a ui-sref="owner({accountName: diff.owner})">{{ diff.owner }}</a></del>
+            <ins class="diff semantic"><a ui-sref="owner({accountName: entry.owner})">{{ entry.owner }}</a></ins>
+        </div>
+
+        <div ng-if="objKeyPresent(diff, 'description')">
+            <span class="f-key">Description: </span>
+            <span class="f-value diff semantic repository-description"
+                  semantic-diff
+                  left-obj="diff.description"
+                  right-obj="entry.description"></span>
+        </div>
+
+        <div ng-if="objKeyPresent(diff, 'accessControlEnabled')">
+            <span class="f-key">Access control management: </span>
+            <span class="f-value">
+                <del class="diff semantic">{{ diff.accessControlEnabled ? 'Enabled' : 'Disabled' }}</del>
+                <ins class="diff semantic">{{ entry.accessControlEnabled ? 'Enabled' : 'Disabled' }}</ins>
+            </span>
+        </div>
+
+
+        <div ng-if="objKeyPresent(diff, 'securityProfilesEnabled')">
+            <span class="f-key">Security groups & value encryption: </span>
+            <span class="f-value">
+                <del class="diff semantic">{{ diff.securityProfilesEnabled ? 'Enabled' : 'Disabled' }}</del>
+                <ins class="diff semantic">{{ entry.securityProfilesEnabled ? 'Enabled' : 'Disabled' }}</ins>
+            </span>
+        </div>
+
+
+        <div ng-if="objKeyPresent(diff, 'valueTypeEnabled')">
+            <span class="f-key">Value data-type enforcement: </span>
+            <span class="f-value">
+                <del class="diff semantic">{{ diff.valueTypeEnabled ? 'Enabled' : 'Disabled' }}</del>
+                <ins class="diff semantic">{{ entry.valueTypeEnabled ? 'Enabled' : 'Disabled' }}</ins>
+            </span>
+        </div>
+
+
+        <div ng-if="objKeyPresent(diff, 'contextClustersEnabled')">
+            <span class="f-key">Context grouping: </span>
+            <span class="f-value">
+                <del class="diff semantic">{{ diff.contextClustersEnabled ? 'Enabled' : 'Disabled' }}</del>
+                <ins class="diff semantic">{{ entry.contextClustersEnabled ? 'Enabled' : 'Disabled' }}</ins>
+            </span>
+        </div>
+
+        <div ng-if="objKeyPresent(diff, 'private')">
+            <span class="f-key name">Repository:</span>
+            visibility set to:
+            <span ng-if="diff.private"><strong>Private</strong></span>
+            <span ng-if="!diff.private"><strong>Public</strong></span>
+        </div>
+    </div>
+
+</div>
+
+<div ng-if="record.revType == 'Modify'">
+
+    <div ng-if="objKeyPresent(diff, 'labels') && !contextScopeChanged">
+
+        <div class="noselect"></div>
+        <div class="table-content">
+            <span class="f-key name">Repository: </span>
+            context labels updated:
+
+            <!--<span class="f-value">-->
+                <!--<span ng-repeat="lbl in labelDiff">-->
+                    <!--<span class="diff semantic" semantic-diff left-obj="lbl[0]?lbl[0]:''"-->
+                          <!--right-obj="lbl[1]?lbl[1]:''"></span>-->
+                    <!--<span ng-if="!$last"> > </span>-->
+                <!--</span>-->
+            <!--</span>-->
+        </div>
+
+        <pre class="diff" line-diff left-obj="oldCtx" right-obj="''"></pre>
+        <pre class="diff" line-diff left-obj="''" right-obj="newCtx"></pre>
+    </div>
+
+    <div ng-if="contextScopeChanged">
+        <div class="noselect"></div>
+        <div class="table-content">
+            <strong><span class="f-key name">Repository</span> context scope changed!</strong>
+
+            <p class="subtext">
+                Change affected every property and context item.
+            </p>
+        </div>
+
+        <pre class="diff" line-diff left-obj="oldCtx" right-obj="''"></pre>
+        <pre class="diff" line-diff left-obj="''" right-obj="newCtx"></pre>
+    </div>
+
+    </div>

@@ -1,0 +1,119 @@
+<div ng-controller="CleanupController" class="cleanup">
+
+    <div ng-if="initialized">
+        <p class="info" ng-if="unusedKeys.length > 0">
+            Following keys have no associated values or files.<br>
+            They are safe to delete from your repository.
+        </p>
+
+        <p class="info" ng-if="unusedKeys.length == 0">
+            There are no unused keys in this repository.
+        </p>
+    </div>
+
+    <div class="alert alert-danger slider" role="alert" ng-if="errorMessage">{{ errorMessage }}</div>
+
+    <div bs-affix class="row" ng-if="unusedKeys.length > 0">
+        <div class="col-xs-12">
+            <div class="main-editor toolbar">
+                <div class="row">
+
+                    <div class="col-xs-5 search">
+                        <div class="input-group input-group-sm">
+                            <span class="input-group-addon" id="sizing-addon3"><i class="fa fa-search"></i></span>
+                            <input type="text"
+                                   ng-model="searchQuery"
+                                   ng-list=" "
+                                   ng-trim="false"
+                                   class="form-control input-sm"
+                                   autofocus="true"
+                                   spellcheck="false"
+                                   placeholder="Search keys..."
+                                   ng-model-options="{ updateOn: 'default blur', debounce: { 'default': 500, 'blur': 0 } }">
+                        </div>
+                    </div>
+
+                    <div class="col-xs-7 buttons">
+                        <div role="group" class="text-right-not-xs"  style="margin-bottom: 6px;">
+
+
+                            <button class="btn btn-sm btn-default only-icon"
+                                     bs-tooltip
+                                     data-title="Toggle all/resolved keys"
+                                     data-trigger="hover"
+                                     ng-model="allKeys"
+                                     ng-change="allKeyToggle()"
+                                     bs-checkbox>
+                                Select All
+                            </button>
+                            <div class="vertical-separator"></div>
+                            <div class="btn-group" role="group">
+                                <button type="button"
+                                        tabindex="5"
+                                        data-placement="bottom-right"
+                                        class="btn btn-sm btn-danger dropdown-toggle" bs-dropdown aria-expanded="false">
+                                    <i class="fa fa-trash"></i>
+                                    <i class="fa fa-caret-down"></i>
+                                </button>
+                                <ul class="dropdown-menu delete" role="menu">
+                                    <li><a tabindex="6" ng-click="deleteSelectedKeys()" style="white-space:normal">Delete selected keys</a></li>
+                                </ul>
+                            </div>
+
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div ng-repeat="entry in unusedKeys" ng-if="initialized">
+        <div class="entry">
+            <div class="entry-wrapper">
+
+                <div class="slider key-display">
+
+                    <div class="key-value-top" id="e_{{1}}_{{$index}}">
+
+                        <div class="key-head">
+                            <div ng-show="entry[1].readme != ''">
+                                <span class="readme" ng-bind-html="entry[1].readme | linky:'_blank'"></span>
+                            </div>
+
+                            <div class="annotation type" ng-if="repository.valueTypeEnabled && entry[1].vdt != 'Text'">
+                                <span class="cont">{{ entry[1].vdt }}</span>
+                            </div>
+                        </div>
+                        <span class="keyLine">
+
+                            <label>
+                                <input type="checkbox" ng-model="entry.selected">
+                                <div class="key key-text"
+                                     ng-class="{'deprecated': entry[1].deprecated}">{{ entry.key }}</div>
+                            </label>
+
+
+                            <div class="annotation security" ng-if="entry[1].spName">
+                                <span class="cont">
+                                    <i class="fa fa-lock"></i>
+                                    <a class="sec" ng-click="gotoSp(entry[1].spName)">{{ entry[1].spName }}</a></span>
+                            </div>
+
+                            <div class="annotation push" ng-if="repository.valueTypeEnabled && entry[1].pushEnabled">
+                                <span class="cont"><i class="fa fa-upload"></i> Push</span>
+                            </div>
+
+
+                        </span>
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+
+
+    </div>
+
+</div>

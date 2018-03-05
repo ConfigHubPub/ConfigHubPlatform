@@ -1,0 +1,30 @@
+<div class="sub-directory">
+
+    <div ng-mouseover="directory.hover = true" ng-mouseleave="directory.hover = false" class="entry">
+        <div class="entry-wrapper" ng-class="{'hovers': directory.hover}">
+
+            <!--Directories-->
+            <div class="key-display sub-folder">
+                <div ng-include='"/repo/files/directory.tpl.html"'></div>
+            </div>
+
+            <!--Files-->
+            <div class="key-values slider" ng-hide="directory.hidden">
+                <div class="value-wrapper"
+                     ng-repeat="file in directory.files | orderBy:'name'"
+                     ng-class-even="'even'">
+                    <div ng-include='"/repo/files/file.tpl.html"'></div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <div ng-repeat="directory in directory.subs "
+         class="directory-indent slider"
+         ng-hide="$parent.directory.hidden">
+        <div ng-include='"/repo/files/sub.tpl.html"'></div>
+    </div>
+
+</div>

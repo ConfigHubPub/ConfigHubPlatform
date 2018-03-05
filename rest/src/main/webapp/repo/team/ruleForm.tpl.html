@@ -1,0 +1,126 @@
+<div class="tt alert alert-danger" ng-show="rulesMessage">{{ rulesMessage }}</div>
+
+<div class="tt">
+    <span>
+        <span class="btn-group" role="group">
+            <a class="dropdown-toggle {{ rule.access }}"
+               bs-dropdown
+               aria-haspopup="true"
+               aria-expanded="false">
+                {{ accessType[rule.access] }}<span class="caret"></span>
+            </a> when
+            <ul class="dropdown-menu">
+                <li ng-repeat="(k, v) in accessType">
+                    <a href ng-click="rule.access = k">{{ v }}</a>
+                </li>
+            </ul>
+        </span>
+    </span>
+
+
+
+    <span class="1cl 1bn 1dense 1l-conn 1r-conn">
+        <span class="btn-group" role="group">
+            <a class="dropdown-toggle"
+               bs-dropdown
+               aria-haspopup="true"
+               aria-expanded="false">
+                <span ng-if="typeLabel[rule.type]">{{ typeLabel[rule.type] | lowercase }}</span
+                ><span class="pick" ng-if="!typeLabel[rule.type]">pick</span
+                ><span class="caret"></span>
+            </a>
+            <ul class="dropdown-menu">
+                <li ng-repeat="type in types">
+                    <a href ng-click="switchRuleType(type)">{{ typeLabel[type] }}</a>
+                </li>
+            </ul>
+        </span>
+    </span>
+
+    <!--Key rule-->
+    <span ng-show="rule.type == types[0]">
+        <span>
+            <span class="btn-group" role="group">
+                <a class="dropdown-toggle"
+                   bs-dropdown
+                   aria-haspopup="true"
+                   aria-expanded="false">
+                    {{ keyMatches[rule.match] | lowercase }}<span class="caret"></span>
+                </a>
+                <ul class="dropdown-menu">
+                    <li ng-repeat="(k, v) in keyMatches">
+                        <a href ng-click="rule.match = k">{{ v }}</a>
+                    </li>
+                </ul>
+            </span>
+        </span>
+        <span>
+            <input type="text"
+                   ng-model="rule.key"
+                   spellcheck="false"
+                   style="width: 140px;"
+                   class="form-control form-value key">
+        </span>
+    </span>
+
+    <span ng-show="rule.type == types[1]">
+        <span>
+            <span class="btn-group" role="group">
+                <a class="dropdown-toggle"
+                   bs-dropdown
+                   aria-haspopup="true"
+                   aria-expanded="false">
+                    {{ ctxMatches[rule.match] | lowercase }}<span class="caret"></span>
+                </a>
+                <ul class="dropdown-menu">
+                    <li ng-repeat="(k, v) in ctxMatches">
+                        <a href ng-click="rule.match = k">{{ v }}</a>
+                    </li>
+                </ul>
+            </span>
+        </span>
+    </span>
+
+</div>
+<!-- top line -->
+
+<!--Add Ctx-->
+<div class="ctx tt" ng-show="rule.type == types[1]">
+    <div ng-repeat="depthScore in repoContext.depthScores" ng-if="repoContext.loaded">
+
+        <div class="row">
+            <div class="col-xs-3 no-mp-r">
+                <div class="ctx if-tag r-conn nbr">{{ repoContext.depths[depthScore].label }}</div>
+            </div>
+            <div class="col-xs-9 no-mp-l">
+                <div class="l-conn 1form-group context-select">
+                    <selectize config='contextSelectConfig'
+                               options='repoContext.selectableContext[depthScore]'
+                               ng-model="rule.context[depthScore]"></selectize>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<div class="tt ctrl-buttons">
+    <div ng-if="rule.isEdited">
+        <button type="button"
+                class="btn btn-sm btn-success"
+                ng-disabled="ut < type.admin"
+                ng-click="updateRule(rule)">Update</button>
+        <button type="button" class="btn btn-sm btn-default" ng-click="cancelRuleEdit(rule)">Cancel</button>
+        <button type="button"
+                class="pull-right btn btn-sm btn-danger"
+                ng-disabled="ut < type.admin"
+                ng-click="deleteRule(rule)">Delete</button>
+    </div>
+    <div ng-if="!rule.isEdited">
+        <button type="button"
+                class="btn btn-sm btn-success"
+                ng-disabled="ut < type.admin"
+                ng-click="createRule()">Create rule</button>
+        <button type="button" class="btn btn-sm btn-default" ng-click="clearRuleForm()">Cancel</button>
+    </div>
+</div>

@@ -1,0 +1,27 @@
+<div class="modal" tabindex="-1" role="dialog">
+    <form>
+        <div class="modal-dialog narrow-modal">
+            <div class="modal-content">
+
+                <div class="modal-header fyi">
+                    <button type="button" class="big-close" ng-click="$hide()">&times;</button>
+                    <span class="modal-title">
+                    <strong>Delete directory</strong>
+                </span>
+                </div>
+
+                <div class="modal-body">
+                    <div class="form-group">
+                        You've made changes to the file that are not saved.
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-success" ng-click="$hide();saveAndExit()">Save changes</button>
+                    <button type="button" class="btn btn-default" ng-click="$hide();ignoreChanges()">Ignore changes</button>
+                </div>
+
+            </div>
+        </div>
+    </form>
+</div>

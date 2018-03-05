@@ -1,0 +1,166 @@
+<!--[if lt IE 7]>
+<html ng-app="configHub" class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>
+<html ng-app="configHub"  class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>
+<html ng-app="configHub" class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!-->
+<html ng-app="configHub" class="no-js"> <!--<![endif]-->
+
+<head>
+    <base href="/">
+    <title update-title></title>
+    <meta http-equiv="expires" content="0">
+    <meta charset="utf-8">
+    <meta name="description" content="Store, manage and distribute software configuration for a single application or a distributed system."/>
+    <meta name="keywords" content="pupped labs, system configuration, distributed systems,cloud computing,configuration management,cassandra,config files,config,conf,key value pairs,config properties,software config,"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="shortcut icon" href="/favicon.ico?v=14" type="image/x-icon" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="apple-touch-icon" sizes="57x57" href="/apple-touch-icon-57x57.png" />
+    <link rel="apple-touch-icon" sizes="72x72" href="/apple-touch-icon-72x72.png" />
+    <link rel="apple-touch-icon" sizes="76x76" href="/apple-touch-icon-76x76.png" />
+    <link rel="apple-touch-icon" sizes="114x114" href="/apple-touch-icon-114x114.png" />
+    <link rel="apple-touch-icon" sizes="120x120" href="/apple-touch-icon-120x120.png" />
+    <link rel="apple-touch-icon" sizes="144x144" href="/apple-touch-icon-144x144.png" />
+    <link rel="apple-touch-icon" sizes="152x152" href="/apple-touch-icon-152x152.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon-180x180.png" />
+
+    <link href='/fonts/fonts.css?family=Open+Sans:300,400,500,600,700&subset=latin'
+          rel='stylesheet' type='text/css'>
+
+    <link href="/framework/bootstrap/css/bootstrap.min.css?v=14" rel="stylesheet">
+    <link href="/framework/font-awesome-4.7.0/css/font-awesome.min.css?v=14" rel="stylesheet">
+    <link href="/css/auth.css?v=14"  rel="stylesheet">
+    <link href="/css/common.css?v=14"  rel="stylesheet">
+    <link href="/css/context.css?v=14"  rel="stylesheet">
+    <link href="/css/form.css?v=14"  rel="stylesheet">
+    <link href="/css/selectize.bootstrap3-2.css?v=14"  rel="stylesheet">
+    <link href="/css/repository.css?v=14"  rel="stylesheet">
+    <link href="/css/angular-ui-switch.min.css?v=14"  rel="stylesheet">
+    <link href="/css/help.css?v=14" rel="stylesheet">
+    <link href="/css/nz-toggle.css?v=14" rel="stylesheet">
+    <link href="/css/angular-motion.min.css?v=14"  rel="stylesheet">
+    <link href="/css/bootstrap-additions.min.css?v=14"  rel="stylesheet">
+    <link href="/css/dashboard.css?v=14"  rel="stylesheet">
+    <link href="/css/diff.css?v=14"  rel="stylesheet">
+    <link href="/css/properties.css?v=14"  rel="stylesheet">
+    <link href="/css/teams.css?v=14"  rel="stylesheet">
+    <link href="/css/tags.css?v=14"  rel="stylesheet">
+    <link href="/css/home.css?v=14"  rel="stylesheet">
+    <link href="/css/github-markdown.css?v=14"  rel="stylesheet">
+    <link href="/framework/diff2html-2.0.12/diff2html.css?v=14" rel="stylesheet">
+</head>
+
+<body ng-controller="AppCtrl">
+    <div ng-include='"/nav/nav.html"' id="top"></div>
+    <div ui-view class="index-padded-top" autoscroll="true" ></div>
+    <div ng-include='"/nav/backToTop.html"'></div>
+    <div ng-include='"/nav/footer.html"'></div>
+</body>
+
+<script src="/framework/jquery/jquery.min.js?v=14"></script>
+<script src="/framework/jquery/jquery-ui.min.js?v=14"></script>
+
+
+<script src="/framework/angular-1.6.4/angular.min.js?v=14"></script>
+<script src="/framework/angular-1.6.4/angular-animate.min.js?v=14"></script>
+<script src="/framework/angular-1.6.4/angular-sanitize.min.js?v=14"></script>
+
+<script src="/framework/angular-strap/angular-strap.min.js?v=14"></script>
+<script src="/framework/angular-strap/angular-strap.tpl.min.js?v=14"></script>
+
+<script src="/framework/diff_match_patch_uncompressed.js?v=14"></script>
+<script src="/framework/angular-diff-match-patch.js?v=14"></script>
+
+<script src="/framework/angular-ui-router.min.js?v=14"></script>
+<script src="/framework/angular-storage.min.js?v=14"></script>
+<script src="/framework/angular-jwt.min.js?v=14"></script>
+<script src="/framework/ui-utils.min.js?v=14"></script>
+<script src="/framework/angular-filter.min.js?v=14"></script>
+<script src="/framework/angular-elastic-input.min.js?v=14"></script>
+<script src="/framework/angular-ui-switch.min.js?v=14"></script>
+<script src="/framework/moment/moment.js?v=14"></script>
+<script src="/framework/moment/moment-timezone-with-data.js?v=14"></script>
+<script src="/framework/moment/angular-moment.min.js?v=14"></script>
+<script src="/framework/dirPagination/dirPagination.js?v=14"></script>
+<script src="/framework/selectize.min.js?v=14"></script>
+<script src="/framework/angular-selectize.js?v=14"></script>
+<script src="/framework/elastic.js?v=14"></script>
+<script src="/framework/angular-select2.min.js?v=14"></script>
+<script src="/framework/sortable.js?v=14"></script>
+<script src="/framework/nz-toggle.js?v=14"></script>
+
+<script src="/framework/ng-file-upload/ng-file-upload-all.min.js?v=14"></script>
+<script src="/framework/ng-file-upload/ng-file-upload-shim.min.js?v=14"></script>
+
+<script src="/js/utils.js?v=14"></script>
+<script src="/js/countries.js?v=14"></script>
+<script src="/js/common.js?v=14"></script>
+
+<script src="/js/app.js?v=14"></script>
+<script src="/js/login.js?v=14"></script>
+<script src="/js/signup.js?v=14"></script>
+<script src="/js/dashboard.js?v=14"></script>
+<script src="/js/download.js?v=14"></script>
+
+<script src="/js/repository.js?v=14"></script>
+<script src="/js/contextItems.js?v=14"></script>
+<script src="/js/contextItem.js?v=14"></script>
+
+<script src="/js/info.js?v=14"></script>
+<script src="/js/owner.js?v=14"></script>
+<script src="/js/organization.js?v=14"></script>
+<script src="/js/createOrg.js?v=14"></script>
+
+
+<!--Markdown-->
+<script src="/framework/markdown/markdown.js?v=14"></script>
+<script src="/framework/showdown.min.js?v=14"></script>
+
+<!--Highlight-->
+<link href="/framework/highlight-9.3.0/styles/github-gist.css?v=14" rel="stylesheet">
+<!--<link rel="stylesheet" href="/css/github.min.css">-->
+
+<script src="/framework/highlight-9.3.0/highlight.pack.js?v=14"></script>
+<script src="/framework/highlight-9.3.0/angular-highlightjs.js?v=14"></script>
+
+<script src="/js/repoSettings.js?v=14"></script>
+<script src="/js/repoFilters.js?v=14"></script>
+<script src="/js/contextService.js?v=14"></script>
+<script src="/js/timeTagSelect.js?v=14"></script>
+<script src="/js/newProperty.js?v=14"></script>
+<script src="/js/entry.js?v=14"></script>
+<script src="/js/editor.js?v=14"></script>
+<script src="/js/compare.js?v=14"></script>
+<script src="/js/tokens.js?v=14"></script>
+<script src="/js/export.js?v=14"></script>
+<script src="/js/teams.js?v=14"></script>
+<script src="/js/profiles.js?v=14"></script>
+<script src="/js/secretStore.js?v=14"></script>
+<script src="/js/key.js?v=14"></script>
+<script src="/js/audit.js?v=14"></script>
+<script src="/js/createRepo.js?v=14"></script>
+<script src="/js/tags.js?v=14"></script>
+<script src="/js/files.js?v=14"></script>
+
+<script src="/framework/angular-chart/Chart.min.js?v=14"></script>
+<script src="/framework/angular-chart/angular-chart.js?v=14"></script>
+
+<script src="/framework/ace/ace.js?v=14"></script>
+<script src="/framework/ace/ui-ace.js?v=14"></script>
+<script src="/framework/ace/theme-confighub.js?v=14"></script>
+<script src="/framework/ace/theme-confighub-dark.js?v=14"></script>
+<script src="/framework/ace/mode-confighub.js?v=14"></script>
+<script src="/framework/ace/mode-json.js?v=14"></script>
+<script src="/framework/ace/ext-searchbox.js?v=14"></script>
+<script src="/framework/ace/ext-language_tools.js?v=14"></script>
+<script src="/framework/diff2html-2.0.12/diff2html.min.js?v=14"></script>
+<script src="/framework/diff2html-2.0.12/diff2html-ui.min.js?v=14"></script>
+<script src="/framework/difflib-browser.js?v=14"></script>
+
+<!--<script src="https://cdnjs.cloudflare.com/ajax/libs/es5-shim/4.5.7/es5-shim.min.js"></script>-->
+<!--[if lt IE 9]><script src="/framework/es5-shim.min.js"></script><![endif]-->
+
+</html>

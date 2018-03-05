@@ -1,0 +1,120 @@
+<div style="border-bottom: 1px solid #eee">
+
+    <div class="noselect"></div>
+    <div class="table-content">
+
+        <div class="key-text">
+            <span class="f-key name">
+                File: </span>
+            <span ng-if="!pathChange" class="file">{{ entry.absPath }}</span>
+            <span ng-if="pathChange" class="file diff val" semantic-diff left-obj="entry.diff.absPath" right-obj="entry.absPath"></span>
+        </div>
+
+        <div class="annotation security" ng-if="entry.spName">
+            <span class="cont">
+                <i class="fa fa-lock"></i>
+                <a class="sec"
+                   ui-sref="repo.security-profiles({owner: account, name: repoName, profile: record.entry.spName })">
+                    {{ entry.spName }}
+                </a>
+            </span>
+        </div>
+    </div>
+</div>
+
+<div class="single-add" ng-if="record.revType == 'Add'"></div>
+<div class="single-del" ng-if="record.revType == 'Delete'"></div>
+<div class="noselect" ng-if="record.revType == 'Modify'"></div>
+
+
+<div class="table-content ctxes">
+    <div class="row" ng-if="currContext">
+        <div class="col-xs-12">
+            <div class="context" style="margin: 0">
+                <ul>
+                    <li class='disabled-value' ng-if="!currActive">Disabled</li>
+                    <li class='context-elements'>
+
+                        <div ng-repeat="ci in currContext | orderBy:'p' track by $index" class="context-element"
+                        ><i></i
+                        ><label class="lgroup ico" ng-if="ci.t === 2"></label
+                        ><label class="lmember ico" ng-if="ci.t === 1"></label
+                        ><label ng-if="mod" class="ctx-diff semantic" semantic-diff left-obj="ci.on"
+                                right-obj="ci.n"></label
+                        ><label ng-if="!mod" class="ctx-diff">{{ci.n}}</label
+                        ><span class="bl" ng-if="!ci.n && !ci.on"></span>
+                        </div>
+
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="vals" ng-if="encrypted">
+    <div class="diff encrypted">
+        <div class="match ng-scope">
+            <span class="encrypted-val"></span>Encrypted content
+            / <a ng-click="decrypt()">decrypt</a>
+        </div>
+    </div>
+</div>
+
+<div ng-if="!encrypted">
+    <div class="vals" ng-if="record.revType === 'Modify'">
+
+        <div differ></div>
+
+        <div ng-if="!contentModified">
+            <div class="diff-value d2h-info">
+                <table class="d2h-diff-table">
+                    <tbody class="d2h-diff-tbody">
+                    <tr ng-repeat="l in currContent track by $index">
+                        <td class="d2h-info d2h-code-side-linenumber" style="border-left: none;">{{ $index + 1  }}</td>
+                        <td class="d2h-info">
+                            <div class="d2h-code-side-line d2h-info">
+                                <span class="d2h-code-line-ctn " hljs hljs-source="l"></span>
+                            </div>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="diff-single diff-value d2h-del" ng-if="record.revType === 'Delete'">
+        <table class="d2h-diff-table">
+            <tbody class="d2h-diff-tbody">
+                <tr ng-repeat="l in oldContent track by $index">
+                    <td class="d2h-del d2h-code-side-linenumber" style="border-left: none;">{{ $index + 1  }}</td>
+                    <td class="d2h-del">
+                        <div class="d2h-code-side-line d2h-del">
+                            <span class="d2h-code-line-prefix">-</span>
+                            <span class="d2h-code-line-ctn " hljs hljs-source="l"></span>
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+
+    <div class="diff-single diff-value d2h-ins" ng-if="record.revType === 'Add'">
+        <table class="d2h-diff-table">
+            <tbody class="d2h-diff-tbody">
+                <tr ng-repeat="l in currContent track by $index">
+                    <td class="d2h-ins d2h-code-side-linenumber" style="border-left: none;">{{ $index + 1  }}</td>
+                    <td class="d2h-ins">
+                        <div class="d2h-code-side-line d2h-ins">
+                            <span class="d2h-code-line-prefix">+</span>
+                            <span class="d2h-code-line-ctn " hljs hljs-source="l"></span>
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>

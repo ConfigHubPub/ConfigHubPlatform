@@ -1,0 +1,112 @@
+<!--<link href="/repo/team/teams.css"  rel="stylesheet">-->
+
+<div ng-controller="AccountController">
+
+    <style>
+        .account-head-wrapper {
+            padding: 10px 0 0 0;
+            padding-bottom: 60px;
+            background-color: #fafafa;
+            border-bottom: 1px solid #ddd;
+        }
+        .acc-item {
+            line-height: 20px;
+        }
+
+        span.fname {
+            padding: 0;
+            margin: 0;
+            font-weight: 600;
+            font-size: 20px;
+        }
+        .fname.un {
+            color: #666;
+            font-size: 16px;
+        }
+        .join {
+            color: #666;
+            font-size: 12px;
+        }
+        .repo-frame {
+            margin-top: 30px;
+        }
+
+        .account-head-wrapper-tabs {
+            margin-top: -40px;
+        }
+
+        .account-head-wrapper-tabs .nav li {
+            height: 40px;
+        }
+
+        .table {
+            font-size: 13px;
+        }
+
+        .table td {
+            border: none !important;
+        }
+
+        .table tr td:first-child {
+            font-weight: 600;
+            /*text-align: right;*/
+        }
+
+        .table-striped>tbody>tr:nth-of-type(odd) {
+            background-color: #f3f3f3;
+        }
+
+    </style>
+
+    <div class="loading entry" ng-if="!initialized && !error">
+        <i class="fa fa-spinner fa-spin fa-3x fa-fw"></i>
+    </div>
+
+    <div class="container padded-top50" ng-if="error">
+
+        <h1>404</h1>
+
+        <h3>{{ error }}</h3>
+        <a ui-sref="home">Back to home</a>
+
+    </div>
+
+
+    <div class="account-head-wrapper bbgg" ng-show="initialized">
+
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6">
+                    <span ng-if="account.name"><span class="fname">{{ account.name }}</span>, </span>
+                    <span class="un fname">{{ account.un }}</span>
+                    <div class="acc-item join">
+                        <span ng-if="account.t == 'u'">Member since</span>
+                        <span ng-if="account.t != 'u'">Created on</span>
+                        {{ account.creationTs | amDateFormat:'MMMM Do YYYY' }}
+                    </div>
+
+                </div>
+
+                <div class="col-md-6 text-right">
+
+                    <div class="acc-item comp" ng-if="account.company">{{ account.company }}</div>
+                    <div class="acc-item url" ng-if="account.website" ng-bind-html="account.website | linky:'_blank'"></div>
+                    <div class="acc-item addr" ng-if="account.city">{{ account.city }}, {{ account.country }}</div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <div ng-if="initialized">
+        <div ng-if="isPersonal">
+            <div personal-account="acc" account="account"/>
+        </div>
+
+        <div ng-if="!isPersonal">
+            <div organization-account="acc" account="account"/>
+        </div>
+    </div>
+
+
+</div>

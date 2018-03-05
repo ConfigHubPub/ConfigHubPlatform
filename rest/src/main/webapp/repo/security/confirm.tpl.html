@@ -1,0 +1,43 @@
+<div class="modal" tabindex="-1" role="dialog">
+    <form ng-submit="validate(encryptSecret, $hide)">
+    <div class="modal-dialog narrow-modal">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <button type="button" class="big-close" ng-click="$hide()">&times;</button>
+                <span class="modal-title">
+                    <strong>Security Group Authentication</strong>
+                </span>
+            </div>
+
+            <div class="alert alert-danger" role="alert" ng-if="decodeMessage">
+                {{ decodeMessage }}
+            </div>
+
+            <div class="modal-body">
+
+
+                <div class="form-group">
+                    <div class="form-field-head">Password for '<strong class="" ng-bind="profile"></strong>'</div>
+                    <input type="password"
+                           id="spPassInput"
+                           class="msd-elastic secret password-field form-control"
+                           ng-model="encryptSecret">
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-success" ng-click="validate(encryptSecret, $hide)">Confirm</button>
+                <button type="button" class="btn btn-default" ng-click="$hide()">Cancel</button>
+            </div>
+
+            <div class="modal-subtext">
+                The action you are performing requires validation of the security group password.
+                We're not going to ask you for this group's password for the next 10 minutes unless
+                this browser page is refreshed manually.
+            </div>
+
+        </div>
+    </div>
+    </form>
+</div>

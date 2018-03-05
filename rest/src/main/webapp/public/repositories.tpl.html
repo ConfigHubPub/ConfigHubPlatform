@@ -1,0 +1,184 @@
+<div class="no-data" ng-if="!account.repos || account.repos.length == 0">
+
+    <span ng-if="isPersonal">
+        <span ng-if="showSettings">
+            No repositories in your account.
+            <a ui-sref="createRepo">Create new repository.</a>
+        </span>
+        <span ng-if="!showSettings">
+            There are no public repositories in this account.
+        </span>
+    </span>
+
+    <span ng-if="!isPersonal">
+        <span ng-if="showSettings">
+            No repositories created for this organization.
+            <a ui-sref="createRepo({ account: account.un })">Create new repository.</a>
+        </span>
+        <span ng-if="!showSettings">
+            There are no public repositories in this organization.
+        </span>
+    </span>
+</div>
+
+<div ng-if="account.repos && account.repos.length > 0">
+    <div ng-repeat="repository in account.repos | orderBy:'name'"
+     class="panel panel-form padded-bottom30">
+    <div class="panel-body">
+
+        <div class="repository-head">
+            <div class="row">
+                <div class="col-xs-12">
+
+
+
+                    <span class="repo-title">
+                        <span ng-if="repository.isPersonal" class="account-type"><i class="fa fa-user"></i></span>
+                        <span ng-if="!repository.isPersonal" class="account-type"><i class="fa fa-building-o"></i></span>
+
+                        <a class="owner" ui-sref="owner({accountName: repository.owner})">{{ repository.owner }}</a> /
+                        <a href ui-sref="repo.editor({owner: repository.owner, name: repository.name })"
+                           class='repository-name'>{{ repository.name }}</a>
+
+                        <span ng-if="!repository.isPrivate" class="role public"></span>
+                    </span>
+
+                    <span class="repository-ctrl-left">
+
+                        <button type="button"
+                                class="btn btn-xs btn-default btn-blank"
+                                data-animation="am-flip-x"
+                                data-placement="bottom-left"
+                                bs-dropdown
+                                aria-haspopup="true"
+                                aria-expanded="false">
+                            <i class="fa fa-bars"></i> <i class="fa fa-caret-down"></i>
+                        </button>
+                        <ul class="dropdown-menu repo-tabs" role="menu">
+                            <li>
+                                <a ui-sref="repo.editor({owner: repository.owner, name: repository.name })">
+                                    <i class='dlbl props'></i>Editor
+                                </a>
+                            </li>
+                            <li>
+                                <a ui-sref="repo.tokens({owner: repository.owner, name: repository.name })">
+                                    <i class='dlbl token'></i>Tokens
+                                </a>
+                            </li>
+                            <li ng-if="repository.securityProfilesEnabled">
+                                <a ui-sref="repo.security-profiles({owner: repository.owner, name: repository.name })">
+                                    <i class='dlbl security'></i>Security
+                                </a>
+                            </li>
+                            <li>
+                                <a ui-sref="repo.access({owner: repository.owner, name: repository.name })">
+                                    <i class='dlbl pull'></i>Pull requests
+                                </a>
+                            </li>
+                            <li ng-if="ut == type.demo || repository.ut >= type.member">
+                                <a ui-sref="repo.teams({owner: repository.owner, name: repository.name })">
+                                    <i class='dlbl team'></i>Teams
+                                </a>
+                            </li>
+                            <li ng-if="ut == type.demo || repository.ut > type.member">
+                                <a ui-sref="repo.settings({owner: repository.owner, name: repository.name, s: 'name' })">
+                                    <i class='dlbl repo'></i>Settings
+                                </a>
+                            </li>
+                        </ul>
+
+
+                    </span>
+
+
+                    <div class="hidden-xs repository-description" ng-if="repository.description">
+                        {{ repository.description }}
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+
+
+        <div class="row padded-top">
+        <div class="col-sm-5">
+
+            <div ng-if="repository.role">
+                <div><span class="ar">Role:</span><span class="br">{{ repository.role }}</span></div>
+                <div ng-if="repository.team">
+                    <span class="ar">Team:</span><span class="br">{{ repository.team.name }}</span></div>
+            </div>
+
+            <div class="leaving">
+
+                <span ng-if="isPersonal">
+                    <span ng-if="showSettings">
+                        <span ng-if="repository.canLeave">
+
+                            <button type="button"
+                                    class="btn btn-sm btn-danger"
+                                    ng-disabled="ut < type.member"
+                                    bs-dropdown
+                                    data-placement="bottom-left"
+                                    aria-expanded="false">
+                                Leave repository
+                                <i class="fa fa-caret-down padded-left"></i>
+                            </button>
+                            <ul class="dropdown-menu delete" role="menu">
+                                <li><a tabindex="1005" ng-click="leaveRepository(repository)">Confirm you want to leave this repository</a></li>
+                            </ul>
+
+                        </span>
+                        <span ng-if="!repository.canLeave">
+                            You cannot leave this repository.&nbsp;
+                            You can
+                                <a ui-sref="repo.settings({owner: repository.owner, name: repository.name, s: 'transfer' })">transfer</a> or
+                                <a ui-sref="repo.settings({owner: repository.owner, name: repository.name, s: 'delete' })">delete</a> it.
+                        </span>
+                    </span>
+                </span>
+
+
+                <span ng-if="!isPersonal">
+                    <span ng-if="repository.canLeave && repository.ut > 1">
+
+                        <button type="button"
+                                class="btn btn-sm btn-danger"
+                                ng-disabled="repository.ut < type.member"
+                                bs-dropdown
+                                data-placement="bottom-left"
+                                aria-expanded="false">
+                            Leave repository
+                            <i class="fa fa-caret-down"></i>
+                        </button>
+                        <ul class="dropdown-menu delete" role="menu">
+                            <li><a tabindex="1005" ng-click="leaveRepository(repository)">Confirm you want to leave this repository</a></li>
+                        </ul>
+                    </span>
+                </span>
+
+
+            </div>
+
+        </div>
+
+    </div>
+    </div>
+</div>
+
+    <div class="padded-top">
+        <span ng-if="isPersonal">
+            <span ng-if="showSettings">
+                <a ui-sref="createRepo">Create new repository.</a>
+            </span>
+        </span>
+
+        <span ng-if="!isPersonal">
+            <span ng-if="showSettings">
+                <a ui-sref="createRepo({ account: account.un })">Create new repository.</a>
+            </span>
+        </span>
+    </div>
+</div>
+

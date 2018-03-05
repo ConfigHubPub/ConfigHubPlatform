@@ -1,0 +1,106 @@
+<div class="container padded-top30" ng-controller="NewSecureGroupController">
+
+    <div class="token-form-edit">
+        <div class="inner-value-form">
+            <div class="form-horizontal">
+
+
+                <div class="alert alert-danger" role="alert" ng-if="message">{{ message }}</div>
+
+
+
+                <div class="ie-context form-group" ng-class="{ 'has-error' : errorName }">
+                    <div class="row">
+                        <label class="form-field-head control-label col-sm-2"
+                               style="padding-left: 0">Security Group Name:</label>
+
+                        <div class="col-sm-6 ">
+                            <input type="text"
+                                   tabindex="11"
+                                   class="form-control"
+                                   ng-model="aProfile.name"
+                                   autofocus="autofocus"
+                                   required>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="ie-context form-group">
+                    <div class="row">
+                        <label class="form-field-head control-label col-sm-2"
+                               style="padding-left: 0">Encryption Cipher:</label>
+
+                        <div class="col-sm-6 cipher-select">
+                            <selectize tabindex="10"
+                                       config='CipherConfig'
+                                       options="ciphers"
+                                       ng-model="aProfile.cipher"></selectize>
+
+                        </div>
+                    </div>
+                </div>
+
+                <div class="section-separator"></div>
+
+                <div class="ie-context form-group">
+                        <div class="row">
+                            <label class="form-field-head control-label col-sm-2"
+                                   style="padding-left: 0">Password:</label>
+
+                            <div class="col-sm-6 cipher-select">
+                                <input type="password"
+                                       tabindex="11"
+                                       class="secret form-control"
+                                       ng-model="aProfile.password"
+                                       spellcheck="false"
+                                       required>
+                            </div>
+                        </div>
+                    </div>
+
+                <div class="ie-context form-group">
+                        <div class="row">
+                            <label class="form-field-head control-label col-sm-2"
+                                   style="padding-left: 0">Re-enter Password:</label>
+
+                            <div class="col-sm-6 cipher-select">
+                                <input type="password"
+                                       tabindex="11"
+                                       class="secret form-control"
+                                       ng-model="aProfile.password2"
+                                       spellcheck="false"
+                                       required>
+                            </div>
+                        </div>
+                    </div>
+
+
+
+
+                <div class="ie-value-controls row">
+                    <div class="col-sm-10 col-sm-offset-2">
+
+                    <button type="button"
+                                tabindex="12"
+                                ng-click="saveSecurityProfile()"
+                                ng-disabled="ut < type.member"
+                                class="btn btn-success">
+                            Create security group
+                        </button>
+
+                        <button type="button"
+                                tabindex="15"
+                                ng-click="cancelNewSp()"
+                                class="btn btn-default ">
+                            Cancel
+                        </button>
+
+                    </div>
+                </div>
+
+
+            </div>
+        </div>
+    </div>
+
+</div>

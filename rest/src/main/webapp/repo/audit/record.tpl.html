@@ -1,0 +1,132 @@
+<div class="panel panel-form panel-diff panel-record">
+
+
+    <div class="panel-heading">
+
+        <span ng-switch="commit.group">
+
+            <span ng-switch-when="RepoSettings">
+                <span class="obj-type repo">Settings</span>
+            </span>
+
+            <span ng-switch-when="Config">
+                <span class="obj-type props">Properties</span>
+            </span>
+
+            <span ng-switch-when="Files">
+                <span class="obj-type files">Files</span>
+            </span>
+
+            <span ng-switch-when="Security">
+                <span class="obj-type security">Security</span>
+            </span>
+
+            <span ng-switch-when="Tokens">
+                <span class="obj-type token">Token</span>
+            </span>
+
+            <span ng-switch-when="Teams">
+                <span class="obj-type team">Team</span>
+            </span>
+
+            <span ng-switch-when="Tags">
+                <span class="obj-type tags">Tag</span>
+            </span>
+
+        </span>
+
+
+
+        <span class="revision pull-right">
+            <span ng-if="commit.author" class="user"><a ui-sref="owner({accountName: commit.author})">{{ commit.author }}</a> |</span>
+            <span ng-if="commit.appId" class="user">via API: {{ commit.appId }} | </span>
+            <span class="change-ts"> {{ commit.ts | amCalendar }} </span> |
+            #<a href ng-click="commit.raw = !commit.raw">{{ commit.rev }}</a>
+            <!--#{{ commit.rev }}-->
+        </span>
+    </div>
+
+    <div class="alert alert-danger" ng-if="commit.error">{{ commit.error }}</div>
+
+    <div class="panel-comment">
+
+        <div ng-if="!commit.editComment" class="change-comment slider">
+            <span ng-if="commit.comment">
+                <span class="comment">{{ commit.comment }}</span> / <a href ng-click="commit.newComment = commit.comment; commit.editComment=true">edit</a>
+            </span>
+            <span ng-if="!commit.comment"><a href ng-click="commit.newComment = commit.comment; commit.editComment=true"
+            >add commit note</a>
+            </span>
+        </div>
+
+        <div ng-if="commit.editComment" class="slider">
+            <div>
+                <textarea type="text"
+                          ng-trim="false"
+                          class="msd-elastic form-control form-value"
+                          ng-model="commit.newComment"></textarea>
+            </div>
+            <div class="padded-top">
+                <button class="btn btn-sm btn-success"
+                        ng-disabled="ut < type.member"
+                        ng-click="editComment(commit, commit.newComment)">Save comment</button>
+
+                <button class="btn btn-sm btn-default"
+                        ng-click="commit.editComment=false">Cancel</button>
+
+            </div>
+        </div>
+
+
+    </div>
+
+    <div class="panel-body">
+
+        <div class="record too-many-records" ng-if="commit.overloaded">
+            <div>There are {{ commit.count }} changes in this commit.</div>
+            <div>
+                <a eat-click-if="commit.loading"
+                   ng-if="!commit.loading"
+                   ng-click="getCommitModifications(commit)">
+                    Show changes
+                </a>
+                <span ng-if="commit.loading">
+                    Loading <i class="fa fa-spinner fa-spin fa-fw"></i>
+                </span>
+            </div>
+        </div>
+
+        <div ng-if="!commit.overloaded"
+             ng-repeat="record in commit.records | orderObjectByInt:'pr':true | limitTo: commit.limit">
+
+            <div class="record {{ record.type }}"
+                 ng-class="{'last-record': $last}"
+                 ng-switch="record.type">
+
+                <div ng-switch-when="propertyKey" key-diff class="a-record"></div>
+                <div ng-switch-when="property" property-diff class="a-record"></div>
+                <div ng-switch-when="contextItem" context-item-diff class="a-record"></div>
+                <div ng-switch-when="securityProfile" security-profile-diff class="a-record"></div>
+                <div ng-switch-when="repository" repository-diff class="a-record"></div>
+                <div ng-switch-when="token" token-diff class="a-record"></div>
+                <div ng-switch-when="team" team-diff class="a-record"></div>
+                <div ng-switch-when="accessRule" rule-diff class="a-record"></div>
+                <div ng-switch-when="tag" tag-diff class="a-record"></div>
+                <div ng-switch-when="repoFile" file-diff class="a-record"></div>
+                <div ng-switch-when="absFilePath" dir-diff class="a-record"></div>
+
+                <div ng-switch-default class="a-record">
+                    <pre class="diff">{{ record }}</pre>
+                </div>
+            </div>
+        </div>
+
+        <div class="load-more" ng-if="commit.limit < commit.records.length">
+            <a ng-click="loadMore(commit)">Load more ...</a>
+        </div>
+
+    </div>
+
+    <div ng-show="commit.raw" class="panel-footer v"><pre class="debug">{{ commit | json }}</pre></div>
+
+</div>

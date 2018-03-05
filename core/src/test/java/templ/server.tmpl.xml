@@ -1,0 +1,99 @@
+<?xml version='1.0' encoding='utf-8'?>
+
+<!--
+  ~ Copyright (c) 2016 ConfigHub, LLC to present - All rights reserved.
+  ~
+  ~ Unauthorized copying of this file, via any medium is strictly prohibited
+  ~ Proprietary and confidential
+  -->
+
+<Server port="8005" shutdown="SHUTDOWN">
+    <!-- TomEE plugin for Tomcat -->
+    <Listener className="org.apache.tomee.catalina.ServerListener"/>
+    <Listener className="org.apache.catalina.startup.VersionLoggerListener"/>
+    <!--APR library loader. Documentation at /docs/apr.html -->
+    <Listener className="org.apache.catalina.core.AprLifecycleListener" SSLEngine="on"/>
+    <!--Initialize Jasper prior to webapps are loaded. Documentation at /docs/jasper-howto.html -->
+    <Listener className="org.apache.catalina.core.JasperListener"/>
+    <!-- Prevent memory leaks due to use of particular java/javax APIs-->
+    <Listener className="org.apache.catalina.core.JreMemoryLeakPreventionListener"/>
+    <Listener className="org.apache.catalina.mbeans.GlobalResourcesLifecycleListener"/>
+    <Listener className="org.apache.catalina.core.ThreadLocalLeakPreventionListener"/>
+
+    <GlobalNamingResources>
+        <Resource name="UserDatabase"
+                  auth="Container"
+                  type="org.apache.catalina.UserDatabase"
+                  description="User database that can be updated and saved"
+                  factory="org.apache.catalina.users.MemoryUserDatabaseFactory"
+                  pathname="conf/tomcat-users.xml"/>
+    </GlobalNamingResources>
+
+    <!-- A "Service" is a collection of one or more "Connectors" that share
+         a single "Container" Note:  A "Service" is not itself a "Container",
+         so you may not define subcomponents such as "Valves" at this level.
+         Documentation at /docs/config/service.html
+     -->
+    <Service name="Catalina">
+
+        <Connector port="${server.http.port}"
+                   protocol="HTTP/1.1"
+                   connectionTimeout="20000"
+                   xpoweredBy="false"
+                   server="TomEE"/>
+
+        <Connector port="${server.https.port}"
+                   protocol="org.apache.coyote.http11.Http11Protocol"
+                   maxThreads="150"
+                   scheme="https"
+                   SSLEnabled="true"
+                   secure="true"
+                   keystoreFile="${server.https.keystoreFile}"
+                   keystorePass="${server.https.keystorePass}"
+                   keyAlias="${server.https.keystoreAlias}"
+                   clientAuth="false"
+                   sslProtocol="TLS"
+                   xpoweredBy="false"
+                   server="TomEE"/>
+
+
+        <!-- Define an AJP 1.3 Connector on port 8009 -->
+        <Connector port="8009" protocol="AJP/1.3" redirectPort="8443"/>
+
+        <!-- An Engine represents the entry point (within Catalina) that processes
+             every request.  The Engine implementation for Tomcat stand alone
+             analyzes the HTTP headers included with the request, and passes them
+             on to the appropriate Host (virtual host).
+             Documentation at /docs/config/engine.html -->
+
+        <!-- You should set jvmRoute to support load-balancing via AJP ie :
+        <Engine name="Catalina" defaultHost="localhost" jvmRoute="jvm1">
+        -->
+        <Engine name="Catalina" defaultHost="localhost">
+
+            <!-- Use the LockOutRealm to prevent attempts to guess user passwords
+                 via a brute-force attack -->
+            <Realm className="org.apache.catalina.realm.LockOutRealm">
+                <!-- This Realm uses the UserDatabase configured in the global JNDI
+                     resources under the key "UserDatabase".  Any edits
+                     that are performed against this UserDatabase are immediately
+                     available for use by the Realm.  -->
+                <Realm className="org.apache.catalina.realm.UserDatabaseRealm"
+                       resourceName="UserDatabase"/>
+            </Realm>
+
+            <Host name="localhost"
+                  appBase="webapps"
+                  unpackWARs="true"
+                  autoDeploy="false">
+
+                <Valve className="org.apache.catalina.valves.AccessLogValve"
+                       directory="/var/log/confighub/access"
+                       prefix="access_log."
+                       suffix=".txt"
+                       pattern="%{MM/dd HH:mm:ss.SSS}t :: %{X-Forwarded-For}i [%D] %{CHUser}i %s %r"/>
+
+            </Host>
+        </Engine>
+    </Service>
+</Server>

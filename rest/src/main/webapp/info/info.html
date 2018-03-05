@@ -1,0 +1,75 @@
+<style>
+    .table-condensed>thead>tr>th,
+    .table-condensed>tbody>tr>th,
+    .table-condensed>tfoot>tr>th,
+    .table-condensed>thead>tr>td,
+    .table-condensed>tbody>tr>td,
+    .table-condensed>tfoot>tr>td {
+        padding: 2px 5px;
+    }
+</style>
+
+<div ng-controller="ConfigHubInfoController">
+
+    <div class="container margin-top50">
+
+        <div ng-if="errorMessage">{{ errorMessage }}</div>
+
+        <div class="row" ng-if="initialized">
+
+            <div class="col-md-6">
+                <div class="margin-bottom20">
+                    <div class="hp-section-title margin-bottom50">
+                        Version
+                        <span class="pull-right">{{ system.version }}</span>
+                    </div>
+                </div>
+
+                <div class="margin-bottom50" ng-if="!upgrade">
+                    No upgrade available.
+                </div>
+
+                <div class="margin-bottom50" ng-if="upgrade">
+
+                    <h5 class="margin-bottom30">
+                        <a href="https://www.confighub.com/download" target="_web">New version available<span class="new-indicator"></span></a>
+                        <span class="pull-right">{{ upgrade.version }}</span>
+                    </h5>
+
+                    <article class="markdown-body">
+                        <div btf-markdown="upgrade.releaseNotes"></div>
+                    </article>
+
+                </div>
+            </div>
+
+
+            <div class="col-md-5 col-md-offset-1">
+                <div class="hp-section-title margin-bottom50">Repositories</div>
+                <div ng-repeat="repository in data | orderBy: 'name'">
+                    <div class="panel dashboard panel-form">
+                        <div class="panel-body">
+
+                            <span ng-if="repository.isPersonal" class="account-type"><i class="fa fa-user"></i></span>
+                            <span ng-if="!repository.isPersonal" class="account-type"><i class="fa fa-building-o"></i></span>
+
+                            <a class="owner" ui-sref="owner({accountName: repository.account})">{{ repository.account }}</a> /
+                            <a class="repository-name"
+                               ui-sref="repo.editor({owner: repository.account, name: repository.name })">
+                                {{ repository.name }}</a>
+                            <span ng-if="!repository.isPrivate" class="role public"></span>
+
+                            <div ng-if="repository.description" class="dim description">
+                                {{repository.description}}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+
+
+    </div>
+</div>

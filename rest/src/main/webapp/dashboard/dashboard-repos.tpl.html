@@ -1,0 +1,35 @@
+<div>
+    <h3 class="dash">
+        Your Repositories
+        <span class="new-repo">/ <a ui-sref="createRepo">new</a></span>
+    </h3>
+
+    <div ng-if="initialized && !repositories">
+        <div class="panel empty panel-form">
+            <div class="panel-body">
+                <div>You are not a member or the owner of any repositories.</div>
+            </div>
+        </div>
+    </div>
+
+    <div ng-repeat="repository in repositories" style="max-width: 600px;">
+
+        <div class="panel dashboard panel-form">
+            <div class="panel-body">
+
+                <span ng-if="repository.isPersonal" class="account-type"><i class="fa fa-user"></i></span>
+                <span ng-if="!repository.isPersonal" class="account-type"><i class="fa fa-building-o"></i></span>
+
+                <a class="owner" ui-sref="owner({accountName: repository.account})">{{ repository.account }}</a> /
+                <a class="repository-name" ui-sref="repo.editor({owner: repository.account, name: repository.name })">
+                    {{ repository.name }}</a>
+                <span ng-if="!repository.isPrivate" class="role public"></span>
+
+                <div ng-if="repository.description" class="dim description">
+                    {{repository.description}}
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>

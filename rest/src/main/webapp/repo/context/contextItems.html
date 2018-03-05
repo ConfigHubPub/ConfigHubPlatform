@@ -1,0 +1,95 @@
+<link href="/repo/context/contextItems.css"  rel="stylesheet">
+
+<div class="container padded-top30" ng-controller="ContextItemsController">
+
+    <style ng-if="depthScores.length > 5">
+        .container-fluid,
+        .container {
+            margin-right: auto;
+            margin-left: auto;
+            padding-left: 15px;
+            padding-right: 15px;
+            width: 100%;
+        }
+    </style>
+
+    <div class="row">
+
+        <div class="col-xs-12">
+
+            <div class="loading entry" ng-if="!initialized">
+                <i class="fa fa-spinner fa-spin fa-3x fa-fw"></i>
+            </div>
+
+            <div ng-if="initialized" class="context-table">
+
+                <div class="row">
+                    <div class="col-xs-12">
+                        <div class="toolbar search">
+
+                        <div class="input-group input-group-sm">
+                            <span class="input-group-addon" id="sizing-addon3"><i class="fa fa-search"></i></span>
+
+                            <input type="text"
+                                   ng-model="searchQuery"
+                                   class="form-control input-sm"
+                                   autofocus="true"
+                                   placeholder="Search context items..."
+                                   aria-describedby="sizing-addon3">
+                        </div>
+                        </div>
+                    </div>
+                </div>
+
+
+                <div class="padded-top">
+                    <div ng-class="{'col-md-10': depthScores.length == 10,
+                                    'col-md-9':  depthScores.length == 9,
+                                    'col-md-8':  depthScores.length == 8,
+                                    'col-md-7':  depthScores.length == 7,
+                                    'col-md-6':  depthScores.length == 6,
+                                    'col-md-15': depthScores.length == 5,
+                                    'col-sm-3':  depthScores.length == 4,
+                                    'col-sm-4':  depthScores.length == 3,
+                                    'col-sm-6':  depthScores.length == 2,
+                                    'col-xs-12': depthScores.length == 1}"
+                         class="context-container"
+                         ng-repeat="depthScore in depthScores">
+
+                        <div class="panel panel-form">
+                            <div class="panel-heading">
+                                {{ depthData[depthScore].label }}
+                                <span style="font-size: 13px; font-weight: normal" ng-if="canManageContext">/
+                                <a eat-click-if="ut < type.member"
+                                   ui-sref="repo.newContextItem({owner: account, name: repoName, depthLabel: depthData[depthScore].label })"
+                                   tooltip="Create new {{ label }}">new</a>
+                                </span>
+                            </div>
+
+                            <div class="panel-body">
+
+                                <div class="no-data" ng-if="depthData[depthScore].levels.length == 0" style="padding: 5px 0">
+                                    No context items defined.
+                                </div>
+
+                                <div class="repo-item"
+                                     ng-repeat="level in depthData[depthScore].levels | orderBy: 'name' | levelFilter: searchQuery">
+
+                                    <a class="context-item"
+                                       ui-sref="repo.contextItem({owner: account, name: repoName, contextItem: level.name, depthLabel: depthData[depthScore].label })">{{ level.name }}</a>
+
+                                    <span ng-if="level.type" class="pull-right">
+                                        <span class="lgroup inline" ng-if="level.type == 'Group'"></span>
+                                        <span class="lmember inline" ng-if="level.type == 'Member'"></span>
+                                    </span>
+                                </div>
+
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

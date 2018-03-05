@@ -1,0 +1,54 @@
+.sign-in-wrapper {
+    display: table;
+    width: 100%;
+    table-layout: fixed
+}
+.sign-in
+{
+    display: table-cell;
+    vertical-align: middle;
+    width: 100%;
+    height: 100%
+}
+.login-pannel {
+    max-width: 400px;
+    margin: 0 auto 120px;
+}
+.sign-in input
+{
+    margin-bottom: 5px;
+}
+.forgot {
+    margin-top: 5px;
+    font-size: 12px;
+}
+
+.signup-form
+{
+    max-width: 400px;
+    margin: 0 auto;
+}
+
+.signup-form h3
+{
+    padding: 0;
+    margin: 0;
+}
+
+.signup-form .header
+{
+    border-bottom: 1px solid #eee;
+    margin: 15px 0 15px;
+}
+
+.signup-form .help-block {
+    color: #999;
+}
+
+.signup-form .agreement
+{
+    border-top: 1px solid #eee;
+    padding: 10px 0 20px 0;
+    font-size: 11px;
+    color: #999;
+}

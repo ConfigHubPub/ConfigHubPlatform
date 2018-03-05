@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<persistence xmlns="http://java.sun.com/xml/ns/persistence" version="2.0">
+
+    <persistence-unit name="ConfigHubMain" transaction-type="RESOURCE_LOCAL">
+        <provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
+
+        <class>com.confighub.core.user.UserAccount</class>
+        <class>com.confighub.core.user.Account</class>
+        <class>com.confighub.core.user.Email</class>
+        <class>com.confighub.core.organization.Organization</class>
+        <class>com.confighub.core.organization.Team</class>
+        <class>com.confighub.core.repository.AbsoluteFilePath</class>
+        <class>com.confighub.core.repository.Level</class>
+        <class>com.confighub.core.repository.Property</class>
+        <class>com.confighub.core.repository.PropertyKey</class>
+        <class>com.confighub.core.repository.RepoFile</class>
+        <class>com.confighub.core.repository.Repository</class>
+        <class>com.confighub.core.repository.Tag</class>
+        <class>com.confighub.core.rules.AccessRule</class>
+        <class>com.confighub.core.security.SecurityProfile</class>
+        <class>com.confighub.core.security.Token</class>
+        <class>com.confighub.core.store.RevisionEntry</class>
+        <exclude-unlisted-classes>true</exclude-unlisted-classes>
+
+        <properties>
+            <!-- Configuring JDBC properties -->
+            <property name="javax.persistence.jdbc.url" value="jdbc:h2:mem:main"/>
+            <property name="javax.persistence.jdbc.driver" value="org.h2.Driver"/>
+
+            <!-- Hibernate properties -->
+            <property name="hibernate.dialect" value="org.hibernate.dialect.H2Dialect"/>
+            <property name="hibernate.hbm2ddl.auto" value="create-drop"/>
+
+            <property name="hibernate.c3p0.acquire_increment" value="10"/>
+            <property name="hibernate.c3p0.idle_test_period" value="3000"/>
+            <property name="hibernate.c3p0.min_size" value="2"/>
+            <property name="hibernate.c3p0.max_size" value="200"/>
+            <property name="hibernate.c3p0.max_statements" value="0"/>
+            <property name="hibernate.c3p0.timeout" value="3000"/>
+            <property name="hibernate.c3p0.acquireRetryAttempts" value="2"/>
+            <property name="hibernate.c3p0.acquireRetryDelay" value="1000"/>
+
+            <property name="hibernate.cache.use_second_level_cache" value="true"/>
+            <property name="hibernate.cache.use_query_cache" value="true"/>
+            <property name="net.sf.ehcache.configurationResourceName" value="/META-INF/ehcache.xml"/>
+            <property name="hibernate.cache.region.factory_class"
+                      value="org.hibernate.cache.ehcache.SingletonEhCacheRegionFactory"/>
+            <property name="hibernate.cache.use_structured_entries" value="true"/>
+
+            <property name="hibernate.archive.autodetection" value="class"/>
+            <property name="hibernate.show_sql" value="false"/>
+            <property name="hibernate.format_sql" value="false"/>
+            <property name="use_sql_comments" value="false"/>
+            <property name="hibernate.transaction.flush_before_completion" value="true"/>
+
+            <!-- Envers -->
+            <property name="org.hibernate.envers.store_data_at_delete" value="true"/>
+            <property name="org.hibernate.envers.audit_strategy_validity_store_revend_timestamp"
+                      value="true"/>
+            <property name="org.hibernate.envers.audit_strategy"
+                      value="org.hibernate.envers.strategy.ValidityAuditStrategy"/>
+            <property name="org.hibernate.envers.audit_table_suffix" value="_Audit"/>
+
+        </properties>
+    </persistence-unit>
+
+
+</persistence>
+

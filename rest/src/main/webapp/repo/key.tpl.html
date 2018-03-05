@@ -1,0 +1,120 @@
+<div ng-dblclick="enableKeyEditor(side)">
+    <div ng-if="!entry.f.k[side].isEdited && !entry.newProperty" class="slider key-display">
+
+        <div class="key-value-top" id="e_{{side}}_{{$index}}">
+            <div ng-show="entry[side].readme != ''">
+                <span class="readme" ng-bind-html="entry[side].readme | linky:'_blank'"></span>
+            </div>
+
+            <div class="annotation type" ng-if="repository.valueTypeEnabled && entry[side].vdt != 'Text'">
+                <span class="cont">{{ entry[side].vdt }}</span>
+            </div>
+
+            <span class="keyLine">
+
+                <div class="key key-text"
+                     ng-class="{'deprecated': entry[side].deprecated}">{{ entry.key }}</div>
+
+                <div class="annotation security" ng-if="entry[side].spName">
+                    <span class="cont">
+                        <i class="fa fa-lock"></i>
+                        <a class="sec" ng-click="gotoSp(entry[side].spName)">{{ entry[side].spName }}</a></span>
+                </div>
+
+                <div class="annotation push" ng-if="repository.valueTypeEnabled && entry[side].pushEnabled">
+                    <span class="cont"><i class="fa fa-upload"></i> Push</span>
+                </div>
+
+
+                <div class="key-uses-wrapper">
+
+                    <span ng-if="showKeyLinks(side)">
+
+                        <i class="spp"></i><span class="key-btn">
+                            <a data-animation="am-flip-x"
+                               data-html="1"
+                               data-placement="bottom-left"
+                               bs-dropdown
+                               aria-haspopup="true"
+                               aria-expanded="false">options <i class="fa fa-caret-down"></i></a>
+                            <ul class="dropdown-menu" role="menu">
+                                <li><a ng-click="addValue(side)"><i class="fa fa-plus dropdown-icon"></i>Add value</a></li>
+                                <li><a ng-click="enableKeyEditor(side)"><i class="fa fa-pencil dropdown-icon"></i>Edit key</a></li>
+                                <li ng-if="side == 1 && !demo" class="divider"></li>
+                                <li ng-if="side == 1 && !demo">
+                                    <a ui-sref="repo.key({owner:account, name:repoName, key:entry.key})"><i class="fa fa-link dropdown-icon"></i>Link to</a>
+                                </li>
+                            </ul>
+                        </span>
+                    </span>
+
+                    <i class="spp"></i> <a class="key-btn" ng-click="toggleAllValues()"
+                         ng-if="entry.allValues || (!entry.allValues && entry[side].uses != entry.properties.length)">
+                         {{ entry[side].uses }}
+                         <ng-pluralize
+                                 count="entry[side].uses"
+                                 when="{ '0': 'No value assigned',
+                                         '1': 'value',
+                                         'other': 'values'}">
+                         </ng-pluralize>
+                         <i class='fa ' ng-class="entry.allValues ? 'fa-caret-up' : 'fa-caret-down'"></i></a>
+
+                    <span class="key-btn"
+                          ng-if="!entry.allValues && entry[side].uses == entry.properties.length">
+                         <ng-pluralize
+                                 count="entry[side].uses"
+                                 when="{ '0': 'No value assigned',
+                                         '1': '1 value',
+                                         'other': '{{ entry[side].uses }} values'}">
+                         </ng-pluralize>&nbsp;
+                    </span>
+
+                    <span ng-if="entry[side].files > 0">
+                        <i class="spp"></i> <span class="key-btn">
+                            {{ entry[side].files }}
+                             <ng-pluralize
+                                     count="entry[side].files"
+                                     when="{ '0': 'Not used in files',
+                                             '1': 'file',
+                                             'other': 'files'}">
+                             </ng-pluralize>&nbsp;
+                        </span>
+                    </span>
+
+                    <span ng-if="entry[side].encrypted">
+                         <i class="spp"></i> <a href
+                              class="key-btn"
+                              ng-click="toggleDecryption(side)">
+                             <span ng-if="entry.f.k[side].decrypted">hide decryption</span>
+                             <span ng-if="!entry.f.k[side].decrypted">decrypt</span></a>
+                         </a>
+                    </span>
+
+                    <span ng-if="valueSorter && entry.properties.length > 1">
+                         <span class="key-btn">
+                                  sorted by: <a href
+                                  data-animation="am-flip-x"
+                                  data-html="1"
+                                  data-placement="bottom-left"
+                                  bs-dropdown
+                                  aria-haspopup="true"
+                                  aria-expanded="false">{{ valueSorter.lbl | lowercase }} <i ng-if="valueSorter.asc" class="fa fa-caret-up"></i><i ng-if="!valueSorter.asc" class="fa fa-caret-down"></i></a>
+                             <ul class="dropdown-menu" role="menu">
+                                 <li ng-repeat="sorter in keySorters" ng-class="{'divider': !sorter.lbl }">
+                                     <a ng-if="sorter.lbl" ng-click="setSorter(sorter)">{{ sorter.lbl }}</a>
+                                 </li>
+                             </ul>
+                        </span>
+                    </span>
+
+                 </div>
+             </span>
+         </div>
+     </div>
+
+     <div ng-if="entry.f.k[side].isEdited || entry.newProperty" class="slider">
+         <div ng-class="{'key-form-edit': !entry.newProperty, 'new-property-form2-key': entry.newProperty}">
+             <div key-editor></div>
+         </div>
+     </div>
+ </div>

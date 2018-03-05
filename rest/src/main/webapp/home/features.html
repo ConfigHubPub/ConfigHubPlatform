@@ -1,0 +1,460 @@
+<style>
+    .navbar-ch {
+        position: fixed;
+        width: 100%;
+        overflow: visible !important;
+    }
+
+    .home-start {
+        padding-top: 40px;
+    }
+</style>
+
+<div class="home-start" ng-controller="HomeCtrl">
+
+    <!--Old vs New World-->
+    <div>
+        <div class="row">
+            <div class="ftr_section old_world ftr_split col-sm-3 text-right ftr_left">
+                <div class="ftr_world_content text-right">
+                    <p class="ftr_sec-title">The Old Infrastructure</p>
+                    <div old-world></div>
+                </div>
+            </div>
+
+            <div class="ftr_split col-sm-1 ftr_center">&nbsp;</div>
+
+            <div class="ftr_section new_world ftr_split col-sm-3 ftr_right">
+                <div class="ftr_world_content ">
+                    <p class="ftr_sec-title">The New Platform</p>
+                    <div new-world></div>
+                </div>
+            </div>
+        </div>
+        <div class="world_nav text-center">
+            <span ng-repeat="pair in tagLines track by $index">
+            <i ng-class="{'fa-circle-thin': tagIndex != $index, 'fa-circle': tagIndex == $index}"
+               class="fa" ng-click="selectSlide($index)"></i>
+            </span>
+        </div>
+    </div>
+
+    <!--Context-->
+    <div class="ftr_section ftr-gray" id="context">
+        <div class="container">
+
+            <div class="margin-bottom30">
+                <h2 class="title">Hierarchical Context Properties  <i class="fa fa-sitemap"></i></h2>
+            </div>
+
+            <div class="row">
+
+                <div class="col-md-4">
+
+                    <p class="ftr_content">
+                        All running applications have a context.  It may be as simple as "Development",
+                        or wider scoped depending on the size of the organization.  Generally, for each
+                        application context there is a set of corresponding configuration files.
+                    </p>
+
+                    <p class="ftr_content">
+                        Many times, these configuration files have same key-value pairs defined across applications
+                        in different contexts.  This makes sweeping changes, even for a single key-value pair both
+                        difficult and risky.
+                    </p>
+
+                    <p class="ftr_content">
+                        To address this issue, ConfigHub assigns context to each key-value pair instead.  We call
+                        these properties, context-properties.  The result of this strategy is that property
+                        with the same context is only defined once, regardless of the number of applications.
+                        Changing a context-property value becomes simple and risk-free.
+                    </p>
+
+                    <div class="ftr_content">
+                        <ul class="list-unstyled">
+                            <li><a ui-sref="help.terminology({'#': 'context'})">Context types</a></li>
+                            <li><a ui-sref="help.overview({'#': 'contextResolution'})">How context resolution works</a></li>
+                        </ul>
+                    </div>
+
+                </div>
+
+                <div class="col-md-7 col-md-offset-1 margin-top-30-xs">
+                    <div class="ftr_sub-sec-title ftr_content">
+                        <b>Example Repository Context:</b>  <span class="context">Environment > Application > Instance</span>
+                    </div>
+                    <div class="context-slides">
+                        <img ng-src="{{ contextImage }} " class="img-responsive">
+                    </div>
+
+                    <div class="world_nav text-center">
+                        <span ng-repeat="ci in contextImages track by $index">
+                        <i ng-class="{'fa-circle-thin': contextImageIndex != $index, 'fa-circle': contextImageIndex == $index}"
+                           class="fa" ng-click="selectContextImage($index)"></i>
+                        </span>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+
+
+    <!--Files-->
+    <div class="ftr_section ftr-white" id="files" style="padding-bottom: 0">
+        <div class="container">
+
+            <div class="margin-bottom30">
+                <h2 class="title">Context Files <i class="fa fa-files-o"></i></h2>
+            </div>
+
+            <div class="row margin-bottom30">
+                <div class="col-md-6">
+                    <p class="ftr_content">
+                        Upload configuration files into your ConfigHub repository, and pull them
+                        into your application on request through the API.  The notation
+                        <span class="file_bracket">${</span> <span class="key">property_key</span> <span class="file_bracket">}</span>,
+                        lets you specify a property key, which will be replaced by its resolved value
+                        at the time of the request.
+                    </p>
+                </div>
+                <div class="col-md-6">
+                    <p class="ftr_content">
+                        The editor gives you a side by side view of file content and the keys/values used for
+                        specific context.  The simplicity of context files saves time and code, and removes
+                        the necessity for the application to manage environmental properties.
+
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="text-center">
+            <div class="row padded-top30">
+                <div class="col-xs-12 text-center">
+                    <img src="/images/features/files.png?v=1"
+                         class="img-responsive"
+                         style="margin: 0 auto; width: 1600px;">
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!--Security-->
+    <div class="ftr_section ftr-gray" id="security" style="padding-bottom: 0;">
+        <div class="container">
+
+            <div class="margin-bottom30">
+                <h2 class="title padded-bottom10">Security <i class="fa fa-lock"></i></h2>
+            </div>
+
+
+            <div class="row margin-bottom30">
+                <div class="col-xs-12">
+                    <img src="/images/features/security-group.png?v=1"
+                         style="width: 150px; float: right; margin: 10px 0 20px 30px;">
+
+                    <p class="ftr_content">
+                        At the heart of ConfigHub's security mechanism are the Security Groups. They are
+                        password protected, and accept as members both property keys and files.  Optionally,
+                        a security group can enable encryption using specified cypher, and if enabled, it will
+                        store encrypted all assigned files and key's values. From a UI standpoint, a security
+                        group password-protects a resource (key's values and/or files) from editing, and if
+                        encryption is enabled, hide the data from being visible.
+                    </p>
+                </div>
+
+            </div>
+
+
+            <div class="padded-bottom">
+                <h1 class="title-sub">Pulling Security-Group Encrypted Data</h1>
+            </div>
+
+            <p class="ftr_content padded-bottom30">
+                There are several ways for an application to pull properties and/or files that are
+                encrypted using one of the Security Profiles.   Which strategy, or combination of
+                strategies, you end up using will largely depend on your security requirements.
+            </p>
+
+            <div class="row margin-bottom80">
+                <div class="col-md-4">
+                    <div class="sec-pull-wrapper">
+                        <h1 class="title-sub">Pre-Authorized Token <i class="fa fa-certificate"></i></h1>
+
+                        <p class="ftr_content">
+                            Security Groups with encryption enabled can be added to any token, and thus
+                            pre-authorize the token to decrypt all data encrypted by that security group.
+                        </p>
+
+                        <p class="ftr_content ftr_content_strong">
+                            Using this strategy, a client does not need to have any knowledge about the
+                            security surrounding this data.
+                        </p>
+
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="sec-pull-wrapper">
+                        <h1 class="title-sub">Password on Request <i class="fa fa-unlock"></i></h1>
+
+                        <p class="ftr_content">
+                            During a pull request, a client may specify a password for any
+                            security group.  Any data returned that belongs to these security groups
+                            will be decrypted before it is returned.
+                        </p>
+
+                        <a ui-sref="api">API Documentation</a>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="sec-pull-wrapper">
+                        <h1 class="title-sub">Return Encrypted <i class="fa fa-user-secret"></i></h1>
+
+                        <p class="ftr_content">
+                            By default, if neither decryption strategy is used, data will be returned
+                            encrypted.  With the encrypted data, information cipher and security group
+                            name is returned.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="text-center margin-bottom30">
+                <img src="/images/features/security-2.png?v=1"
+                     class="img-responsive"
+                     style="width: 750px; margin: 0 auto;">
+            </div>
+
+
+
+            <p class="secure-foot padded-top100 padded-bottom50">
+                All ConfigHub transactions are encrypted using strong 2048-Bit SSL Certificate
+                Encryption.
+            </p>
+
+        </div>
+
+    </div>
+
+
+    <!--Revisions-->
+    <div class="ftr_section ftr-white" id="revs">
+        <div class="container">
+
+            <div class="margin-bottom30 hidden-md hidden-lg">
+                <h2 class="title">Revisions <i class="fa fa-history"></i></h2>
+            </div>
+
+            <div class="row">
+                <div class="col-md-7">
+
+                    <img src="/images/features/audit-3.png?v=1" class="img-responsive" style="width: 657px">
+                    <img src="/images/features/audit-1.png?v=1" class="img-responsive padded-top30" style="width: 657px">
+                    <img src="/images/features/audit-2.png?v=1" class="img-responsive padded-top30" style="width: 657px">
+
+                </div>
+
+                <div class="col-md-4 col-md-offset-1 margin-top-30-xs">
+
+                    <div class="margin-bottom30 hidden-xs hidden-sm">
+                        <h2 class="title">Revisions <i class="fa fa-history"></i></h2>
+                    </div>
+
+                    <p class="ftr_content">
+                        Changes made to any and all components of your repositories are recorded.
+                        Each change, a revision, is categorized and easily recalled so that you
+                        always have visibility into your configuration history.
+                    </p>
+
+                    <p class="ftr_content">
+                        Either from the API, or configuration editor, you may specify a point in time
+                        and recall your repository exactly as it was at that time. This allows
+                        you to compare configuration from any point in time, to any other point in time.
+                        It also allows you to pull configuration via APIs for a specific date/time, or
+                        a pre-defined tag.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!--Teams-->
+    <div class="ftr_section ftr-gray" id="teams">
+        <div class="container">
+
+            <div class="margin-bottom30">
+                <h2 class="title">Teams / Access Controls <i class="fa fa-users"></i></h2>
+            </div>
+
+            <p class="ftr_content margin-bottom30">
+                Roles of those that have access to application configuration is not the same.
+                You may only want to allow development config to be managed by
+                developers. Or even, multiple product suites may have entirely different groups.
+                Managed access gives you full control over who has access to which config resource.
+            </p>
+
+            <div class="row padded-top30">
+                <div class="col-md-4 ft-avatar">
+                    <div class="ft-avatar-panel">
+                        <img src="/images/features/av1.png?v=1" class="img-responsive avatar-img">
+                        <div class="av-title">Database Admin</div>
+                        <div class="av-rules">
+                            <img src="/images/features/dba-access.png?v=1" class="img-responsive ft-dba">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-4 ft-avatar">
+                    <div class="ft-avatar-panel">
+                        <img src="/images/features/av2.png?v=1" class="img-responsive avatar-img">
+                        <div class="av-title">Developer</div>
+                        <div class="av-rules">
+                            <img src="/images/features/dev-access.png?v=1" class="img-responsive ft-dba">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-4 ft-avatar">
+                    <div class="ft-avatar-panel">
+                        <img src="/images/features/av3.png?v=1" class="img-responsive avatar-img">
+                        <div class="av-title">System Admin</div>
+                        <div class="av-rules">
+                            <img src="/images/features/sysa-access.png?v=1" class="img-responsive ft-dba">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!--Type-->
+    <div class="ftr_section ftr-white" id="vdt">
+        <div class="container">
+
+            <div class="margin-bottom30">
+                <h2 class="title">Type-Checked Values  <i class="fa fa-check"></i></h2>
+            </div>
+            <div class="row">
+
+                <div class="col-md-4">
+
+                    <p class="ftr_content">
+                        When your code expects a specific value type (boolean, int, long, etc.)
+                        ConfigHub may enforce this per key, though a Value-Type key attribute.
+                    </p>
+
+                    <p class="ftr_content">
+                        We currently support following Value-Types:
+                        String, Boolean, Integer, Long, Double, Float, Map, List,
+                        and Code/ML - code or markup syntax highlighting.
+                    </p>
+
+                    <p class="ftr_content">
+                        In the near-term you can expect Value-Type template support where you can add your own
+                        value type validation for custom types.
+                    </p>
+                </div>
+
+                <div class="col-md-7 col-md-offset-1 margin-top-30-xs">
+                    <img src="/images/features/v-types-2.png?v=1" class="img-responsive ft-vtypes padded-top10">
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!--Tags-->
+    <div class="ftr_section ftr-gray" id="tags">
+        <div class="container">
+
+            <div class="margin-bottom30">
+                <h2 class="title">Tags / Versions <i class="fa fa-tags"></i></h2>
+            </div>
+
+            <div class="row">
+                <div class="col-md-4">
+                    <img src="/images/features/tags.png?v=1" class="img-responsive ft-tag padded-top">
+                </div>
+
+                <div class="col-md-7 col-md-offset-1 margin-top-30-xs">
+                    <p class="ftr_content">
+                        Whether you are cutting a release, or just want to leave a reference point
+                        with a note for a specific point in time of your repository, tags let you do that.
+                        They are easily recalled when editing or comparing configuration, or when
+                        pulling configuration through the API.
+                    </p>
+
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!--Compare-->
+    <div class="ftr_section ftr-white" id="compare">
+
+        <div class="container">
+            <div class="margin-bottom30">
+                <h2 class="title">Context / Time Comparison <i class="fa fa-balance-scale"></i></h2>
+            </div>
+
+            <div class="row margin-bottom30">
+                <div class="col-md-6">
+                    <p class="ftr_content">
+                        Being able to see the configuration difference between contexts is critical in early
+                        error detection.  Unfortunately, due to the complexities of configuration files, it is
+                        often too complex to do this using only file-diffing tools.
+                    </p>
+                </div>
+                <div class="col-md-6">
+                    <p class="ftr_content">
+                        ConfigHub let's you compare any context to any other context, allowing you full range of
+                        complex comparisons, including comparisons over time.  So, comparing environment, application,
+                        or any other context permutation is as easy as specifying them.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="text-center">
+            <div class="row padded-top30">
+                <div class="col-xs-12 text-center">
+                    <img src="/images/features/compare-4.png?v=1" class="img-responsive" style="margin: 0 auto; width: 1535px;">
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!--Org-->
+    <div class="ftr_section ftr-gray" id="orgs">
+
+        <div class="container">
+            <div class="margin-bottom30">
+                <h2 class="title padded-bottom10">Organizations <i class="fa fa-building-o"></i></h2>
+            </div>
+
+            <p class="ftr_content margin-bottom30">
+                Organizations are a management groups that allow you to define
+                owners and administrators across all your repositories. It is
+                another way to share and control responsibility of managing
+                contributors, access controls, modification and deletion of
+                critical repository components.
+            </p>
+
+            <div class="row">
+                <div class="col-xs-12 text-center">
+                    <img src="/images/features/org.png?v=1" class="img-responsive ft-org">
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>

@@ -1,0 +1,56 @@
+<div ng-controller="SignupCtrl">
+
+    <form novalidate class="">
+
+        <div class="alert alert-danger slider" ng-show="message">{{ message }}</div>
+
+        <div class="header">
+            <div class="el form-group" ng-class="{ 'has-error' : errorEmail }">
+                <div class="form-field-head">Email address</div>
+
+                <input type="email"
+                       ng-model="email"
+                       autofocus="true"
+                       class="form-control input-lg"
+                       required/>
+            </div>
+        </div>
+
+        <div class="header">
+            <div class="el form-group" ng-class="{ 'has-error' : errorUsername }">
+                <div class="form-field-head">Username</div>
+
+                <input type="text"
+                       ng-model="username"
+                       class="form-control input-lg"
+                       required/>
+            </div>
+
+
+            <div class="el form-group" ng-class="{ 'has-error' : errorPassword }">
+                <div class="form-field-head">Password</div>
+
+                <input type="password"
+                       ng-model="password"
+                       class="form-control input-lg"
+                       required/>
+                <p class="help-block">
+                    Use at least one lowercase letter, one numeral, and seven characters.
+                </p>
+            </div>
+        </div>
+
+        <div class="form-actions">
+            <input type="submit"
+                   value="Create an account"
+                   class="btn btn-success btn-lg btn-block"
+                   ng-click="signup()">
+        </div>
+
+        <div class="agreement">
+            By clicking on "Create an account", you are agreeing to the
+            <a href="/terms">Terms of Service</a> and the <a href="/privacy">Privacy Policy</a>.
+        </div>
+    </form>
+
+</div>

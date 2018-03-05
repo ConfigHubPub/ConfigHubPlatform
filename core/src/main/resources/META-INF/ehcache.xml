@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Copyright (c) 2016 ConfigHub, LLC to present - All rights reserved.
+  ~
+  ~ Unauthorized copying of this file, via any medium is strictly prohibited
+  ~ Proprietary and confidential
+  -->
+
+<ehcache>
+
+    <defaultCache maxElementsInMemory="500000"
+                  eternal="false"
+                  timeToIdleSeconds="300"
+                  timeToLiveSeconds="600"
+                  overflowToDisk="false"
+                  diskPersistent="false"
+                  diskExpiryThreadIntervalSeconds="600" />
+
+    <cache  name="com.confighub.core.repository.Repository"
+            maxElementsInMemory="1000"
+            eternal="false"
+            timeToIdleSeconds="300"
+            timeToLiveSeconds="600"
+            overflowToDisk="false"/>
+
+    <cache  name="com.confighub.core.repository.PropertyKey"
+            maxElementsInMemory="100000"
+            eternal="false"
+            timeToIdleSeconds="300"
+            timeToLiveSeconds="600"
+            overflowToDisk="false"/>
+
+    <cache  name="com.confighub.core.repository.Property"
+            maxElementsInMemory="100000"
+            eternal="false"
+            timeToIdleSeconds="300"
+            timeToLiveSeconds="600"
+            overflowToDisk="false"/>
+
+    <cache  name="com.confighub.core.repository.Level"
+            maxElementsInMemory="100000"
+            eternal="false"
+            timeToIdleSeconds="300"
+            timeToLiveSeconds="600"
+            overflowToDisk="false"/>
+
+    <cache  name="com.confighub.core.rules.AccessRule"
+            maxElementsInMemory="10000"
+            eternal="false"
+            timeToIdleSeconds="300"
+            timeToLiveSeconds="600"
+            overflowToDisk="false"/>
+
+    <cache  name="com.confighub.core.security.SecurityProfile"
+            maxElementsInMemory="10000"
+            eternal="false"
+            timeToIdleSeconds="300"
+            timeToLiveSeconds="600"
+            overflowToDisk="false"/>
+
+    <cache  name="com.confighub.core.security.Token"
+            maxElementsInMemory="10000"
+            eternal="false"
+            timeToIdleSeconds="300"
+            timeToLiveSeconds="600"
+            overflowToDisk="false"/>
+
+    <cache  name="com.confighub.core.repository.Tag"
+            maxElementsInMemory="10000"
+            eternal="false"
+            timeToIdleSeconds="300"
+            timeToLiveSeconds="600"
+            overflowToDisk="false"/>
+
+    <cache  name="com.confighub.core.repository.AbsoluteFilePath"
+            maxElementsInMemory="5000"
+            eternal="false"
+            timeToIdleSeconds="300"
+            timeToLiveSeconds="600"
+            overflowToDisk="false"/>
+
+    <cache  name="com.confighub.core.repository.RepoFile"
+            maxElementsInMemory="1000"
+            eternal="false"
+            timeToIdleSeconds="300"
+            timeToLiveSeconds="600"
+            overflowToDisk="false"/>
+
+    <cache  name="com.confighub.core.user.UserAccount"
+            maxElementsInMemory="200"
+            eternal="false"
+            timeToIdleSeconds="300"
+            timeToLiveSeconds="600"
+            overflowToDisk="false"/>
+
+    <cache  name="com.confighub.core.user.Account"
+            maxElementsInMemory="200"
+            eternal="false"
+            timeToIdleSeconds="300"
+            timeToLiveSeconds="600"
+            overflowToDisk="false"/>
+
+    <cache  name="com.confighub.core.organization.Team"
+            maxElementsInMemory="200"
+            eternal="false"
+            timeToIdleSeconds="300"
+            timeToLiveSeconds="600"
+            overflowToDisk="false"/>
+
+    <cache  name="com.confighub.core.organization.Organization"
+            maxElementsInMemory="200"
+            eternal="false"
+            timeToIdleSeconds="300"
+            timeToLiveSeconds="600"
+            overflowToDisk="false"/>
+
+
+
+</ehcache>

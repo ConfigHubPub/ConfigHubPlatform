@@ -1,0 +1,39 @@
+<div class="panel panel-form panel-form-warning">
+
+    <div class="panel-heading">Delete repository</div>
+    <div class="panel-body">
+
+        <div class="row">
+            <div class="col-xs-12">
+
+                <div class="alert alert-danger" role="alert" ng-if="deleteError">{{ deleteError }}</div>
+
+                <p>
+                    <strong>
+                        Deleted repository is not recoverable.
+                        Please make sure you are certain you want to delete it.
+                    </strong>
+                </p>
+
+
+                <div class="padded-top30">
+                    <button type="button"
+                            ng-disabled="ut < type.owner"
+                            class="btn btn-danger"
+                            bs-dropdown
+                            data-placement="bottom-left"
+                            aria-expanded="false">
+                        Delete repository
+                        <i class="fa fa-caret-down padded-left"></i>
+                    </button>
+                    <ul class="dropdown-menu delete" role="menu">
+                        <li><a ng-click="deleteRepository()">Confirm you want to delete this repository</a></li>
+                    </ul>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+
+</div>

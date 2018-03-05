@@ -1,0 +1,213 @@
+<div ng-if="record.revType != 'Modify'">
+
+    <div class="single-add" ng-if="record.revType == 'Add'"></div>
+    <div class="single-del" ng-if="record.revType == 'Delete'"></div>
+    <div class="table-content">
+
+        <div>
+            <span class="f-key name">Name: </span>
+            <span class="f-value">{{ record.entry.name }}</span>
+        </div>
+
+        <div>
+            <span class="f-key name">Expiration: </span>
+            <span class="f-value">
+
+                <span ng-if="record.entry.expires">
+                    <span class="sps-head expired" ng-if="record.entry.expired">Expired </span>
+                    {{ record.entry.expires | amDateFormat:'MM/DD/YY [at] hh:mm a' }}
+                </span>
+
+                <span ng-if="!record.entry.expires">Not set</span>
+
+            </span>
+        </div>
+
+        <div>
+            <span class="f-key name">Key Push Override: </span>
+            <span class="f-value">
+                <span ng-if="diff_forceKeyPushEnabled">
+                    <del class="diff semantic">{{ diff.forceKeyPushEnabled ? "Enabled" : "Disabled"  }}</del>
+                    <ins class="diff semantic">{{ entry.forceKeyPushEnabled ? "Enabled" : "Disabled"  }}</ins>
+                </span>
+                <span ng-if="!diff_forceKeyPushEnabled">{{ record.entry.forceKeyPushEnabled ? "Enabled" : "Disabled" }}</span>
+                </span>
+            </span>
+        </div>
+
+        <div>
+            <span class="f-key name">Push Access Rules: </span>
+            <span class="f-value">
+                <span ng-if="diff_rulesTeam">
+                    <del class="diff semantic">{{ diff.rulesTeam }}</del>
+                    <ins class="diff semantic">{{ entry.rulesTeam }}</ins>
+                </span>
+                <span ng-if="!diff_rulesTeam">{{ record.entry.rulesTeam }}</span>
+                </span>
+            </span>
+        </div>
+
+        <div ng-if="record.entry.sps">
+            <span class="f-key name">Decrypts Security Profiles: </span>
+            <span class="f-value">
+                <span ng-repeat="assigned in record.entry.sps | orderBy">
+                    {{ assigned }}<span ng-if="!$last">, </span
+                ></span>
+            </span>
+        </div>
+
+
+        <div>
+            <span class="f-key name">Used By: </span>
+            <span class="f-value">
+                <span ng-if="diff_managedBy">
+                    <del class="diff semantic">{{ usedByWas }}</del>
+                    <ins class="diff semantic">{{ usedByIs }}</ins>
+                </span>
+                <span ng-if="!diff_managedBy">{{ usedByIs }}</span>
+                </span>
+            </span>
+        </div>
+
+
+    </div>
+
+</div>
+
+
+
+<div ng-if="record.revType == 'Modify'">
+
+    <div class="noselect"></div>
+    <div class="table-content">
+
+
+        <div>
+            <span class="f-key name">Name: </span>
+            <span class="f-value">
+                <span ng-if="objKeyPresent(diff, 'name')">
+                    <del class="diff semantic">{{ diff.name }}</del>
+                    <ins class="diff semantic">{{ entry.name }}</ins>
+                    </span>
+                    <span ng-if="!objKeyPresent(diff, 'name')">{{ record.entry.name }}</span>
+                </span>
+            </span>
+        </div>
+
+
+        <div>
+            <span class="f-key name">Active: </span>
+            <span class="f-value">
+                <span ng-if="diff_active">
+                    <del class="diff semantic">{{ diff.active ? "Yes" : "No"  }}</del>
+                    <ins class="diff semantic">{{ entry.active ? "Yes" : "No"  }}</ins>
+                </span>
+                <span ng-if="!diff_active">{{ record.entry.active ? "Yes" : "No" }}</span>
+                </span>
+            </span>
+        </div>
+
+
+        <div>
+            <span class="f-key name">Expiration: </span>
+            <span class="f-value">
+
+                <span ng-if="objKeyPresent(diff, 'expires')">
+                    <del class="diff semantic">
+                        <span ng-if="diff.expires">
+                            <span class="sps-head expired" ng-if="diff.expired">Expired </span>
+                            {{ diff.expires | amDateFormat:'MM/DD/YY [at] hh:mm a' }}
+                        </span>
+                        <span ng-if="!diff.expires">Not set</span>
+                    </del>
+
+                    <ins class="diff semantic">
+                        <span ng-if="record.entry.expires">
+                            <span class="sps-head expired" ng-if="record.entry.expired">Expired </span>
+                            {{ record.entry.expires | amDateFormat:'MM/DD/YY [at] hh:mm a' }}
+                        </span>
+                        <span ng-if="!record.entry.expires">Not set</span>
+                    </ins>
+                </span>
+
+
+                <span ng-if="!objKeyPresent(diff, 'expires')">
+
+                    <span ng-if="record.entry.expires">
+                        <span class="sps-head expired" ng-if="record.entry.expired">Expired </span>
+                        {{ record.entry.expires | amDateFormat:'MM/DD/YY [at] hh:mm a' }}
+                    </span>
+                    <span ng-if="!record.entry.expires">Not set</span>
+                </span>
+
+            </span>
+        </div>
+
+
+        <div>
+            <span class="f-key name">Key Push Override: </span>
+            <span class="f-value">
+                <span ng-if="diff_forceKeyPushEnabled">
+                    <del class="diff semantic">{{ diff.forceKeyPushEnabled ? "Enabled" : "Disabled"  }}</del>
+                    <ins class="diff semantic">{{ entry.forceKeyPushEnabled ? "Enabled" : "Disabled"  }}</ins>
+                </span>
+                <span ng-if="!diff_forceKeyPushEnabled">{{ record.entry.forceKeyPushEnabled ? "Enabled" : "Disabled" }}</span>
+                </span>
+            </span>
+        </div>
+
+        <div>
+            <span class="f-key name">Push Access Rules: </span>
+            <span class="f-value">
+                <span ng-if="diff_rulesTeam">
+                    <del class="diff semantic">{{ diff.rulesTeam }}</del>
+                    <ins class="diff semantic">{{ entry.rulesTeam }}</ins>
+                </span>
+                <span ng-if="!diff_rulesTeam">{{ record.entry.rulesTeam }}</span>
+                </span>
+            </span>
+        </div>
+
+
+
+        <div ng-if="diffSps">
+            <span class="f-key name">Decrypts Security Profiles: </span>
+            <span class="f-value">
+                <span ng-repeat="assigned in diffSps | orderBy:'n'">
+
+                    <del ng-if="assigned.m < 0" class="diff semantic">{{ assigned.n }}</del>
+                    <ins ng-if="assigned.m > 0" class="diff semantic">{{ assigned.n }}</ins>
+                    <span ng-if="assigned.m == 0">{{ assigned.n }}</span>
+                    <span ng-if="!$last">, </span>
+
+                </span>
+            </span>
+        </div>
+
+
+        <div ng-if="!diffSps && record.entry.sps">
+            <span class="f-key name">Decrypts Security Profiles: </span>
+            <span class="f-value">
+                <span ng-repeat="assigned in record.entry.sps | orderBy">
+                    {{ assigned }}<span ng-if="!$last">, </span
+                ></span>
+            </span>
+        </div>
+
+        <div>
+            <span class="f-key name">Used By: </span>
+            <span class="f-value">
+                <span ng-if="diff_managedBy">
+                    <del class="diff semantic">{{ usedByWas }}</del>
+                    <ins class="diff semantic">{{ usedByIs }}</ins>
+                </span>
+                <span ng-if="!diff_managedBy">{{ usedByIs }}</span>
+                </span>
+            </span>
+        </div>
+
+
+
+    </div>
+
+</div>

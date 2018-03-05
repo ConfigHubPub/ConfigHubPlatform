@@ -1,0 +1,50 @@
+<div class="col-sm-offset-1">
+
+    <div class="padded-bottom">
+        Circular reference found among files for some possible context requests.
+        Below is the trace of references causing the loop.
+    </div>
+
+    <div ng-repeat="crumb in circularRef.crumbs" class="crumb">
+
+        <div>
+            <i class="fa fa-file-text-o"></i> <span class="mono" ng-class="{'red': $first}">{{ crumb.filePath }}</span>
+            <span class="context pull-right">
+                <ul>
+                    <li class='context-elements'>
+                        <div ng-class="{'context-element-lineup': lineupContext}"
+                             class="context-element"
+                             ng-repeat="ci in crumb.fileContext | orderBy:'p'"
+                        ><i></i><a class="sec" ng-if="ci.w"
+                        ><label class="lgroup ico" ng-if="ci.t === 2"></label
+                        ><label class="lmember ico" ng-if="ci.t === 1"></label
+                        >{{ ci.n }}</a><span class="bl" ng-if="!ci.w"></span
+                        ></div>
+                    </li>
+                </ul>
+            </span>
+        </div>
+
+        <div class="key-line">
+            <span class="key">{{ crumb.key }}</span>
+            <i class="fa fa-angle-right to-value"></i> <span class="mono" ng-class="{'red': $last}">{{ crumb.value }}</span>
+            <span class="context pull-right">
+                <ul>
+                    <li class='context-elements'>
+                        <div ng-class="{'context-element-lineup': lineupContext}"
+                             class="context-element"
+                             ng-repeat="ci in crumb.valueContext | orderBy:'p'"
+                        ><i></i><a class="sec" ng-if="ci.w"
+                        ><label class="lgroup ico" ng-if="ci.t === 2"></label
+                        ><label class="lmember ico" ng-if="ci.t === 1"></label
+                        >{{ ci.n }}</a><span class="bl" ng-if="!ci.w"></span
+                        ></div>
+                    </li>
+                </ul>
+            </span>
+        </div>
+
+
+
+    </div>
+</div>

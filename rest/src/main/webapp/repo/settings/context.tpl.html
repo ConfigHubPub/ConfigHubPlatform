@@ -1,0 +1,280 @@
+<div ng-controller="SetupContextController">
+
+    <style>
+        .inline
+        {
+            display: inline-block;
+            color: #777;
+            font-size: 11px;
+        }
+
+        .inline i
+        {
+            font-size: 13px;
+            position: relative;
+            top: 1px;
+        }
+    </style>
+
+    <style ng-if="getContextSize() > 5">
+        .container-fluid,
+        .container {
+            margin-right: auto;
+            margin-left: auto;
+            padding-left: 15px;
+            padding-right: 15px;
+            width: 100%;
+        }
+    </style>
+
+    <div class="panel panel-form">
+        <div class="panel-heading">Update context labels</div>
+        <div class="panel-body">
+
+            <div class="alert alert-danger" ng-if="errorMessage">{{ errorMessage }}</div>
+
+            <div id="labelSuccess"></div>
+
+            <div class="row" ng-if="getContextSize() > 1" style="margin-bottom: 5px">
+                <div class="col-xs-12">
+                    <div class="inline pull-left"><i class="fa fa-long-arrow-left"></i> Wide context scope</div>
+                    <div class="inline pull-right">Narrow context scope <i class="fa fa-long-arrow-right"></i></div>
+                </div>
+            </div>
+            <div class="row">
+                <div ng-repeat="pl in keys(repo.labels) | orderBy:'pl'"
+                     class="val-ctx"
+                     ng-class="{'col-md-10': getContextSize() == 10,
+                                'col-md-9':  getContextSize() == 9,
+                                'col-md-8':  getContextSize() == 8,
+                                'col-md-7':  getContextSize() == 7,
+                                'col-md-6':  getContextSize() == 6,
+                                'col-md-15': getContextSize() == 5,
+                                'col-sm-3':  getContextSize() == 4,
+                                'col-sm-4':  getContextSize() == 3,
+                                'col-sm-6':  getContextSize() == 2,
+                                'col-xs-12': getContextSize() == 1}">
+
+                    <input type="text"
+                           ng-model="repo.labels[pl]"
+                           class="form-control">
+
+                </div>
+            </div>
+
+            <div class="padded-top30">
+                <button class="btn btn-success"
+                        ng-click="updateContextLabels()">
+                    Update labels
+                </button>
+            </div>
+        </div>
+    </div>
+
+
+    <style>
+        .context-retract div.list-inline,
+        .context-expand div.list-inline
+        {
+            margin: 0;
+            padding: 0;
+            line-height: 32px;
+        }
+
+        .context-retract div.list-inline div,
+        .context-expand div.list-inline div
+        {
+            /*padding-left: 0;*/
+            /*padding-right: 0;*/
+            vertical-align: middle;
+            display: inline;
+            /*font-size: 14px;*/
+            font-weight: 500;
+        }
+
+        /*.ctx-lbl {*/
+        /*color: #000;*/
+        /*}*/
+
+        .context-retract .content,
+        .context-expand .content
+        {
+            background-color: #f0f0f0;
+            padding: 5px;
+            border: 1px solid #eee;
+        }
+
+        .context-retract .form-control,
+        .context-insert .form-control
+        {
+            display: inline;
+            max-width: 150px;
+        }
+
+        .context-expand .content .list-inline div:first-child .context-insert:before
+        {
+            content: '';
+            padding: 0;
+        }
+
+        .context-expand .content .list-inline div:last-child .context-insert:after
+        {
+            content: '';
+            padding: 0;
+        }
+
+        .context-expand .content .list-inline div .context-insert:after,
+        .context-expand .content .list-inline div .context-insert:before,
+        .context-retract .content .list-inline div .context-insert:before
+        {
+            content: "\f105";
+            font-family: FontAwesome;
+            font-style: normal;
+            font-weight: normal;
+            padding: 0 10px 0 10px;
+        }
+
+        .context-retract .content .list-inline div:first-child .context-insert:before
+        {
+            content: '';
+            padding: 0;
+        }
+
+        .context-retract .context-insert button
+        {
+            margin-right: 5px;
+        }
+
+    </style>
+
+    <div class="panel panel-form panel-form-warning padded-top45">
+        <div class="panel-heading">Change repository context scope</div>
+        <div class="panel-body">
+
+            <div>
+                <div class="padded-bottom"><strong>Changing context scope has side-effects.</strong></div>
+                <ol>
+                    <li>All clients need to be updated with the correctly specified full contexts.</li>
+                    <li>Comparing with context from the past, that has a different context scope, may result in odd differences.</li>
+                </ol>
+            </div>
+
+            <div class="padded-top">
+
+                <div id="contextSuccess"></div>
+
+                <style>
+                    .ctx-scope-mod .nav-tabs>li.active>a,
+                    .ctx-scope-mod .nav-tabs>li.active>a:hover,
+                    .ctx-scope-mod .nav-tabs>li.active>a:focus
+                    {
+                        background-color: #f7f7f7;
+                    }
+                </style>
+
+
+                <div bs-tabs class="padded-top30 ctx-scope-mod">
+                    <div class="aTab" data-title="Expand context scope" bs-pane>
+                        <div class="tab-frame">
+
+                            <p>
+                                Click the location where you want to insert a context rank.
+                            </p>
+
+                            <div class="row context-expand">
+                                <div class="col-xs-12">
+                                    <div class="content">
+                                        <div class="list-inline">
+                                            <div ng-repeat="label in getContextExpansionMap() track by $index">
+
+                                                <span ng-show="!label" class="context-insert">
+                                                    <button ng-click="insertContext($index)"
+                                                            class="btn btn-sm btn-default"
+                                                            bs-tooltip
+                                                            data-title="Insert context here"
+                                                            ng-if="insertLevel != $index"><i class="fa fa-sign-in fa-rotate-90"></i>
+                                                    </button>
+                                                    <input type="text"
+                                                           ng-show="insertLevel == $index"
+                                                           autofocus="autofocus"
+                                                           placeholder="Label"
+                                                           ng-model="$parent.newContextLabel"
+                                                           class="form-control">
+                                                </span>
+
+                                                <span ng-if="label">{{ label }}</span>
+                                            </div>
+
+                                            <div ng-if="getContextExpansionMap().length == 0">
+                                                Repository context scope is at maximum size and cannot be expanded further.
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row padded-top30" ng-if="insertLevel != -1">
+                                <div class="col-xs-12">
+                                    <button class="btn btn-success"
+                                            ng-disabled="inserting"
+                                            ng-click="expandContext($parent.newContextLabel)">
+                                        <span ng-if="!inserting">Insert context rank</span>
+                                        <span ng-if="inserting"><i class="fa fa-cog fa-spin"></i>  Saving</span>
+                                    </button>
+                                    <button class="btn btn-default" ng-click="cancelCtxExpand()">Cancel</button>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <div class="aTab" data-title="Shrink context scope" bs-pane>
+                        <div class="tab-frame">
+
+                            <div class="alert alert-danger" ng-if="shrinkMessage">{{ shrinkMessage }}</div>
+
+                            <p>
+                                Choose context rank you want to remove.<br>
+                                Context rank cannot contain context elements in use by properties.
+                            </p>
+
+                            <div class="row context-retract">
+                                <div class="col-xs-12">
+                                    <div class="content">
+                                        <div class="list-inline">
+                                            <div ng-repeat="(p, label) in repo.labels track by $index">
+
+                                                <span class="context-insert">
+                                                    <button class="btn btn-sm btn-default"
+                                                            bs-dropdown
+                                                            data-placement="bottom-left"
+                                                            aria-expanded="false">
+
+                                                        <span ng-if="!removing[p]">
+                                                            <i class="fa fa-trash-o padded-right"></i> {{ label }}
+                                                            <i class="fa fa-caret-down padded-left"></i>
+                                                        </span>
+                                                        <span ng-if="removing[p]"><i class="fa fa-cog fa-spin"></i> Removing</span>
+
+                                                    </button>
+                                                    <ul class="dropdown-menu delete" role="menu">
+                                                        <li><a ng-click="removeContextRank(p)">Confirm you want to remove this context scope</a></li>
+                                                    </ul>
+                                                </span>
+
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</div>

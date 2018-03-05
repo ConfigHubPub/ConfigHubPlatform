@@ -1,0 +1,73 @@
+<div ng-if="comparisonView && !entry.newProperty"
+     class="entry"
+     ng-mouseover="$parent.hover = true"
+     ng-mouseleave="$parent.hover = false">
+
+    <table class="table cmp entry-wrapper" ng-class="{'hovers': $parent.hover}">
+        <tr>
+            <td class="col-sm-6 cmp-col cmp-col-key left"
+                ng-class="{'cmp-blank' : !entry[0]}">
+                <div ng-if="entry[0]" ng-init="side=0;" ng-include='"/repo/key.tpl.html"'></div>
+            </td>
+
+            <td class="cmp-sep vals" ng-class="{'cmp-attn' : !entry[0] || !entry[2]}"></td>
+
+            <td class="col-sm-6 cmp-col cmp-col-key right"  ng-class="{'cmp-blank' : !entry[2]}">
+                <div ng-if="entry[2]" ng-init="side=2;" ng-include='"/repo/key.tpl.html"'></div>
+            </td>
+        </tr>
+
+        <tr dir-paginate="pair in entry.properties | orderBy: (valueSorter.asc ? '-' : '') + valueSorter.srt | cmpPropertyFilter:searchQuery:entry:true | itemsPerPage:entry.itemsPerPage:entry.key "
+            current-page="entry.currentPage"
+            pagination-id="entry.key"
+            class="cmp-hover">
+
+            <td class="col-sm-6 value-wrapper cmp-col left"
+                ng-class-even="'even'"
+                ng-class="{'cmp-mod-add' : dateCmp < 0 && pair.diff == 1, 'cmp-mod-remove' : dateCmp > 0 && pair.diff == 1, 'cmp-blank' : !pair[0]}">
+                <div ng-if="pair[0]" ng-init="side=0; property = pair[0]" ng-include='"/repo/value.tpl.html"'></div>
+            </td>
+
+            <td class="cmp-sep vals" ng-class="{'cmp-attn' : pair.diff < 0,  'cmp-mod' : pair.diff > 0}"></td>
+
+            <td class="col-sm-6 value-wrapper cmp-col right"
+                ng-class-even="'even'"
+                ng-class="{'cmp-mod-add' : dateCmp > 0 && pair.diff == 1, 'cmp-mod-remove' : dateCmp < 0 && pair.diff == 1, 'cmp-blank' : !pair[2]}">
+                <div ng-if="pair[2]" ng-init="side=2; property = pair[2]" ng-include='"/repo/value.tpl.html"'></div>
+            </td>
+        </tr>
+
+        <tr dir-pagination-controls
+            pagination-id="entry.key"
+            template-url="/repository/templates/valueDiffPagination.tpl.html"></tr>
+
+
+    </table>
+</div>
+
+
+<div ng-if="!comparisonView || entry.newProperty" ng-class="{'new-property-entry': entry.newProperty}">
+    <div ng-class="{'entry': !entry.newProperty}" ng-mouseover="$parent.hover = true" ng-mouseleave="$parent.hover = false">
+        <div class="entry-wrapper" ng-class="{'hovers': $parent.hover}">
+            <div ng-init="side=1" ng-include='"/repo/key.tpl.html"'></div>
+            <div class="key-values">
+                <div class="no-values" ng-if="fileEditor && (!(!localSearch && searchQuery && searchQuery.length > 0)) && (!entry.properties || entry.properties.length == 0)">
+                    <i class="fa fa-warning"></i> No value resolved
+                </div>
+
+                <div dir-paginate="property in entry.properties | orderBy:(valueSorter.asc ? '-' : '') + valueSorter.srt | propertyFilter:searchQuery:entry:localSearch | itemsPerPage:entry.itemsPerPage:entry.paginateId track by $index"
+                    current-page="entry.currentPage"
+                    class="value-wrapper"
+                    pagination-id="entry.paginateId"
+                    ng-class-even="'even'">
+
+                    <div ng-init="side=1" ng-include='"/repo/value.tpl.html"'></div>
+                </div>
+
+                <dir-pagination-controls
+                        pagination-id="entry.paginateId"
+                        template-url="/repository/templates/valuePagination.tpl.html"></dir-pagination-controls>
+            </div>
+        </div>
+    </div>
+</div>

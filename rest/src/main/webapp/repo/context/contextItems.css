@@ -1,0 +1,31 @@
+.context-item {
+    font-size: 12px;
+    white-space: pre; /* CSS 2.0 */
+    white-space: pre-wrap; /* CSS 2.1 */
+    white-space: pre-line; /* CSS 3.0 */
+    white-space: -o-pre-wrap; /* Opera 7 */
+    white-space: -moz-pre-wrap; /* Mozilla */
+    word-wrap: break-word; /* IE 5+ */
+}
+
+.context-container:last-child {
+    padding-right: 0;
+}
+
+.context-container {
+    padding-left: 0;
+    padding-right: 10px;
+}
+
+/*.even {*/
+    /*background-color: #f7f7f7;*/
+/*}*/
+
+.lgroup.header, .lmember.header {
+    padding: 0 8px 1px 8px;
+    margin-right: 0px;
+    margin-left: 0px;
+    -webkit-border-radius: 2px;
+    -moz-border-radius: 2px;
+    border-radius: 2px;
+}

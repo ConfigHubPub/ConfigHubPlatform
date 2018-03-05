@@ -1,0 +1,46 @@
+<div class="sign-in-wrapper padded-top100">
+    <div class="sign-in" ng-controller="LoginController">
+
+        <div class="login-pannel">
+            <form ng-submit="LoginController.login()"
+                  novalidate>
+
+                <div class="alert alert-danger slider" ng-show="message">{{ message }}</div>
+
+                <div class="padded-bottom">
+                    <h3>Sign in</h3>
+                </div>
+
+                <input type="text"
+                       ng-model="email"
+                       class="form-control input-lg"
+                       placeholder="Username or email" required autofocus>
+
+                <input type="password"
+                       ng-model="password"
+                       class="form-control input-lg"
+                       placeholder="Password" required>
+
+                <div class="padded-top">
+                    <button class="btn btn-lg btn-primary btn-block"
+                            ng-click="login()">Sign in</button>
+                </div>
+
+            </form>
+
+            <div class="forgot">
+                <a ui-sref="forgot">Forgot your password?</a>
+            </div>
+
+
+
+            <div class="padded-top30">
+                <hr/>
+                <h4>Don't have an account? <a ui-sref="signup">Sign up</a></h4>
+            </div>
+        </div>
+
+
+
+    </div>
+</div>

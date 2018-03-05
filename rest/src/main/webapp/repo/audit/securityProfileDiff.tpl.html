@@ -1,0 +1,68 @@
+<div ng-if="record.revType != 'Modify'">
+
+    <div class="single-add" ng-if="record.revType == 'Add'"></div>
+    <div class="single-del" ng-if="record.revType == 'Delete'"></div>
+    <div class="table-content">
+
+        <div>
+            <span class="f-key name">Security Profile: </span>
+            <span class="f-value">{{ entry.spName }}</span>
+        </div>
+
+        <div>
+            <span class="f-key">Encryption: </span>
+            <span class="f-value" ng-if="!entry.encDiffSet">{{ entry.encrypted ? 'Enabled' : 'Disabled' }}</span>
+        </div>
+
+        <div>
+            <span class="f-key">Cipher: </span>
+            <span class="f-value dim" ng-if="!entry.encrypted">n/a</span>
+            <span class="f-value" ng-if="entry.encrypted">{{ entry.spCipher }}</span>
+        </div>
+
+    </div>
+
+</div>
+
+
+<div ng-if="record.revType == 'Modify'">
+
+    <div class="noselect"></div>
+    <div class="table-content">
+
+        <div>
+            <span class="f-key name">Security Profile: </span>
+                    <span class="f-value" ng-if="nameDiffSet">
+                        <del class="diff semantic">{{ diff.name }}</del>
+                        <ins class="diff semantic">{{ entry.spName }}</ins>
+                    </span>
+            <span class="f-value" ng-if="!nameDiffSet">{{ entry.spName }}</span>
+        </div>
+
+        <div>
+            <span class="f-key">Encryption: </span>
+                    <span class="f-value" ng-if="encDiffSet">
+                        <del class="diff semantic">{{ diff.encrypted ? 'Enabled' : 'Disabled' }}</del>
+                        <ins class="diff semantic">{{ entry.encrypted ? 'Enabled' : 'Disabled' }}</ins>
+                    </span>
+            <span class="f-value" ng-if="!encDiffSet">{{ entry.encrypted ? 'Enabled' : 'Disabled' }}</span>
+        </div>
+
+        <div>
+            <span class="f-key">Cipher: </span>
+                    <span ng-if="!cipherDiffSet"
+                          class="f-value"
+                          ng-class="{'dim': !entry.spCipher }">{{ entry.spCipher ? entry.spCipher : 'n/a' }}</span>
+
+                    <span class="f-value" ng-if="cipherDiffSet">
+                        <del class="diff semantic">{{ diff.cipher ? diff.cipher : entry.spCipher ? '' : 'n/a' }}</del>
+                        <ins class="diff semantic">{{ entry.spCipher ? entry.spCipher : '' }}</ins>
+                    </span>
+
+        </div>
+
+        <div ng-if="diff.password" class="password-change"></div>
+
+    </div>
+
+</div>

@@ -1,0 +1,23 @@
+<div class="container padded-top30" ng-controller="KeyController">
+
+    <div ng-controller="EditorController" ng-if="initialized">
+        <div class="entries">
+
+            <div ng-if="!config || config.length == 0 || !config[0].key">
+                <span class="key">{{ key }}</span> is not defined
+            </div>
+
+            <div ng-repeat="entry in config" ng-if="config && config.length > 0 && config[0].key">
+                <div repo-entry entry="entry"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="padded-top30" ng-if="initialized">
+
+        <h4>Commit history for key and values</h4>
+        <div repo-audit></div>
+
+    </div>
+</div>
+

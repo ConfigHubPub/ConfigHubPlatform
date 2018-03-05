@@ -1,0 +1,7 @@
+<div class="repo-head-wrapper bbgg">
+    <div class="container repository-head-container" ng-controller="RepositoryInfoController">
+        <div ng-include="'/repo/repoHeader.tpl.html'"></div>
+    </div>
+</div>
+
+<div ng-if="repository" ui-view></div>

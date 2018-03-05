@@ -1,0 +1,89 @@
+<div>
+    <div ng-if="!property.isEdited && !property.stickyForm && !property.isNew"
+         class="property-row slider"
+         ng-dblclick="enableValueEditor(property, side)">
+
+        <div class="controls pull-left">
+
+            <a ng-click="enableValueEditor(property, side)"
+               ng-disabled="!isValueEditable(property, side)"
+               class="btn btn-xs btn-default value-edit-btn">
+                <i class="fa fa-angle-right"></i>
+            </a>
+        </div>
+
+        <div class="value">
+
+            <div class="context pull-right">
+                <ul>
+                    <li class='conflict' ng-if="property.attn === 'conflict'">Conflict</li>
+                    <li class='disabled-value' ng-if="!property.active">Disabled</li>
+                    <li class='context-elements'>
+
+                        <div ng-class="{'context-element-lineup': lineupContext}"
+                             class="context-element"
+                             ng-repeat="ci in property.levels | orderBy:'p'"
+                        ><i></i><a ng-click="gotoCi(ci, property)"
+                                   class="sec"
+                                   ng-if="ci.w"
+                        ><label class="lgroup ico" ng-if="ci.t === 2"></label
+                        ><label class="lmember ico" ng-if="ci.t === 1"></label
+                        >{{ ci.n }}</a><span class="bl" ng-if="!ci.w"></span
+                        ></div>
+
+                    </li>
+                    <li class='resolved' ng-if="entry.allValues && property.type === 'match'">Resolved</li>
+                    <li class='overridden' ng-if="property.type === 'override'">Overridden</li>
+                    <li class='out-of-context' ng-if="property.type === 'outOfContext'">Out of context</li>
+                </ul>
+            </div>
+
+            <!--&gt;> <pre>{{ property.value | json }} </pre><<-->
+            <span ng-if="property.encryptionState == 1" class="encrypted">encrypted</span>
+            <span ng-if="property.encryptionState != 1 && property.value == null" class="null-value">null</span>
+            <span ng-if="property.encryptionState != 1 && property.value.length == 0" class="blank-value">blank</span>
+
+            <div ng-if="!property.valueErr" ng-switch="entry[side].vdt">
+
+                <!--List-->
+                <span ng-switch-when="List" class="v" ng-if="property.encryptionState != 1 && property.value"
+                ><ol class="vlist"><li ng-repeat="l in property.value track by $index"><span class="v">{{ l }}</span></li></ol></span>
+
+                <!--Code-->
+                <span ng-switch-when="Code"
+                      hljs source="property.value" class="v" ng-if="property.encryptionState != 1 && property.value"></span>
+
+                <span ng-switch-when="JSON"
+                      hljs source="property.value" class="v" ng-if="property.encryptionState != 1 && property.value"></span>
+
+                <!--Map-->
+                <span ng-switch-when="Map" class="v" ng-if="property.encryptionState != 1 && property.value"
+                ><ul class="vmap list-unstyled"><li ng-repeat="(k,v) in property.value track by $index"
+                ><span class="v mapK">{{ k }}</span><span class="v mapV">{{ v }}</span
+                ></li></ul></span>
+
+                <span ng-switch-default class="v" ng-if="property.encryptionState != 1 && property.value">{{property.value}}</span>
+            </div>
+
+            <div ng-if="property.valueErr">
+                <div class="alert alert-danger" role="alert">
+                    There was an error in decoding this value.  It is recommended you remove it,
+                    and add again if necessary.
+                </div>
+
+                <span class="v">{{ property.value }}</span>
+            </div>
+        </div>
+    </div>
+
+    <div ng-if="property.isEdited || property.stickyForm" class="slider">
+        <div ng-if="!property.isNew && !property.stickyForm" class="controls pull-left">
+
+            <a ng-click="disableValueEditor(property)" class="btn btn-xs btn-default value-edit-btn"><i class="fa fa-caret-up"></i></a>
+        </div>
+
+        <div ng-class="{'property-form-edit': !entry.newProperty, 'new-property-form2-value': entry.newProperty && property.stickyForm}">
+            <div value-editor prop-value="property"></div>
+        </div>
+    </div>
+</div>

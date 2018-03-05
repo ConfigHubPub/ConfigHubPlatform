@@ -1,0 +1,35 @@
+<div>
+    <div ng-if="!aTeam.d.isEditingGenRuleStop" class="slider">
+        <div class="edit-rule"><a href ng-click="editGenRuleStop()">edit</a></div>
+        {{ genRuleProcessTypes[aTeam.d.stopOnFirstMatch] }}
+    </div>
+    <div ng-if="aTeam.d.isEditingGenRuleStop" class="slider">
+        <div class="tt">
+            <div class="cl bn">
+                <div class="btn-group" role="group">
+                    <button type="button"
+                            class="btn btn-sm btn-default dropdown-toggle"
+                            bs-dropdown
+                            aria-haspopup="true"
+                            aria-expanded="false">
+                        {{ genRuleProcessTypes[aTeam.d.stopOnFirstMatch] }}
+                        <span class="caret"></span>
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li ng-repeat="(k, v) in genRuleProcessTypes">
+                            <a href ng-click="aTeam.d.stopOnFirstMatch = k">{{ v }}</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="tt ctrl-buttons">
+            <button type="button"
+                    class="btn btn-sm btn-success"
+                    ng-disabled="ut < type.admin"
+                    ng-click="updateGenRuleStop()">Update</button>
+            <button type="button" class="btn btn-sm btn-default" ng-click="cancelGenRuleStop()">Cancel</button>
+        </div>
+    </div>
+</div>

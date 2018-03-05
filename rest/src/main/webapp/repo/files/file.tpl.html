@@ -1,0 +1,43 @@
+<div class="property-row slider"
+     ng-dblclick="getFile(file)">
+
+    <div class="controls pull-left">
+        <a ng-click="getFile(file)"
+           class="btn btn-xs btn-default file-edit-btn"><i class="fa fa-file-text-o" ng-class="{'disabled' : !file.editable }"></i></a>
+    </div>
+
+    <div class="value">
+
+        <div class="context pull-right">
+            <ul>
+                <li class='conflict' ng-if="file.attn === 'conflict'">Conflict</li>
+                <li class='disabled-value' ng-if="!file.active">Disabled</li>
+                <li class='context-elements'>
+
+                    <div ng-class="{'context-element-lineup': lineupContext}"
+                         class="context-element"
+                         ng-repeat="ci in file.levels | orderBy:'p'"
+                    ><i></i><a ng-click="gotoCi(ci)"
+                               class="sec"
+                               ng-if="ci.w"
+                    ><label class="lgroup ico" ng-if="ci.t === 2"></label
+                    ><label class="lmember ico" ng-if="ci.t === 1"></label
+                    >{{ ci.n }}</a><span class="bl" ng-if="!ci.w"></span
+                    ></div>
+
+                </li>
+                <li class='resolved' ng-if="entry.allValues && file.type === 'match'">Resolved</li>
+                <li class='overridden' ng-if="file.type === 'override'">Overridden</li>
+                <li class='out-of-context' ng-if="file.type === 'outOfContext'">Out of context</li>
+            </ul>
+        </div>
+
+        <span class="v" ng-click="getFile(file)">{{ file.name }}</span>
+
+        <div class="annotation security" ng-if="file.spName">
+            <span class="cont">
+                <i class="fa fa-lock"></i>
+                <a class="sec" ng-click="gotoSp(file.spName)">{{ file.spName }}</a></span>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,62 @@
+.tag-name-w {
+    padding-bottom: 5px;
+}
+.tag-name {
+    font-weight: 600;
+    font-size: 14px;
+    /*font-family: "Liberation Mono", Menlo, Courier, monospace;*/
+
+}
+
+.panel-tag {
+    border-bottom: 1px dashed #ccc;
+    margin-bottom: 15px;
+}
+
+.panel-tag .panel-body {
+    padding:  0 0 15px 0;
+}
+
+.form-group .tag-date {
+    padding: 0 5px;
+    font-size: 11px;
+    display: inline-block;
+    vertical-align: bottom
+}
+
+.form-group .tag-dl
+{
+    width: auto;
+}
+
+.tag-dt {
+    display: table-cell;
+    font-family: "Liberation Mono", Menlo, Courier, monospace;
+    font-size: 11px;
+}
+.tag-dt .tz:before { content: '('; }
+.tag-dt .tz:after  { content: ')'; }
+.tag-dt .tz {
+    font-weight: 600;
+}
+
+.utc .tag-dl,
+.utc .tag-dt {
+    color: #999;
+}
+
+.tag-tools,
+.tag-tools a,
+.tag-tools a:visited {
+    color: #666;
+    font-size: 12px;
+}
+.tag-tools a:hover { color: #346fbe; }
+.tag-tools a i {
+    margin-right: 3px;
+}
+.tag-tools .sep:before {
+    content: '|';
+    font-weight: 300;
+    padding: 0 10px;
+}

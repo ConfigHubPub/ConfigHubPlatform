@@ -1,0 +1,227 @@
+<div class="container padded-top30" ng-controller="TagsController">
+
+    <div class="row">
+        <div class="col-xs-12">
+
+            <div bs-affix class="row">
+                <div class="col-xs-12">
+                    <div class="toolbar">
+                        <div class="row">
+
+                            <div class="col-sm-6 col-xs-12 search" style="margin-top: 1px">
+                                <div class="input-group input-group-sm">
+                                    <span class="input-group-addon" id="sizing-addon3"><i class="fa fa-search"></i></span>
+                                    <input type="text"
+                                           ng-model="searchQuery"
+                                           ng-list=" "
+                                           ng-trim="false"
+                                           class="form-control input-sm"
+                                           autofocus="true"
+                                           spellcheck="false"
+                                           placeholder="Search tags..."
+                                           ng-model-options="{ updateOn: 'default blur', debounce: { 'default': 500, 'blur': 0 } }">
+                                </div>
+                            </div>
+
+
+                            <div class="col-sm-6 col-xs-12">
+                                <div role="group" class="text-right-not-xs">
+
+                                    <button class="btn btn-success btn-sm"
+                                            ng-disabled="ut < type.demo"
+                                            ng-click="showNewTagForm()">
+                                        <span class="fa fa-plus"></span>&nbsp; New
+                                    </button>
+
+                                    <div class="vertical-separator"></div>
+
+                                    <button type="button"
+                                            class="btn btn-sm btn-default"
+                                            data-animation="am-flip-x"
+                                            bs-dropdown
+                                            aria-haspopup="true"
+                                            aria-expanded="false">
+                                        Sort by:
+                                        {{ selectedLabel }}
+                                        <span class="caret"></span>
+                                    </button>
+                                    <ul class="dropdown-menu" role="menu">
+                                        <li><a ng-click="sortBy('Name', 'name')">Name</a></li>
+                                        <li><a ng-click="sortBy('Date', 'ts')">Date</a></li>
+                                    </ul>
+
+                                    <button class="btn btn-sm btn-default only-icon"
+                                            bs-tooltip
+                                            data-title="Toggle sort order"
+                                            ng-click="toggleSortOrder()">
+                                        <i ng-if="asc" class="fa fa-sort-alpha-asc"></i>
+                                        <i ng-if="!asc" class="fa fa-sort-alpha-desc"></i>
+                                    </button>
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="alert alert-danger" role="alert" ng-if="message">{{ message }}</div>
+
+            <div ng-if="newTagForm" class="slider panel panel-form padded-top">
+
+                <div class="panel-heading">Create new tag</div>
+                <div class="panel-body">
+                    <div class="form-group">
+                        <div class="form-field-head">
+                            Description:
+                        </div>
+                        <textarea ng-model="readme"
+                                  tabindex="2"
+                                  class="msd-elastic form-control form-value"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="form-field-head">Tag name:</div>
+                        <input type="text"
+                               tabindex="1"
+                               class="form-control"
+                               ng-model="name"
+                               autofocus="autofocus"
+                               required>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="form-field-head">
+                            Local date and time:
+                        </div>
+
+                        <div class="dt-form-display ">
+                            <input type="text"
+                                   class="form-control date-input"
+                                   ng-model="ts"
+                                   data-animation="am-flip-x"
+                                   data-autoclose="1"
+                                   data-min-date="{{ repository.creationTs | date:'shortDate' }}"
+                                   data-max-date="today"
+                                   placeholder="Date"
+                                   bs-datepicker>
+                        </div>
+                        <div class="dt-form-display ">
+                            <input type="text"
+                                   class="form-control time-input"
+                                   ng-model="ts"
+                                   data-animation="am-flip-x"
+                                   data-time-format="h:mm a"
+                                   data-autoclose="1"
+                                   placeholder="Time"
+                                   bs-timepicker>
+                        </div>
+
+                        <div class="tag-date utc">
+                            <span class="tag-dt">{{ ts | amUtc | amDateFormat:tsFormat }} (UTC)</span>
+                        </div>
+
+                    </div>
+
+                    <div class="padded-top45">
+                        <button class="btn btn-success"
+                                ng-disabled="ut < type.member"
+                                ng-click="createTag(name, readme, ts)">Create Tag</button>
+                        <button class="btn btn-default" ng-click="cancelNew()">Cancel</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="padded-top">
+                <div class="no-data" ng-if="!tags || tags.length == 0">
+                    No tags found.
+                </div>
+
+                <div ng-repeat="tag in tags | orderBy:(asc?'':'-') + selectedField">
+                    <div ng-if="!tag.edit" ng-include='"/repo/tags/tag.tpl.html"'></div>
+                    <div ng-if="tag.edit" class="panel panel-form padded-top slider">
+                        <div class="panel-heading">Update Tag</div>
+                        <div class="panel-body">
+                            <div class="form-group">
+                                <div class="form-field-head">
+                                    Description:
+                                </div>
+                                <textarea ng-model="tag.f.readme"
+                                          tabindex="2"
+                                          class="msd-elastic form-control form-value"></textarea>
+                            </div>
+
+                            <div class="form-group">
+                                <div class="form-field-head">Tag name:</div>
+                                <input type="text"
+                                       tabindex="1"
+                                       class="form-control"
+                                       ng-model="tag.f.name"
+                                       autofocus="autofocus"
+                                       required>
+                            </div>
+
+                            <div class="form-group">
+                                <div class="form-field-head">
+                                    Local date and time:
+                                </div>
+
+                                <div class="dt-form-display ">
+                                    <input type="text"
+                                           class="form-control date-input"
+                                           ng-model="tag.f.ts"
+                                           data-animation="am-flip-x"
+                                           data-autoclose="1"
+                                           data-min-date="{{ repository.creationTs | date:'shortDate' }}"
+                                           data-max-date="today"
+                                           placeholder="Date"
+                                           bs-datepicker>
+                                </div>
+                                <div class="dt-form-display ">
+                                    <input type="text"
+                                           class="form-control time-input"
+                                           ng-model="tag.f.ts"
+                                           data-animation="am-flip-x"
+                                           data-time-format="h:mm a"
+                                           data-autoclose="1"
+                                           placeholder="Time"
+                                           bs-timepicker>
+                                </div>
+
+                                <div class="tag-date utc">
+                                    <span class="tag-dt">{{ tag.f.ts | amUtc | amDateFormat:tsFormat }} (UTC)</span>
+                                </div>
+                            </div>
+
+                            <div class="padded-top45">
+                                <button class="btn btn-success"
+                                        ng-disabled="ut < type.member"
+                                        ng-click="updateTag(tag)">Update Tag</button>
+                                <button class="btn btn-default" ng-click="cancelEdit(tag)">Cancel</button>
+
+                                <span class="btn-group pull-right">
+                                    <button type="button"
+                                            class="btn btn-danger dropdown-toggle"
+                                            bs-dropdown
+                                            data-placement="bottom-right"
+                                            ng-disabled="ut < type.member"
+                                            aria-expanded="false">
+                                        <i class="fa fa-trash"></i>
+                                        <i class="fa fa-caret-down"></i>
+                                    </button>
+                                    <ul class="dropdown-menu delete pull-right" role="menu">
+                                        <li><a ng-click="deleteTag(tag.name)">Delete tag</a></li>
+                                    </ul>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+
+</div>

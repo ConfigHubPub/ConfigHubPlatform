@@ -1,0 +1,76 @@
+<style ng-if="sideBySide">
+    .container-fluid,
+    .container {
+        margin-right: auto;
+        margin-left: auto;
+        padding-left: 15px;
+        padding-right: 15px;
+        width: 100%;
+    }
+</style>
+
+
+<div bs-affix class="row">
+    <div class="col-xs-12">
+        <div class="toolbar">
+            <div class="row">
+
+                <div class="col-xs-12">
+                    <div role="group" class="text-right-not-xs">
+
+                        <button class="btn btn-sm btn-default only-icon pull-left"
+                                ng-hide="mode == 'key'"
+                                style="margin-right: 3px;"
+                                bs-tooltip
+                                data-title="Attention"
+                                ng-model="attention"
+                                ng-change="toggleAttention()"
+                                bs-checkbox>
+                            <i class="fa fa-exclamation"></i>
+                        </button>
+
+                        <button type="button"
+                                placeholder="All changes"
+                                ng-hide="mode == 'key'"
+                                ng-disabled="attention"
+                                max-length="10"
+                                class="btn btn-default pull-left"
+                                ng-model="selectedTypes"
+                                ng-change="updateSearch()"
+                                data-html="1"
+                                data-multiple="1"
+                                data-animation="am-flip-x"
+                                data-icon-checkmark="select-check fa fa-check"
+                                bs-options="type.value as type.label for type in recordTypes"
+                                bs-select>
+                            Changes for <span class="caret"></span>
+                        </button>
+
+                        <button class="btn btn-sm btn-default only-icon"
+                                ng-class="{'active': sideBySide}"
+                                ng-click="toggleSideBySide()">
+                            Split
+                        </button>
+
+                        <div class="vertical-separator"></div>
+
+                        <button class="btn btn-sm btn-default only-icon"
+                                ng-click="move(false)">
+                            <i class="fa fa-chevron-left"></i>
+                        </button>
+
+                        <button class="btn btn-sm btn-default only-icon"
+                                ng-click="move(true)">
+                            <i class="fa fa-chevron-right"></i>
+                        </button>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div ng-repeat="commit in audit | orderBy:'-ts'" class="margin-top30 margin-bottom20">
+    <div ng-include='"/repo/audit/record.tpl.html"'></div>
+</div>

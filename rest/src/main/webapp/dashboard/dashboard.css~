@@ -1,0 +1,158 @@
+
+.padded-top { margin: 0; }
+
+.boot {
+    background-color: #f8f8f8;
+    border-bottom: 1px solid #e8e8e8;
+    /*#566270;*/
+    box-sizing: border-box;
+    color: #333;
+    display: block;
+    height: 200px;
+    padding: 10px 0;
+    font-size: 14px;
+}
+
+div.change {
+    padding: 15px 0 15px 60px;
+    border-bottom: 1px solid #ededed;
+    position: relative;
+}
+
+span.lbl:before
+{
+    font-family: FontAwesome;
+}
+
+span.lbl._key:before {
+    content: "KEY";
+    font-size: 16px;
+    font-weight: 800;
+}
+span.lbl._key {
+    top: 14px;
+    left: 0;
+    color: #808080;
+}
+
+span.lbl._context:before {
+    content: "CTX";
+    font-size: 18px;
+    font-weight: 800;
+}
+span.lbl._context {
+    top: 14px;
+    left: 0;
+    color: #769fbb;
+}
+
+span.lbl._repository:before {
+    content: "REPO";
+    font-size: 16px;
+    font-weight: 800;
+}
+span.lbl._repository {
+    top: 14px;
+    left: 0;
+    color: #cdd0ca;
+}
+
+span.lbl._api:before {
+    content: "API";
+    font-size: 22px;
+    font-weight: 800;
+}
+span.lbl._api {
+    top: 10px;
+    left: 0;
+    color: #e5c0b0;
+}
+
+span.lbl {
+    position: absolute;
+}
+
+.change-ts {
+    color: #333;
+}
+
+.change-info {
+    /*font-size: 12px;*/
+    margin-bottom: 2px;
+}
+
+.context {
+    margin: 0;
+    padding: 0 7px;
+}
+
+.action {
+    font-weight: 600;
+    /*color: #000;*/
+}
+
+.user a, .user a:visited {
+    color: #333;
+}
+
+.blog-ico {
+    color: rgb(255, 139, 5);
+    font-size: 22px;
+    font-weight: normal;
+}
+
+.blog-entry {
+    border-bottom: 1px solid #ddd;
+}
+
+.blog-title {
+    margin-bottom: 5px;
+    border-bottom: 1px solid #ddd;
+}
+
+.blog-footer {
+    margin: 5px 0 10px 0;
+
+}
+
+.blog-listing .ts {
+    font-size: 12px;
+}
+
+.blog-entry-title {
+    display: block;
+    padding: 5px 0;
+    font-size: 14px;
+}
+
+.tasks {
+    /*background-color: rgba(255, 255, 255, 0.1);*/
+    /*border: 1px solid rgba(0,0,0, 0.5);*/
+    -webkit-border-radius: 4px;
+    -moz-border-radius: 4px;
+    border-radius: 4px;
+    height: 180px;
+    padding: 10px 0;
+    /*margin: 0 10px;*/
+}
+
+label.public i {
+    color: #690;
+    font-size: 14px;
+}
+
+label.private i {
+    color: #ca8a2b;
+    font-size: 14px;
+}
+
+label.owner {
+    color: #333;
+    padding-left: 5px;
+    font-weight: 600;
+}
+
+.description {
+    color: #969896;
+    font-size: 12px;
+}

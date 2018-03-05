@@ -1,0 +1,340 @@
+<form novalidate>
+
+    <div class="inner-value-form" ng-class="{'inner-editor': !entry.newProperty}">
+
+        <div class="error-message slider" ng-show="conflict">
+            <div class="col-sm-offset-1">Values with a same key must have unique context.</div>
+        </div>
+
+        <div class="form-horizontal">
+
+            <div class="ie-context form-group" ng-if="!entry.newProperty">
+                <label class="form-field-head col-sm-1 control-label">Active:</label>
+
+                <div class="col-sm-11">
+                    <nz-toggle
+                            tip-false="'Disabled'"
+                            tip-true="'Active'"
+                            class="value-toggle square"
+                            width="32"
+                            height="16"
+                            ng-model="$parent.active"></nz-toggle>
+                </div>
+            </div>
+
+            <div class="ie-context form-group">
+                <label class="form-field-head col-sm-1 control-label">
+                    <span ng-if="repository.valueTypeEnabled && entry[side].vdt != 'Text'">
+                        {{ entry.newProperty ? entry.f.k[side].keydata.vdt : entry[side].vdt }} value:
+                    </span>
+                    <span ng-if="!repository.valueTypeEnabled || entry[side].vdt == 'Text'">Value:</span>
+
+                </label>
+
+                <div class="col-sm-11">
+
+                    <div ng-if="property.valueErr">
+                        <div class="alert alert-danger" role="alert">
+                            There was an error in decoding this value.  It is recommended you remove it,
+                            and add again if necessary.
+                        </div>
+
+                        <textarea ng-trim="false"
+                                  ng-model="value"
+                                  tabindex="3"
+                                  style="white-space: pre-wrap"
+                                  class="msd-elastic form-control form-value"></textarea>
+                    </div>
+
+                    <div ng-if="!property.valueErr && value == null">
+                        <div class="null-display mono">null</div>
+                    </div>
+
+                    <div ng-if="!property.valueErr && value != null"
+                         ng-switch="entry.newProperty ? entry.f.k[side].keydata.vdt : entry[side].vdt"
+                         ng-hide="property.encryptionState == 1 && !property.decriptValidated">
+
+                        <!--Text / default-->
+                        <textarea ng-switch-default
+                                  ng-model="$parent.$parent.value"
+                                  ng-trim="false"
+                                  tabindex="3"
+                                  style="white-space: pre-wrap"
+                                  class="msd-elastic form-control form-value"></textarea>
+
+                        <!--Integer-->
+                        <input ng-switch-when="Integer"
+                               type="text"
+                               spellcheck="false"
+                               ng-change="validateInt(value)"
+                               ng-model="$parent.$parent.value"
+                               tabindex="3"
+                               class="form-control input-sm form-value">
+
+                        <!--Long-->
+                        <input ng-switch-when="Long"
+                               type="text"
+                               spellcheck="false"
+                               ng-change="validateInt(value)"
+                               ng-model="$parent.$parent.value"
+                               tabindex="3"
+                               class="form-control input-sm form-value">
+
+                        <!--Decimal-->
+                        <input ng-switch-when="Double"
+                               ng-change="validateDouble(value)"
+                               type="text"
+                               spellcheck="false"
+                               ng-model="$parent.$parent.value"
+                               tabindex="3"
+                               class="form-control input-sm form-value">
+                        <!--Float-->
+                        <input ng-switch-when="Float"
+                               ng-change="validateDouble(value)"
+                               type="text"
+                               spellcheck="false"
+                               ng-model="$parent.$parent.value"
+                               tabindex="3"
+                               class="form-control input-sm form-value">
+
+
+                        <!--FileRef|FileEmbed-->
+                        <input ng-switch-when="FileRef|FileEmbed"
+                               ng-switch-when-separator="|"
+                               type="text"
+                               id="value_{{entry.newProperty ? 'new' : entry.id}}"
+                               class="form-control form-value input-sm"
+                               spellcheck="false"
+                               ng-model="$parent.$parent.value"
+                               data-container="body"
+                               data-placement="bottom-left"
+                               data-min-length="3"
+                               data-trigger="focus"
+                               data-animation="slide"
+                               data-template="/repo/common/key-complete.tpl.html"
+                               data-limit="20"
+                               bs-options="k for k in getFiles($viewValue)"
+                               ng-change="fileChange()"
+                               ng-model-options="{ updateOn: 'default blur', debounce: { 'default': 400, 'blur': 0 } }"
+                               bs-typeahead="typeahead">
+
+
+                        <!--Boolean-->
+                        <div ng-switch-when="Boolean" class="btn-group" ng-model="$parent.$parent.value" bs-radio-group>
+                            <label class="btn btn-sm btn-default"><input type="radio" class="btn btn-default" value="true">True</label>
+                            <label class="btn btn-sm btn-default"><input type="radio" class="btn btn-default" value="false">False</label>
+                        </div>
+
+                        <!--JSON-->
+                        <div ng-switch-when="JSON" class="value-data-type">
+                            <div class="ace-wrapper-value fill"
+                                 id="li_{{side}}_{{property.id ? property.id : 'n'}}"
+                                 ng-model="$parent.$parent.value"
+                                 style="line-height: 18px !important"
+                                 ui-ace="{
+                                    mode: 'json',
+                                    onLoad: aceLoaded,
+                                    maxLines: 30,
+                                    minLines: 2,
+                                    advanced: {
+                                        enableBasicAutocompletion: true,
+                                        enableLiveAutocompletion: true
+                                    }
+                            }"></div>
+                        </div>
+
+
+                        <!--List-->
+                        <div ng-switch-when="List" class="value-data-type">
+                            <div class="empty-obj" ng-if="!listData || listData.length == 0">Empty List</div>
+
+                            <div class="input-group input-group-sm list-values"
+                                 ng-repeat="listItem in listData track by $index" ng-if="listData">
+                                <label class="input-group-addon">{{ $index + 1}}. </label>
+                                    <textarea type="text"
+                                              id="li_{{side}}_{{property.id ? property.id : 'n'}}_{{$index}}"
+                                              ng-trim="false"
+                                              autofocus="autofocus"
+                                              spellcheck="false"
+                                              class="msd-elastic form-control form-value"
+                                              style="height: 28px; white-space: pre-wrap"
+                                              tabindex="{{ 3 + $index*2}}"
+                                              ng-model="listData[$index]"></textarea>
+                                    <span class="input-group-btn">
+                                        <button
+                                                ng-click="removeListItem($index)"
+                                                class="btn btn-sm btn-default value-obj-btn"
+                                                type="button"><i class="fa fa-close"></i></button>
+                                    </span>
+                            </div>
+
+                            <div>
+                                <button type="button"
+                                        tabindex="100"
+                                        class="btn btn-xs xss btn-default"
+                                        style="margin-bottom: 5px;"
+                                        ng-click="addListItem()">+ add</button>
+                            </div>
+                        </div>
+
+
+                        <!--Map-->
+                        <div ng-switch-when="Map" class="value-data-type">
+                            <div class="empty-obj" ng-if="!mapData || mapData.length == 0">Empty Map</div>
+
+                            <div class="list-values"
+                                 ng-repeat="mapItem in mapData track by $index" ng-if="mapData">
+                                <div class="row">
+
+                                    <div class="col-sm-4">
+                                        <div class="input-group input-group-sm"
+                                             ng-class="{'has-error': mapItem.err}">
+                                            <label class="input-group-addon">{{ $index + 1}}. </label>
+                                            <input type="text"
+                                                   spellcheck="false"
+                                                   ng-change="validateMap()"
+                                                   ng-model="mapItem.p[0]"
+                                                   tabindex="{{ 3 + $index*3 }}"
+                                                   id="mp_{{side}}_{{property.id ? property.id : 'n'}}_{{$index}}"
+                                                   class="form-control"
+                                                   ng-model-options="{ updateOn: 'default blur', debounce: { 'default': 400, 'blur': 0 } }"
+                                                   required>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-sm-8">
+                                        <div class="input-group input-group-sm">
+                                            <textarea type="text"
+                                                      ng-trim="false"
+                                                      class="msd-elastic form-control form-value"
+                                                      style="height: 28px; white-space: pre-wrap"
+                                                      tabindex="{{ 4 + $index*3}}"
+                                                      ng-model="mapItem.p[1]"></textarea>
+                                            <span class="input-group-btn">
+                                                <button ng-click="removeMapItem($index)"
+                                                        class="btn btn-sm btn-default value-obj-btn font-red"
+                                                        type="button">Remove</button>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div>
+                                <button type="button"
+                                        tabindex="1000"
+                                        class="btn btn-xs xss btn-default"
+                                        style="margin-bottom: 5px;"
+                                        ng-click="addMapItem()">+ add</button>
+                            </div>
+                        </div>
+
+
+                    </div>
+
+                    <div class="value-sub" ng-show="property.encryptionState == 1 && !property.decriptValidated">
+                        <a href ng-click="decryptValue()">Decrypt</a>
+                        to view and edit.
+                    </div>
+
+                    <div ng-show="property.encryptionState != 1 || property.decriptValidated">
+                        <a ng-click="setNull()" ng-if="value != null" class="mono null-link">set null</a>
+                        <a ng-click="setNonNull()" ng-if="value == null" class="mono null-link">set non-null</a>
+                    </div>
+
+                </div>
+            </div>
+
+            <div class="ie-context form-group">
+
+                <label class="form-field-head col-sm-1 control-label">
+                    Context:
+                </label>
+
+                <div class="col-sm-11">
+                    <div ng-repeat="depthScore in getRepoContext(property).depthScores"
+                         class="val-ctx"
+                         ng-class="{'col-md-10': getRepoContext(property).depthScores.length == 10,
+                                    'col-md-9': getRepoContext(property).depthScores.length == 9,
+                                    'col-md-8': getRepoContext(property).depthScores.length == 8,
+                                    'col-md-7': getRepoContext(property).depthScores.length == 7,
+                                    'col-md-6': getRepoContext(property).depthScores.length == 6,
+                                    'col-md-15': getRepoContext(property).depthScores.length == 5,
+                                    'col-sm-3': getRepoContext(property).depthScores.length == 4,
+                                    'col-sm-4': getRepoContext(property).depthScores.length == 3,
+                                    'col-sm-6': getRepoContext(property).depthScores.length == 2,
+                                    'col-xs-12': getRepoContext(property).depthScores.length == 1}">
+                        <div class="context-select">
+
+                            <selectize tabindex="1001"
+                                       config='contextSelectConfig'
+                                       options="getRepoContext(property).selectableContext[depthScore]"
+                                       ng-change="validateContext()"
+                                       ng-model="context[depthScore]"></selectize>
+                            <small class="depth-label">{{ getRepoContext(property).depths[depthScore].label }}</small>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+
+        <div class="error-message slider" ng-if="errorMessage">
+            <div class="col-sm-offset-1">
+                {{ errorMessage }}
+            </div>
+        </div>
+
+        <div class="error-message slider circularRef" ng-if="circularRef">
+            <div ng-include="'repo/circularErr.tpl.html'"></div>
+        </div>
+
+        <div class="ie-value-controls row">
+            <div class="col-sm-11 col-sm-offset-1">
+
+                <div class="btn-group" role="group">
+                    <button type="button"
+                            class="btn btn-sm btn-success comment-btn"
+                            data-placement="bottom-left"
+                            data-content="popover.content"
+                            data-template-url="repo/changeComment.tpl.html"
+                            data-animation="am-flip-x"
+                            change-comment
+                            bs-popover>
+                        <i class="fa fa-commenting-o"></i>
+                    </button>
+
+                    <button tabindex="1002"
+                            ng-disabled="!validType || (conflict && active) || ut < type.member"
+                            ng-click="saveValue()"
+                            class="btn btn-success btn-sm">
+                        <span ng-if="entry.newProperty">Save property</span>
+                        <span ng-if="!entry.newProperty">{{ property.isNew ? 'Add' : 'Update' }} value</span>
+                    </button>
+                </div>
+
+                <button tabindex="1003"
+                        class="btn btn-default btn-sm pad-left"
+                        ng-click="disableValueEditor(property, side)">Cancel
+                </button>
+
+                <div ng-if="!property.isNew && !entry.newProperty" class="btn-group pull-right" role="group">
+                    <button type="button"
+                            tabindex="1004"
+                            class="btn btn-danger dropdown-toggle"
+                            bs-dropdown
+                            ng-disabled="ut < type.member"
+                            data-placement="bottom-right"
+                            aria-expanded="false">
+                        <i class="fa fa-trash"></i>
+                        <i class="fa fa-caret-down"></i>
+                    </button>
+                    <ul class="dropdown-menu delete" role="menu">
+                        <li><a tabindex="1005" ng-click="deleteValue()">Confirm delete</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</form>

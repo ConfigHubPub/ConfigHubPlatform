@@ -1,0 +1,434 @@
+<div class="container padded-top30" ng-controller="TeamsController">
+
+    <div class="row" ng-if="initialized">
+
+        <div class="col-xs-12" >
+
+            <div class="row">
+
+
+                <div class="col-xs-12 slider" ng-show="allMembersToggle">
+                    <div class="aTeam-head teams">
+                        <h3>All repository members</h3>
+                    </div>
+
+                    <div class="padded-top30">
+
+                        <!-- Toolbar -->
+                        <div bs-affix class="row">
+                            <div class="col-xs-12">
+                                <div class="toolbar">
+                                    <div class="row">
+
+                                        <div class="col-md-5 col-xs-12 search" style="margin-top: 1px">
+                                            <div class="input-group input-group-sm">
+                                                <span class="input-group-addon" id="sizing-addon3"><i class="fa fa-search"></i></span>
+                                                <input type="text"
+                                                       ng-model="searchQuery"
+                                                       ng-list=" "
+                                                       ng-trim="false"
+                                                       class="form-control input-sm"
+                                                       spellcheck="false"
+                                                       placeholder="Search users and teams"
+                                                       ng-model-options="{ updateOn: 'default blur', debounce: { 'default': 500, 'blur': 0 } }">
+                                            </div>
+                                        </div>
+
+                                        <div class="col-md-7 col-xs-12">
+                                            <div role="group" style="text-align: right">
+                                                <dir-pagination-controls ng-show="showPagination"
+                                                                         template-url="/repository/templates/dirPaginationSimple.tpl.html"></dir-pagination-controls>
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+
+                        <div dir-paginate="member in allMembers  | orderBy: 'name' | memberFilter:searchQuery | itemsPerPage: pageSize"
+                             current-page="currentPage"
+                            class="listing dotted-bottom">
+
+                            <div class="row ">
+                                <div class="col-xs-8">
+                                    <div class="btn-group">
+                                        <button type="button"
+                                                class="btn btn-xs btn-default edit-btn dropdown-toggle"
+                                                bs-dropdown
+                                                ng-disabled="ut < type.admin"
+                                                aria-haspopup="true"
+                                                aria-expanded="false">
+                                            <i class="fa fa-caret-down"></i>
+                                        </button>
+                                        <ul class="dropdown-menu">
+                                            <li><a ng-click="removeMember(member)">Remove</a></li>
+                                            <li role="separator" class="divider"></li>
+                                            <li class="dropdown-header">Move to another team:</li>
+                                            <li class="dropdown-header" ng-if="teams.length == 1">
+                                                No more teams created
+                                            </li>
+                                            <li ng-repeat="team in teams" ng-if="team.name != member.team">
+                                                <a ng-click="moveToTeam(member.un, team.name)">{{ team.name }}</a>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                    <span class="member-name" ng-if="member.name">{{ member.name }},</span>
+                                    <span class="member-un">{{ member.un }}</span>
+                                </div>
+                                <div class="col-xs-4"><a ng-click="findAndSelectTeam(member.team)">{{ member.team }}</a></div>
+                            </div>
+                        </div>
+
+                        <div class="t-foot padded-top" ng-show="count > 0">
+                            <div class="summary">
+                                <select class="form-control page-size input-xs" ng-model="pageSize" ng-change="pageSizeUpdate()">
+                                    <option value="10">10</option>
+                                    <option value="25">25</option>
+                                    <option value="50">50</option>
+                                    <option value="100">100</option>
+                                </select>
+                                / {{ count }} members
+                            </div>
+                            <dir-pagination-controls template-url="/repository/templates/dirPagination.tpl.html"></dir-pagination-controls>
+                        </div>
+
+
+                    </div>
+
+
+
+
+
+                </div>
+
+                <!-- Team display -->
+                <div class="col-xs-12 slider" ng-show="!allMembersToggle">
+
+                    <!--Team title and edit form-->
+                    <div class="row">
+                        <div class="col-xs-12 aTeam-head teams">
+
+                            <div ng-hide="aTeam.newName || aTeam.newTeam">
+                                <h3>
+                                    <span><strong>Team: </strong></span>
+
+
+                                    <!--<button type="button"-->
+                                            <!--class="btn btn-success dropdown-toggle"-->
+                                            <!--bs-dropdown-->
+                                            <!--data-placement="bottom-right"-->
+                                            <!--aria-expanded="false">-->
+                                    <a bs-dropdown
+                                          data-placement="bottom-right"
+                                          aria-expanded="false">
+                                            {{ aTeam.name }}
+                                            <i class="fa fa-caret-down"></i></a>
+                                    <!--</button>-->
+                                    <ul class="dropdown-menu" role="menu">
+                                        <li ng-repeat="team in teams">
+                                            <a ng-click="selectTeam(team)">{{ team.name }}</a>
+                                        </li>
+                                    </ul>
+
+
+
+
+
+
+                                </h3>
+                                <span ng-if="ut >= type.admin" class="padded-left">
+                                    / <a ng-click="aTeam.newName = aTeam.name">edit</a>
+                                    / <a ng-click="newTeam()">add team</a>
+                                </span>
+                            </div>
+
+                            <div ng-show="aTeam.newName || aTeam.newTeam">
+
+                                <div class="panel panel-form">
+                                    <div class="panel-body">
+
+                                        <div class="alert alert-danger" ng-show="aTeam.teamMessage">{{ aTeam.teamMessage }}</div>
+
+                                        <div class="form-group">
+                                            <div class="form-field-head">
+                                                Team name:
+                                            </div>
+                                            <input type="text"
+                                                   ng-model="aTeam.newName"
+                                                   class="form-control"
+                                                   required>
+                                        </div>
+
+                                        <div class="padded-top30">
+
+                                            <span ng-if="aTeam.newTeam">
+                                                <button ng-click="createTeam()"
+                                                        class="btn btn-success"
+                                                        ng-disabled="ut < type.admin"
+                                                        type="button">Create new team</button>
+                                                <button ng-if="teams.length > 0" ng-click="cancel()" class="btn btn-default" type="button">Cancel</button>
+                                            </span>
+
+
+
+                                            <span ng-if="!aTeam.newTeam">
+                                                <button ng-click="renameTeam()"
+                                                        class="btn btn-success"
+                                                        ng-disabled="ut < type.admin"
+                                                        type="button">Update</button>
+                                                <button ng-click="cancelRename()" class="btn btn-default" type="button">Cancel</button>
+
+                                                <span class="btn-group pull-right">
+                                                    <button type="button"
+                                                            class="btn btn-danger dropdown-toggle"
+                                                            bs-dropdown
+                                                            ng-disabled="ut < type.admin"
+                                                            data-placement="bottom-right"
+                                                            aria-expanded="false">
+                                                        <i class="fa fa-trash"></i>
+                                                        <i class="fa fa-caret-down"></i>
+                                                    </button>
+                                                    <ul class="dropdown-menu delete pull-right" role="menu">
+                                                        <li>
+                                                            <a ng-click="deleteTeamNow()">
+                                                                Delete team
+                                                                <span ng-show="aTeam.d.members && aTeam.d.members.length > 0">
+                                                                    <span ng-if="accessControlEnabled">, rules </span>and remove members
+                                                                </span>
+                                                            </a>
+                                                        </li>
+
+                                                    </ul>
+                                                </span>
+                                            </span>
+
+                                        </div>
+
+                                    </div>
+                                </div>
+
+
+                            </div>
+                        </div>
+                    </div>
+
+                    <div ng-if="aTeam.newTeam && (!teams || teams.length == 0)" class="padded-top30">
+                        There are no teams defined
+                    </div>
+
+                    <div class="row" ng-hide="aTeam.newTeam">
+                        <!-- Members -->
+
+                        <div class="col-sm-5" >
+                            <div class="team-col team-members">
+                                <div class="team-col-head teams">
+                                    <h4>Members</h4>
+                                    <span ng-if="teams && teams.length > 1">
+                                        / <a ng-click="showAllMembers()">all</a>
+                                    </span>
+                                </div>
+
+                                <div id="member-addon" ng-hide="ut < type.admin">
+                                    <div class="input-group">
+                                        <div class="input-group-addon"><i class="fa fa-user-plus"></i></div>
+
+                                        <input type="text"
+                                               class="form-control"
+                                               spellcheck="false"
+                                               ng-model="selected"
+                                               data-min-length="3"
+                                               data-trigger="focus"
+                                               data-target="div#member-addon"
+                                               data-container="div#member-addon"
+                                               data-template="itemTpl.html"
+                                               data-placement="bottom-left"
+                                               bs-options="item as item.un for item in getUsers($viewValue)"
+                                               placeholder="Add by username or full name"
+                                               ng-model-options="{ updateOn: 'default blur', debounce: { 'default': 400, 'blur': 0 } }"
+                                               bs-typeahead>
+
+                                        <span class="input-group-btn">
+                                            <button class="btn btn-primary"
+                                                    ng-click="addMemberToTeam(selected)"
+                                                    ng-disabled="ut < type.admin"
+                                                    type="button">Add
+                                            </button>
+                                        </span>
+                                    </div>
+
+                                    <script type="text/ng-template" id="itemTpl.html">
+                                        <ul tabindex="-1" class="typeahead dropdown-menu" ng-show="$isVisible()" role="select">
+                                            <li role="presentation" ng-repeat="match in $matches" ng-class="{active: $index == $activeIndex}">
+                                                <a role="menuitem" tabindex="-1" class="auto-c" ng-click="$select($index, $event)">
+                                                    <span class="member-i"><i class="fa fa-user"></i></span>
+                                                    <span class="member-name" ng-if="match.value.name">{{ match.value.name }},</span>
+                                                    <span class="member-un">{{ match.value.un }}</span>
+                                                </a>
+                                            </li>
+                                        </ul>
+                                    </script>
+
+                                    <div class="alert alert-danger team-error" ng-if="memberMessage">{{ memberMessage }}</div>
+                                    <div class="alert alert-danger team-error" ng-if="selectedMember.memberOf">
+                                        {{ selectedMember.un }} is already a member of team {{ selectedMember.memberOf }}.<br>
+                                        Move {{ selectedMember.un }} to {{ aTeam.name }} team instead?<br>
+                                        <a ng-click="moveToTeam(selectedMember.un, aTeam.name)">Yes, make the move.</a>
+                                    </div>
+                                </div>
+
+                                <div ng-repeat="member in aTeam.d.members | orderBy: 'name'">
+                                    <div class="listing dotted-bottom">
+
+                                        <div class="btn-group">
+                                            <button type="button"
+                                                    class="btn btn-xs btn-default edit-btn"
+                                                    bs-dropdown
+                                                    ng-disabled="ut < type.admin"
+                                                    aria-haspopup="true"
+                                                    aria-expanded="false">
+                                                <i class="fa fa-caret-down"></i>
+                                            </button>
+                                            <ul class="dropdown-menu" role="menu">
+                                                <li><a ng-click="removeMember(member)">Remove</a></li>
+                                                <li role="separator" class="divider"></li>
+                                                <li class="dropdown-header">Move to another team:</li>
+                                                <li class="dropdown-header" ng-if="teams.length == 1">
+                                                    No more teams created
+                                                </li>
+                                                <li ng-repeat="team in teams" ng-if="team.name != aTeam.name">
+                                                    <a ng-click="moveToTeam(member.un, team.name)">{{ team.name }}</a>
+                                                </li>
+                                            </ul>
+                                        </div>
+
+                                        <span class="member-name" ng-if="member.name">{{ member.name }},</span>
+                                        <span class="member-un">{{ member.un }}</span>
+                                    </div>
+                                </div>
+
+                                <div ng-if="!aTeam.d.members || aTeam.d.members.length == 0" class="padded-top10">
+                                    <span class="dim">This team is empty.</span>
+                                </div>
+                            </div>
+
+
+                        </div>
+
+                        <!-- Rules -->
+                        <div class="col-sm-7 col-lg-6 col-lg-offset-1" >
+                            <div class="team-col">
+
+                                <div class="team-col-head teams">
+                                    <h4>Access rules</h4>
+                                </div>
+
+                                <div ng-if="!accessControlEnabled" class="ch-info">
+                                    <p>
+                                        <a ui-sref="repo.settings({owner: repository.owner, name: repository.name, s: 'features' })">Access controls</a>
+                                        feature is disabled.
+                                    </p>
+                                    <hr/>
+                                    </p>
+                                        Members of each team have full read/write permissions for
+                                        properties and context items.
+                                    </p>
+                                </div>
+
+                                <div ng-if="accessControlEnabled">
+
+                                    <!-- Rules configuration -->
+                                    <div>
+                                        <div class="rule-list gen-rules">
+                                            <div class="panel panel-form">
+                                                <div class="panel-body">
+                                                    <div gen-rule-process-unmatched ng-cloak></div>
+                                                </div>
+                                            </div>
+
+                                            <div class="panel panel-form" ng-if="aTeam.d.accessRules && aTeam.d.accessRules.length > 1">
+                                                <div class="panel-body">
+                                                    <div gen-rule-stop ng-cloak></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Rule listing -->
+                                    <div class="padded-top10">
+
+                                        <div class="teams">
+
+                                            <h5>Team rules</h5>
+                                            / <a ng-click="enableNewRuleForm()" eat-click-if="!repository.demo && ut < type.admin">new</a>
+                                            <span ng-if="aTeam.d.accessRules && aTeam.d.accessRules.length > 1">
+                                                / <a ng-click="aTeam.d.sortingEnabled = true" eat-click-if="!repository.demo && ut < type.admin">reorder</a>
+                                            </span>
+
+                                            <div class="rule-info "
+                                                 style="line-height: 40px; ;vertical-align: baseline"
+                                                 ng-if="aTeam.d.sortingEnabled">
+                                                <span style="position: relative; top: 10px;">Drag rules to position.</span>
+                                                <div class="pull-right">
+                                                    <button class="btn btn-sm btn-primary"
+                                                            ng-disabled="ut < type.admin || !aTeam.d.reordered"
+                                                            ng-click="saveOrder()">
+                                                        Save order
+                                                    </button>
+                                                    <button class="btn btn-sm btn-default"
+                                                            ng-click="cancelSorting()">
+                                                        Reset
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div ng-if="!aTeam.d.accessRules || aTeam.d.accessRules.length == 0">
+                                            <span class="dim">No rules defined for {{ aTeam.name }} team.</span>
+                                        </div>
+
+
+                                        <div class="rule-list" >
+
+                                            <div class="panel panel-form" ng-if="newRuleFormVisible">
+                                                <div class="panel-body">
+                                                    <ng-include src="'/repo/team/ruleForm.tpl.html'"></ng-include>
+                                                </div>
+                                            </div>
+
+                                            <ul ng-if="aTeam.d.accessRules && aTeam.d.accessRules.length > 0"
+                                                ui-sortable="sortableOptions"
+                                                ng-model="aTeam.d.accessRules"
+                                                class="list">
+                                                <li ng-repeat="rule in aTeam.d.accessRules"
+                                                    class="rule-item"
+                                                    ng-class="{'not-sortable': !aTeam.d.sortingEnabled, 'cursor-move': aTeam.d.sortingEnabled}">
+
+                                                    <div class="panel panel-form" ng-if="rule.type === 'Key'">
+                                                        <div class="panel-body" key-rule-entry rule="rule" ng-cloak></div>
+                                                    </div>
+
+                                                    <div class="panel panel-form" ng-if="rule.type === 'Value'">
+                                                        <div class="panel-body" value-rule-entry rule="rule" ng-cloak></div>
+                                                    </div>
+
+                                                </li>
+                                            </ul>
+
+
+                                        </div>
+                                    </div>
+
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>

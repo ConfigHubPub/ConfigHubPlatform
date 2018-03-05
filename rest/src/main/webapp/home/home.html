@@ -1,0 +1,784 @@
+<style>
+    .navbar-ch {
+        position: fixed;
+        width: 100%;
+        overflow: visible !important;
+    }
+
+    .home-start {
+        padding-top: 40px;
+    }
+</style>
+
+<div class="home-start gen3-tm" ng-controller="HomeCtrl">
+
+
+    <div class="t1bg">
+        <div class="t1">
+            <div class="container">
+                <div class="row margin-bottom80">
+
+                    <div class="col-md-6">
+                        <div class="margin-top80">
+                            <p class="hd home-sec">Developer's tool for software configuration</p>
+                            <p class="de home-sec padded-top20">
+                                Secure, scalable and collaborative platform for software configuration
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="col-md-4 col-sm-6 col-xs-12 col-md-offset-2">
+                        <div class="margin-top80">
+                            <div class="home-signup">
+                                <ng-include src="'/signup/signupForm.tpl.html'"></ng-include>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+
+
+        </div>
+    </div>
+
+
+    <div class="ftr_tagline">
+        <div class="container">
+
+            <h2 class="title">
+                Traditional Software Configuration Infrastructure is Obsolete
+            </h2>
+            <div class="second">
+                <b></b>Scale, security and functionality demands of modern cloud-hybrid applications
+                are radically more complex
+            </div>
+
+        </div>
+    </div>
+
+
+    <div class="ftr_section ftr-white">
+        <div class="container">
+
+            <h2 class="title padded-bottom30">
+                How it Works
+            </h2>
+
+            <p class="ftr_content padded-bottom50">
+                Configuring distributed systems can be complex and difficult to manage. &ensp;Traditional property files
+                fail to address some fundamental needs, while other solutions require custom implementation
+                and maintenance. &ensp;
+                ConfigHub simplifies developer workflow, reduces errors and provides greater software security.
+            </p>
+
+            <div class="row">
+                <div class="col-md-12">
+
+                    <div class="hm-img-wr mh-how-img">
+                        <img src="/images/how.svg">
+
+                        <ul class="list-unstyled">
+
+                            <li class="hm-input">
+                                <h4 class="title">Centralized Configuration</h4>
+
+                                <p class="ftr_content">
+                                    Configuration for all applications is maintained
+                                    in your private ConfigHub repository.  Organize users in
+                                    teams, and control read/write per keys or context.
+                                </p>
+
+                                <p class="ftr_content">
+                                    Manage configuration, tag releases, view revisions and
+                                    compare configuration between contexts, times and tags.
+                                </p>
+                            </li>
+
+                            <li class="hm-hosting">
+                                <h4 class="title">ConfigHub Solution Hosting</h4>
+
+                                <p class="ftr_content">
+                                    Our hosted solution is the simplest and fastest way to
+                                    get started.  Our data-centers are in the US, Europe and
+                                    Australia.
+                                </p>
+
+                                <p class="ftr_content">
+                                    Enterprise release can be hosted in your cloud, server or a VM.
+                                    Looking for a private environment, <a ui-sref="pricing">get in touch</a>.
+                                </p>
+                            </li>
+
+                            <li class="hm-pull">
+                                <h4 class="title">Pulling</h4>
+                                <p class="ftr_content">
+                                    To pull configuration, applications provide a token and their
+                                    context through a ConfigHub API, or our RESTful service.
+                                </p>
+
+                                <p class="ftr_content">
+                                    The APIs provide functionality for type-checking, decryption,
+                                    config backup/read on local disk and fetching config from specific time or tag.
+                                    All API requests are tracked, and you can always see which application, from
+                                    which source requested resources.
+                                </p>
+                            </li>
+
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!--The Problem-->
+    <div class="ftr_section ftr-gray">
+        <div class="container">
+
+            <h2 class="title padded-bottom30">
+                <b>The Problem:</b><br> Traditional Configuration
+            </h2>
+
+            <div class="row margin-bottom50">
+                <div class="col-md-6">
+
+                    <p class="ftr_content">
+                        We'll start with a simple example of configuration for three different
+                        applications (Analytics, Collector and WebDashboard).  We assume they run in two environments
+                        (Production and Development), and each application's instance configuration is the same.
+                    </p>
+
+                </div>
+
+                <div class="col-md-6 col-lg-5 col-lg-offset-1">
+
+                    <h4 class="title">Common problems:</h4>
+
+                    <ul class="ftr_content">
+                        <li>
+                            Property duplication (
+                            <span class="ms-over" ng-mouseover="showGlob = true" ng-mouseleave="showGlob = false">global</span>,
+                            <span class="ms-over" ng-mouseover="showEnv = true" ng-mouseleave="showEnv = false">environment</span>
+                            ,...)
+                        </li>
+                        <li>
+                            <span class="ms-over" ng-mouseover="showSec = true" ng-mouseleave="showSec = false">No security</span>
+                            for sensitive information
+                        </li>
+                        <li>Access control is limited to file or code repo r/w access</li>
+                        <li>Comparing properties between contexts and time is not available</li>
+                        <li>No audit tracking per key</li>
+                    </ul>
+
+                </div>
+            </div>
+
+
+            <!--Example files-->
+            <div class="row">
+
+                <div class="col-md-4">
+                    <div class="v-files">
+                        <div class="ftr-app-name">Analytics</div>
+
+                        <div class="ftr-env ftr_content"><span class="context">Development</span></div>
+                        <div class="ftr-txt-file ftr-dev margin-bottom30">
+
+                            <div class="ftr-code">
+                                <div ng-class="{'gl-glob': showGlob}" class="ftr-value"><span class="key">net.smtp.host</span><span class="v">smtp.domain.com</span></div>
+                                <br>
+                                <div ng-class="{'gl-env': showEnv}" class="ftr-value"><span class="key">db.host</span><span class="v">localhost</span></div>
+                                <div ng-class="{'gl-env': showEnv}" class="ftr-value"><span class="key">db.username</span><span class="v">developer</span></div>
+                                <div ng-class="{'gl-env': showEnv, 'gl-sec': showSec}" class="ftr-value"><span class="key">db.password</span><span class="v">12345678</span></div>
+                                <br>
+                                <div class="ftr-value"><span class="key">name</span><span class="v">Analytics</span></div>
+                                <div class="ftr-value"><span class="key">publish</span><span class="v">false</span></div>
+                                <div class="ftr-value"><span class="key">stats.out</span><span class="v">/tmp/stats.out</span></div>
+                                <br>
+                                <div ng-class="{'gl-env': showEnv}" class="ftr-value"><span class="key">logger.level</span><span class="v">DEBUG</span></div>
+                                <div ng-class="{'gl-env': showEnv}" class="ftr-value"><span class="key">logger.path</span><span class="v">/tmp</span></div>
+                            </div>
+                        </div>
+
+
+                        <div class="ftr-env ftr_content"><span class="context">Production</span></div>
+                        <div class="ftr-txt-file ftr-prod">
+
+                            <div class="ftr-code">
+                                <div ng-class="{'gl-glob': showGlob}" class="ftr-value"><span class="key">net.smtp.host</span><span class="v">smtp.domain.com</span></div>
+                                <br>
+                                <div ng-class="{'gl-env': showEnv}" class="ftr-value"><span class="key">db.host</span><span class="v">db.domain.com</span></div>
+                                <div ng-class="{'gl-env': showEnv}" class="ftr-value"><span class="key">db.username</span><span class="v">admin</span></div>
+                                <div ng-class="{'gl-env': showEnv, 'gl-sec': showSec}" class="ftr-value"><span class="key">db.password</span><span class="v">!pass4u</span></div>
+                                <br>
+                                <div class="ftr-value"><span class="key">name</span><span class="v">Analytics</span></div>
+                                <div class="ftr-value"><span class="key">publish</span><span class="v">true</span></div>
+                                <br>
+                                <div ng-class="{'gl-env': showEnv}" class="ftr-value"><span class="key">logger.level</span><span class="v">ERROR</span></div>
+                                <div class="ftr-value"><span class="key">logger.path</span><span class="v">/var/log/analytics</span></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+                <div class="col-md-4">
+                    <div class="v-files">
+                        <div class="ftr-app-name">Collector</div>
+
+                        <div class="ftr-env ftr_content"><span class="context">Development</span></div>
+                        <div class="ftr-txt-file ftr-dev margin-bottom30">
+                            <div class="ftr-code">
+                                <div ng-class="{'gl-glob': showGlob}" class="ftr-value"><span class="key">net.smtp.host</span><span class="v">smtp.domain.com</span></div>
+                                <div ng-class="{'gl-glob': showGlob}" class="ftr-value"><span class="key">lbm.licence</span><span class="v">ORGCH_Fiia</span></div>
+                                <div ng-class="{'gl-glob': showGlob}" class="ftr-value"><span class="key">lbm.version</span><span class="v">5.5</span></div>
+                                <br>
+                                <div ng-class="{'gl-env': showEnv}" class="ftr-value"><span class="key">db.host</span><span class="v">localhost</span></div>
+                                <div ng-class="{'gl-env': showEnv}" class="ftr-value"><span class="key">db.username</span><span class="v">developer</span></div>
+                                <div ng-class="{'gl-env': showEnv, 'gl-sec': showSec}" class="ftr-value"><span class="key">db.password</span><span class="v">12345678</span></div>
+                                <br>
+                                <div class="ftr-value"><span class="key">name</span><span class="v">Collector</span></div>
+                                <div class="ftr-value"><span class="key">receiver</span><span class="v">false</span></div>
+                                <br>
+                                <div ng-class="{'gl-env': showEnv}" class="ftr-value"><span class="key">logger.level</span><span class="v">DEBUG</span></div>
+                                <div ng-class="{'gl-env': showEnv}" class="ftr-value"><span class="key">logger.path</span><span class="v">/tmp</span></div>
+                            </div>
+                        </div>
+
+
+                        <div class="ftr-env ftr_content"><span class="context">Production</span></div>
+                        <div class="ftr-txt-file ftr-prod">
+
+                            <div class="ftr-code">
+                                <div ng-class="{'gl-glob': showGlob}" class="ftr-value"><span class="key">net.smtp.host</span><span class="v">smtp.domain.com</span></div>
+                                <div ng-class="{'gl-glob': showGlob}" class="ftr-value"><span class="key">lbm.licence</span><span class="v">ORGCH_Fiia</span></div>
+                                <div ng-class="{'gl-glob': showGlob}" class="ftr-value"><span class="key">lbm.version</span><span class="v">5.5</span></div>
+                                <br>
+                                <div ng-class="{'gl-env': showEnv}" class="ftr-value"><span class="key">db.host</span><span class="v">db.domain.com</span></div>
+                                <div ng-class="{'gl-env': showEnv}" class="ftr-value"><span class="key">db.username</span><span class="v">admin</span></div>
+                                <div ng-class="{'gl-env': showEnv, 'gl-sec': showSec}" class="ftr-value"><span class="key">db.password</span><span class="v">!pass4u</span></div>
+                                <br>
+                                <div class="ftr-value"><span class="key">name</span><span class="v">Collector</span></div>
+                                <div class="ftr-value"><span class="key">receiver</span><span class="v">false</span></div>
+                                <br>
+                                <div ng-class="{'gl-env': showEnv}" class="ftr-value"><span class="key">logger.level</span><span class="v">ERROR</span></div>
+                                <div class="ftr-value"><span class="key">logger.path</span><span class="v">/var/log/collector</span></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+                <div class="col-md-4">
+                    <div class="v-files">
+                        <div class="ftr-app-name">WebDashboard</div>
+
+                        <div class="ftr-env ftr_content"><span class="context">Development</span></div>
+                        <div class="ftr-txt-file ftr-dev margin-bottom30">
+
+                            <div class="ftr-code">
+                                <div ng-class="{'gl-glob': showGlob}" class="ftr-value"><span class="key">lbm.licence</span><span class="v">ORGCH_Fiia</span></div>
+                                <div ng-class="{'gl-glob': showGlob}" class="ftr-value"><span class="key">lbm.version</span><span class="v">5.5</span></div>
+                                <br>
+                                <div ng-class="{'gl-env': showEnv}" class="ftr-value"><span class="key">db.host</span><span class="v">localhost</span></div>
+                                <div ng-class="{'gl-env': showEnv}" class="ftr-value"><span class="key">db.username</span><span class="v">developer</span></div>
+                                <div ng-class="{'gl-env': showEnv, 'gl-sec': showSec}" class="ftr-value"><span class="key">db.password</span><span class="v">12345678</span></div>
+                                <br>
+                                <div class="ftr-value"><span class="key">name</span><span class="v">WebDashboard</span></div>
+                                <div class="ftr-value"><span class="key">receiver</span><span class="v">true</span></div>
+                                <br>
+                                <div ng-class="{'gl-env': showEnv}" class="ftr-value"><span class="key">logger.level</span><span class="v">DEBUG</span></div>
+                                <div ng-class="{'gl-env': showEnv}" class="ftr-value"><span class="key">logger.path</span><span class="v">/tmp</span></div>
+                            </div>
+                        </div>
+
+                        <div class="ftr-env ftr_content"><span class="context">Production</span></div>
+                        <div class="ftr-txt-file ftr-prod">
+
+                            <div class="ftr-code">
+                                <div ng-class="{'gl-glob': showGlob}" class="ftr-value"><span class="key">lbm.licence</span><span class="v">ORGCH_Fiia</span></div>
+                                <div ng-class="{'gl-glob': showGlob}" class="ftr-value"><span class="key">lbm.version</span><span class="v">5.5</span></div>
+                                <br>
+                                <div class="ftr-value"><span class="key">name</span><span class="v">WebDashboard</span></div>
+                                <div class="ftr-value"><span class="key">receiver</span><span class="v">true</span></div>
+                                <br>
+                                <div ng-class="{'gl-env': showEnv}" class="ftr-value"><span class="key">logger.level</span><span class="v">ERROR</span></div>
+                                <div class="ftr-value"><span class="key">logger.path</span><span class="v">/var/log/webDash</span></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+
+
+
+    <div class="ftr_section ftr-white" style="padding-bottom: 50px;">
+        <div class="container">
+
+            <h2 class="title padded-bottom30">
+                <b>The Solution:</b><br> ConfigHub Repository
+            </h2>
+
+            <div class="row">
+                <div class="col-md-6 col-lg-6">
+                    <div class="ftr_content margin-bottom30">
+                        This repository contains configuration for all applications in the example above.<br>
+                        Note that
+                        <strong>properties are not duplicated</strong> - each value is assigned context,
+                        and <strong>passwords are not visible</strong>.
+                    </div>
+
+                    <div class="ftr_content">
+                        Change the context to see how configuration is resolved in response.  For example:
+                        <div>
+                            - <span ng-click="setContext({80: ['Production'], 160: ['Collector']})"
+                                    class="context linked">Production<i></i>Collector</span>
+                        </div>
+                        <div>
+                            - <span ng-click="setContext({80: ['Development', 'Production'], 160: ['Analytics']})"
+                                    class="context linked">Production,Development<i></i>Analytics</span>
+                            &nbsp;or&nbsp;
+                            <span ng-click="setContext({160: ['Analytics']})"
+                                  class="context linked"><span class="bl"></span><i></i>Analytics</span>
+                        </div>
+                        <div>
+                            - <span ng-click="setContext({80: ['Development'], 160: ['Analytics', 'Collector']})"
+                                    class="context linked">Development<i></i>Analytics,Collector</span>
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="col-md-6 col-lg-5 col-lg-offset-1 ftr_info margin-top-30-xs">
+                    <h4 class="title">Tips:</h4>
+                    <ul class="ftr_content margin-bottom30 ">
+                        <li>To edit any part of configuration - double click it.</li>
+                        <li>Click <i class="fa fa-balance-scale"></i> button
+                            to compare configuration between contexts and/or times.
+                        </li>
+                        <li>
+                            <a ui-sref="repo.editor({owner: account, name: repoName })">Go to this repository</a>
+                            to explore all features
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="ftr_section ftr-white" style="padding-top: 0px;">
+        <div class="container">
+            <div ng-if="featuresInitialized">
+                <div class="ch-editor" ng-controller="EditorController">
+
+                    <div class="slider" ng-show="propertiesLoaded">
+
+                        <div class="context-tabs" ngCloak>
+
+                            <div class="row context-options">
+
+                                <div class="col-xs-12 col-sm-6 sub-toolbar">
+                                    <ul class="list-inline">
+                                        <li>
+                                            <time-select></time-select>
+                                        </li>
+                                    </ul>
+                                </div>
+
+                                <div class="col-xs-12 col-sm-6 sub-toolbar sub-nav text-right text-right-not-xs">
+                                    <ul class="list-inline">
+                                        <li class="active">
+                                            <a href
+                                               class="third"
+                                               ui-sref="repo.editor({owner: account, name: repoName })">
+                                                Properties
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a href
+                                               class="third"
+                                               ui-sref="repo.files({owner: account, name: repoName })">
+                                                Files
+                                            </a>
+                                        </li>
+
+                                        <li>
+                                            <a href
+                                               class="third"
+                                               data-trigger="hover"
+                                               ui-sref="repo.audit({owner: account, name: repoName })">
+                                                Revisions
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </div>
+
+                            </div>
+
+                            <div class="content">
+                                <div class="row context-items-row">
+                                    <div ng-repeat="depthScore in repoContext.depthScores"
+                                         ng-if="repoContext.loaded"
+                                         ng-class="{'col-md-15': repoContext.depthScores.length == 5,
+                                    'col-sm-3': repoContext.depthScores.length == 4,
+                                    'col-sm-4': repoContext.depthScores.length == 3,
+                                    'col-sm-6': repoContext.depthScores.length == 2,
+                                    'col-xs-12': repoContext.depthScores.length == 1}"
+                                         class="depth-element ">
+                                        <div class="form-group context-select control-label">
+                                            <a class="control-label sec"
+                                               ui-sref="repo.context({owner: account, name: repoName })">
+                                                {{ repoContext.depths[depthScore].label }}
+                                            </a>/
+                                            <a eat-click-if="ut < type.member"
+                                               ui-sref="repo.newContextItem({owner: account, name: repoName, depthLabel: repoContext.depths[depthScore].label })"
+                                               tooltip="Create new {{ label }}">new</a>
+
+                                            <selectize
+                                                    ng-model-options="{ updateOn: 'default', debounce: { 'default': 1000 } }"
+                                                    config='contextSelectConfig'
+                                                    options='repoContext.selectableContext[depthScore]'
+                                                    ng-model="chosenContext[depthScore]"></selectize>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-xs-12">
+                                <div class="main-editor toolbar">
+                                    <div class="row">
+
+                                        <div class="col-sm-6 col-md-4">
+                                            <div class="input-group input-group-sm" style="margin-bottom: 6px;">
+                                                <span class="input-group-addon" id="sizing-addon3"><i class="fa fa-search"></i></span>
+                                                <input type="text"
+                                                       ng-model="searchQuery"
+                                                       ng-list=" "
+                                                       ng-trim="false"
+                                                       class="form-control input-sm"
+                                                       spellcheck="false"
+                                                       placeholder="Search keys, comments, values and context..."
+                                                       ng-model-options="{ updateOn: 'default blur', debounce: { 'default': 500, 'blur': 0 } }">
+                                            </div>
+                                        </div>
+
+                                        <div class="col-sm-6 col-md-8 col-xs-12">
+                                            <div role="group" class="text-right-not-xs"  style="margin-bottom: 6px;">
+
+                                                <button ng-if="isLive()"
+                                                        class="btn btn-primary btn-sm"
+                                                        ng-disabled="ut < type.demo"
+                                                        analytics-on="click"
+                                                        analytics-event="New Property"
+                                                        ng-click="showNewPropertyForm()">
+                                                    <span class="fa fa-plus"></span>&nbsp; New
+                                                </button
+                                                ><div ng-if="isLive()" class="vertical-separator"></div
+                                            ><button class="btn btn-sm btn-default only-icon"
+
+                                                     bs-tooltip
+                                                     data-title="Compare by context, time or tag"
+                                                     analytics-on="click"
+                                                     analytics-event="Compare"
+                                                     ng-click="compare()">
+                                                <i class="fa fa-balance-scale"></i>
+                                            </button
+                                            ><div class="vertical-separator"></div
+                                            ><button class="btn btn-sm btn-default only-icon"
+                                                     bs-tooltip
+                                                     data-title="Toggle all/resolved keys"
+                                                     data-trigger="hover"
+                                                     ng-model="allKeys"
+                                                     ng-change="allKeyToggle()"
+                                                     analytics-on="click"
+                                                     analytics-event="All keys"
+                                                     bs-checkbox>
+                                                All
+                                            </button>
+
+                                                <button class="btn btn-sm btn-default only-icon"
+                                                        bs-tooltip
+                                                        data-title="Toggle sort order"
+                                                        ng-click="toggleReverse()">
+                                                    <i ng-if="!reverse" class="fa fa-sort-alpha-asc"></i>
+                                                    <i ng-if="reverse" class="fa fa-sort-alpha-desc"></i>
+                                                </button>
+
+                                                <button class="btn btn-sm btn-default only-icon"
+                                                        bs-tooltip
+                                                        data-title="Toggle context alignment"
+                                                        ng-click="toggleContextLineup()">
+                                                    <i ng-if="!lineupContext" class="fa fa-align-justify"></i>
+                                                    <i ng-if="lineupContext" class="fa fa-align-right"></i>
+                                                </button
+                                                ><div class="vertical-separator"></div
+                                            ><dir-pagination-controls template-url="/repository/templates/dirPaginationSimple.tpl.html"></dir-pagination-controls>
+
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="entries">
+
+                            <div class="slider" ng-if="!propertiesLoaded || loading">
+                                <div class="row" id='kitt'>
+                                    <div class='col-xs-1 col-xs-offset-1 one'></div>
+                                    <div class='col-xs-1 two'></div>
+                                    <div class='col-xs-1 three'></div>
+                                    <div class='col-xs-1 four'></div>
+                                    <div class='col-xs-1 five'></div>
+                                    <div class='col-xs-1 six'></div>
+                                    <div class='col-xs-1 seven'></div>
+                                    <div class='col-xs-1 eight'></div>
+                                    <div class='col-xs-1 nine'></div>
+                                    <div class='col-xs-1 ten'></div>
+                                </div>
+                            </div>
+
+                            <div new-property></div>
+
+                            <div dir-paginate="entry in config | orderObjectBy:'key':reverse | keyFilter:searchQuery | itemsPerPage: pageSize track by entry.id"
+                                 current-page="currentPage"
+                                 ng-if="propertiesLoaded">
+
+                                <div repo-entry entry="entry" ng-cloak></div>
+                            </div>
+                        </div>
+
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="ftr_section ftr-gray">
+        <div class="container">
+            <div>
+                <h2 class="title padded-bottom30">
+                    Pulling Configuration
+                </h2>
+            </div>
+
+            <div class="row">
+                <div class="col-md-5">
+
+                    <p class="ftr_content">
+                        There are many ways for an application to receive configuration maintained in a
+                        ConfigHub repository.  Which path you choose depends on your specific needs.
+                    </p>
+
+                    <p class="ftr_content">
+                        ConfigHub API is provided over HTTPS RESTful service in JSON format, making it easy to customize.
+                        Several language specific APIs are available and ready to plug into your applications.
+                    </p>
+
+                    <p class="ftr_content">
+                        One of the common alternatives to the API is staging, where configuration
+                        is pushed on the target hosts to avoid any code modification.
+                    </p>
+
+                    <div class="padded-top30">
+                        <div schematics></div>
+
+                        <div class="world_nav text-center">
+                        <span ng-repeat="scheme in schemes track by $index">
+                            <i ng-class="{'fa-circle-thin': schematicsIndex != $index, 'fa-circle': schematicsIndex == $index}"
+                               class="fa" ng-click="selectSchema($index)"></i>
+                        </span>
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <div class="col-md-6 col-md-offset-1 margin-top-30-xs">
+                    <div class="v-files pull-types">
+                        <div class="ftr_sub-sec-title">
+                            <strong>Java API example</strong>
+                        </div>
+                        <div>
+                            <div class="code-example"
+                                 hljs
+                                 hljs-language="java"
+                                 hljs-include="'/home/javaEx.java'"></div>
+                        </div>
+                    </div>
+
+                    <div class="v-files pull-types">
+                        <div class="ftr_sub-sec-title">
+                            <strong>Python API example</strong>
+                        </div>
+
+                        <div>
+                            <div class="code-example"
+                                 hljs
+                                 hljs-language="python"
+                                 hljs-include="'/api/code/Python/configPull.sh?v=2'"></div>
+                        </div>
+                    </div>
+
+                    <a ui-sref="api">API Documentation</a>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+
+    <!--Three bar tags-->
+    <div class="ftr-white padded-top30 padded-bottom">
+        <div class="container text-center">
+
+            <div class="row hm-why">
+
+                <div class="col-sm-4">
+                    <div class="section">
+                        <div><img src="/images/growth.svg"></div>
+                        <div class="lead">Grow your applications, not complexity</div>
+
+                        <p>
+                            Adding applications should not add to management complexities
+                        </p>
+                    </div>
+                </div>
+
+                <div class="col-sm-4">
+                    <div class="section">
+                        <div><img src="/images/hearts.svg"></div>
+                        <div class="lead">Decouple code from configuration</div>
+
+                        <p>
+                            Developers focus on code, while rest of IT
+                            gains controlled access to configuration
+                        </p>
+                    </div>
+
+                </div>
+
+                <div class="col-sm-4">
+                    <div class="section">
+                        <div><img src="/images/tools.svg"></div>
+                        <div class="lead">Simple integration / no lock in</div>
+                        <p>
+                            Minimal API integration, or if you do staging, no integration at all
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="ftr_section ftr-gray">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-5">
+
+                    <h2 class="title text-center padded-bottom">Hosted anywhere</h2>
+
+                    <div class="padded-top">
+                        <table class="table hosting">
+                            <tr>
+                                <td>
+                                    <div class="hm_hosted text-center">
+                                        <span><img src="/svg/ch-cloud.svg"></span>
+                                    </div>
+                                    <div class="hm_hosted_foot text-center">
+                                        ConfigHub Cloud
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="hm_hosted text-center">
+                                        <span><img src="/svg/iaas.svg"></span>
+                                    </div>
+                                    <div class="hm_hosted_foot text-center">
+                                        IaaS
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <div class="hm_hosted text-center">
+                                        <span><img src="/svg/cube.svg"></span>
+                                    </div>
+                                    <div class="hm_hosted_foot text-center">
+                                        VM(s)
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="hm_hosted text-center">
+                                        <span><img src="/svg/server.svg"></span>
+                                    </div>
+                                    <div class="hm_hosted_foot text-center">
+                                        On-Premises
+                                    </div>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+
+
+
+                </div>
+
+                <div class="col-md-6 col-md-offset-1 margin-top-30-xs">
+                    <h2 class="title text-center padded-bottom">Simple integration</h2>
+
+                    <div style="max-width: 500px; margin: 0 auto;">
+                        <p class="hm_sec_desc padded-top30 text-center">
+                            No matter your choice of development stack, ConfigHub gives you sample code,
+                            tutorials, and live documentation to integrate effortlessly.
+                        </p>
+
+                        <p class="hm_sec_desc padded-top30 text-center languages">
+                            <strong>Java, C#, Python, REST Json</strong>
+                        </p>
+
+                        <p class="hm_sec_desc padded-top30 text-center">
+                            <a ui-sref="api">API Documentation</a>
+                        </p>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+
+    <div class="ftr_section ftr-orange">
+        <div class="container">
+            <h2 class="title read-more-about">
+                <b>Read more about:</b>&nbsp;&nbsp;
+                <a ui-sref="features({'#': 'context'})">Hierarchical Context Properties</a>
+                <a ui-sref="features({'#': 'files'})">Context Files</a>
+                <a ui-sref="features({'#': 'security'})">Security</a>
+                <a ui-sref="features({'#': 'revs'})">Revisions</a>
+                <a ui-sref="features({'#': 'teams'})">Teams / Access Controls</a>
+                <a ui-sref="features({'#': 'vtd'})">Type-Checked Values</a>
+                <a ui-sref="features({'#': 'tags'})">Tags / Versions</a>
+                <a ui-sref="features({'#': 'compare'})">Context / Time Comparison</a>
+                <a ui-sref="features({'#': 'orgs'})">Organizations</a>
+            </h2>
+        </div>
+    </div>
+
+
+    <div class="ftr_section ftr_white text-center">
+        <p class="up-fc">Create your FREE account today</p>
+        <a ui-sref="signup" class="btn btn-lg btn-success btn-try">GET STARTED</a>
+    </div>
+
+</div>

@@ -1,0 +1,71 @@
+<div class="popover" tabindex="-1" ng-show="content">
+    <div class="arrow"></div>
+
+    <div class="popover-content" style="border-radius: 3px">
+        <form name="popoverForm">
+
+            <div class="form-group">
+                <div class="form-field-head">
+                    Select a tag
+                    <span class="pull-right">
+                        <a ui-sref="repo.tags({owner: repository.owner, name: repository.name })">
+                            edit/add tags
+                        </a>
+                    </span>
+                </div>
+                <selectize config='tagSelectConfig'
+                           options="tags"
+                           ng-change="tagChange(selectedTag)"
+                           ng-model="selectedTag"></selectize>
+            </div>
+
+            <div class="form-group">
+
+                <div class="form-field-head">
+                    Or, set date and time
+                </div>
+
+                <div class="row">
+                    <div class="col-xs-6" style="padding-right: 2px">
+                        <div class="input-group">
+                            <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                            <input type="text"
+                                   class="form-control"
+                                   ng-change="changeDate(timeToSet)"
+                                   ng-model="timeToSet"
+                                   data-animation="am-flip-x"
+                                   data-autoclose="1"
+                                   data-min-date="{{ repository.creationTs | date:'shortDate' }}"
+                                   data-max-date="today"
+                                   placeholder="Date"
+                                   bs-datepicker>
+                        </div>
+                    </div>
+                    <div class="col-xs-6" style="padding-left: 2px">
+                        <div class="input-group">
+                            <span class="input-group-addon"><i class="fa fa-clock-o"></i></span>
+                            <input type="text"
+                                   class="form-control"
+                                   ng-change="changeDate(timeToSet)"
+                                   ng-model="timeToSet"
+                                   data-animation="am-flip-x"
+                                   data-time-format="h:mm a"
+                                   data-autoclose="1"
+                                   placeholder="Time"
+                                   bs-timepicker>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+
+            <div class="form-actions padded-top">
+                <button type="button" class="btn btn-warning" ng-click="setDayTime();$hide()">Set</button>
+                <button type="button" class="btn btn-default" ng-click="$hide()">Close</button>
+
+                <button type="button" class="btn btn-success pull-right" ng-click="goLive();$hide()">Live</button>
+            </div>
+        </form>
+    </div>
+</div>

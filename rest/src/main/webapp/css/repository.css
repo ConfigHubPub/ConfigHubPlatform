@@ -1,0 +1,377 @@
+.repo-tabs {
+    margin-bottom: -1px;
+}
+
+
+.repo-tabs.nav-tabs {
+    margin-top: 20px;
+}
+
+.repo-tabs.nav-tabs>li>a {
+    padding: 7px 15px;
+    font-weight: normal;
+    color: #444;
+}
+
+.repo-tabs.nav-tabs>li.active>a,
+.repo-tabs.nav-tabs>li.active>a:hover,
+.repo-tabs.nav-tabs>li.active>a:focus {
+    color: #333;
+}
+
+a.disabled,
+.repo-tabs.nav-tabs>li.disabled>a,
+.repo-tabs.nav-tabs>li.disabled>a:hover,
+.repo-tabs.nav-tabs>li.disabled>a:focus {
+    color: #999;
+    cursor: default;
+    text-decoration: none;
+}
+
+.repo-tabs.nav-tabs>li>a i {
+    color: #ccc;
+    padding-right: 5px;
+}
+
+.repo-tabs.nav-tabs>li.active>a i {
+    color: #df5000;
+}
+
+.repo-tabs.dropdown-menu>li>a {
+    font-weight: normal;
+}
+.repo-tabs.dropdown-menu>li>a i {
+    color: #ccc;
+    padding-right: 5px;
+}
+
+
+.repo-head-wrapper {
+    padding: 15px 0 0 0;
+    background-color: #fafafa;
+    /*#f0f2f2;*/
+    border-bottom: 1px solid #ddd;
+}
+
+.repository-head
+{
+    margin: 0;
+    padding: 0;
+}
+
+.repository-name-sm,
+.repository-name
+{
+    font-weight: 700;
+}
+
+.repository-description
+{
+    color: #666;
+    margin: 2px 0 0 0;
+    font-size: 12px;
+}
+
+.repository-ctrl-left {
+    position: relative;
+    top: -3px;
+    margin-left: 5px;
+}
+
+.btn-blank {
+    background: transparent;
+    border-color: #ddd;
+}
+
+.repository-ctrl {
+    font-size: 13px;
+    color: #333;
+    margin-left: 25px;
+    float: right;
+    position: relative;
+    top: -5px;
+}
+
+.repository-ctrl button.navbar-toggle {
+    padding: 0 10px;
+}
+
+.repository-head .repository-name {
+    font-size: 15px;
+}
+
+i.public {
+    color: #fff;
+    background-color: #690;
+}
+
+i.private {
+    color: #fff;
+    background-color: #ca8a2b;
+}
+
+i.private, i.public {
+    padding: 2px;
+    width: 20px;
+    text-align: center;
+    margin-right: 5px;
+}
+
+.public i {
+    color: #df5000;
+}
+
+.private i {
+    color: #690;
+}
+
+.acc {
+    font-weight: 600;
+    font-size: 20px;
+}
+
+.ts {
+    color: #999;
+    font-size: 12px;
+    margin-bottom: 10px;
+}
+
+.section .header {
+    background-color: #f7f7f7;
+    font-weight: 600;
+    font-size: 14px;
+    border-bottom: 1px solid #ddd;
+}
+
+.section .header,
+.section .item {
+    padding: 10px;
+}
+
+.list-item {
+    border-bottom: 1px solid #ddd;
+    padding: 10px 0;
+}
+.list-item:last-child {
+    border-bottom: 0;
+    margin-bottom: 0;
+}
+
+.level-search {
+    margin-top: 15px !important;
+    margin-bottom: 15px !important;
+}
+
+.depth-header .btn,
+.depth-header input {
+    height: 28px;
+}
+
+.depth-header .btn {
+    padding-left: 7px;
+    padding-right: 7px;
+}
+
+.depth-header input {
+    padding-left: 5px;
+}
+
+
+/*Repository tabs*/
+.settings .nav {
+    margin-bottom: 5px;
+    padding-bottom: 50px;
+    border-bottom: 1px solid #e5e5e5;
+    /*border-radius: 3px;*/
+}
+
+.settings .nav>li.title,
+.settings .nav>li.title:hover{
+    border-bottom: 1px solid #e5e5e5;
+    margin-bottom: 5px;
+    padding: 5px 10px 5px 0;
+    color: #555;
+    font-size: 14px;
+}
+
+.settings .nav>li {
+    /*border-bottom: 1px solid #ddd;*/
+}
+
+.settings .nav>li:last-child {
+    border-bottom: none;
+}
+
+.settings .nav>li:hover,
+.settings .nav>li:hover a {
+    background-color: #f7f7f7;
+}
+
+.settings .nav>li.active>a:before
+{
+    content: "\f0da";
+}
+
+.settings .nav>li>a:before {
+    content: "\f105";
+    color: #999999;
+    font-family: FontAwesome;
+    padding-right: 5px;
+}
+
+
+.settings .nav>li.active>a:before {
+    color: #38ce67;
+}
+
+.settings .nav>li>a {
+    padding: 4px 0;
+    font-weight: normal;
+    font-size: 14px;
+}
+
+.settings .nav>li>a.subcat {
+    padding: 3px 0 3px 12px;
+    font-weight: normal;
+    font-size: 12px;
+}
+
+.settings .nav>li.active a {
+    color: #333;
+    font-weight: 500;
+    /* border-right: 3px solid #f2c229; */
+    /*background-color: #f0f0f6;*/
+    background-color: #f7f7f7;
+}
+
+.nav-section {
+    background: #f8f8f9;
+    min-height: 60vh;
+    padding: 10px 15px;
+}
+
+a.auto-c {
+    padding: 3px 8px 3px 10px !important;
+}
+
+.aUser {
+    padding: 5px 0;
+    cursor: pointer;
+}
+
+.aUser .name {
+    font-weight: 600;
+}
+
+.aUser .un {
+    color: #666;
+}
+
+.aUser .invite {
+    margin-left: 30px;
+    background-color: #f7f7f7;
+    border: 1px solid #ddd;
+    -webkit-border-radius: 3px;
+    -moz-border-radius: 3px;
+    border-radius: 3px;
+    padding: 0 5px;
+    font-size: 11px;
+}
+
+.active a.aKey .key {
+    color: #fff;
+}
+
+.active a.aUser i,
+.active a.aUser .un {
+    color: #e7e7e7;
+}
+.active a.aUser .invite {
+    color: #333;
+
+}
+
+h4 {
+    padding-top: 0;
+    margin-top: 0;
+}
+
+.list {
+    margin: 0;
+    padding: 0;
+    list-style-type: none;
+}
+
+.counter {
+    padding-right: 7px;
+}
+
+.control-label {
+    font-size: 12px;
+    /*padding-left: 5px;*/
+}
+
+.context-links {
+    padding-bottom: 3px;
+    line-height: 18px;
+}
+
+.context-links a {
+    font-size: 12px;
+}
+
+.context-links a i {
+    color: #666;
+}
+
+.tokens li {
+    padding-left: 0;
+    margin-left: 0;
+    padding-right: 0;
+    margin-right: 0;
+}
+
+.tokens li .token-icon {
+    float: left;
+    width: 10px;
+    padding-top: 5px;
+    text-align: left;
+    color: #db5459;
+    font-size: 10px;
+}
+
+.token-elements {
+    margin-left: 25px;
+}
+
+.token-elements .sec {
+    padding-bottom: 5px;
+}
+
+
+.token-elements .chart {
+    margin: 30px 0 0;
+}
+
+.error {
+    color: red;
+}
+.success {
+    color: green;
+}
+
+.repo-title *, .repo-title span i, .repo-title a {
+    font-size: 16px;
+    line-height: 16px !important;
+}
+
+i.tcon {
+    background-color: #ffdd45;
+    color: #7b6a21;
+    border-radius: 25% !important;
+    padding: 1px 3px;
+    border: 1px solid #e3c43d;
+    font-size: 11px;
+    position: relative;
+    top: -1px;
+}

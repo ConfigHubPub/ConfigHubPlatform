@@ -1,0 +1,26 @@
+<div ng-if="record.revType != 'Modify'">
+
+    <div class="single-add" ng-if="record.revType == 'Add'"></div>
+    <div class="single-del" ng-if="record.revType == 'Delete'"></div>
+    <div class="table-content">
+        <div>
+            <span class="f-key name">Directory: </span>
+            <span class="f-value">{{ entry.path }}</span>
+        </div>
+    </div>
+
+</div>
+
+
+<div ng-if="record.revType == 'Modify'">
+    <div class="noselect"></div>
+    <div class="table-content">
+        <div>
+            <span class="f-key name">Directory modified</span>
+        </div>
+    </div>
+
+    <pre class="diff val" line-diff left-obj="diff.path ? diff.path : '/'" right-obj="''"></pre>
+    <pre class="diff val" line-diff left-obj="''" right-obj="entry.path ? entry.path : '/'"></pre>
+
+</div>

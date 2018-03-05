@@ -1,0 +1,13 @@
+<div>
+    <div ng-if="!rule.isEdited" class="slider">
+        <div class="edit-rule"><a href ng-click="editRule(rule)">edit</a></div>
+        <span class="rw" ng-if="rule.access == 'rw'">Read & Write</span>
+        <span class="ro" ng-if="rule.access == 'ro'">Read only</span>
+        when key
+        <span class="action">{{ keyMatches[rule.match] | lowercase }}</span>
+        '<span class="key">{{ rule.key }}</span>'
+    </div>
+    <div ng-if="rule.isEdited" class="slider">
+        <ng-include src="'/repo/team/ruleForm.tpl.html'"></ng-include>
+    </div>
+</div>

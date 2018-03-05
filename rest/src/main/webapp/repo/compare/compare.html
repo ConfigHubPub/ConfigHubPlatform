@@ -1,0 +1,330 @@
+<style>
+    .container-fluid,
+    .container {
+        margin-right: auto;
+        margin-left: auto;
+        padding-left: 15px;
+        padding-right: 15px;
+        width: 100%;
+    }
+</style>
+
+<div class="container-fluid padded-top30">
+
+    <div ng-controller="CompareController">
+        <div class="context-tabs">
+
+            <div class="row">
+                <div class="col-xs-12">
+                <table class="table cmp">
+                    <tr>
+                        <td class="col-sm-6" style="vertical-align: bottom">
+                            <div class="row">
+                                <div class="col-xs-12 context-options">
+
+                                    <div class="col-xs-12 sub-toolbar">
+                                        <ul class="list-inline">
+                                            <li>
+                                                Time:
+                                                {{ A.tagLabel }}
+                                                <a type="button"
+                                                   class="no-hover"
+                                                   data-placement="bottom-left"
+                                                   data-content="popover.content"
+                                                   data-template-url="/repo/editor/timeACmpPopover.tpl.html"
+                                                   data-animation="am-flip-x"
+                                                   data-auto-close="1"
+                                                   bs-popover>
+                                                        <span ng-if="A.timeLabel">{{ A.timeLabel | amDateFormat:tsFormat }}</span
+                                                        ><span ng-if="!A.timeLabel" am-time-ago="A.getRepoTs()"></span>
+                                                    <i class="fa fa-caret-down"></i>
+                                                </a>
+                                            </li>
+                                        </ul>
+                                    </div>
+
+
+                                </div>
+                            </div>
+                            <div class="content">
+                                <div class="row context-items-row">
+                                    <!--Left context-->
+
+                                    <div ng-repeat="depthScore in A.repoContext.depthScores"
+                                         ng-if="A.repoContext.loaded"
+                                         ng-class="{'col-lg-10': A.repoContext.depthScores.length == 10,
+                                                    'col-lg-9':  A.repoContext.depthScores.length == 9,
+                                                    'col-lg-8':  A.repoContext.depthScores.length == 8,
+                                                    'col-lg-7':  A.repoContext.depthScores.length == 7,
+                                                    'col-lg-6':  A.repoContext.depthScores.length == 6,
+                                                    'col-lg-15': A.repoContext.depthScores.length == 5,
+                                                    'col-md-3':  A.repoContext.depthScores.length == 4,
+                                                    'col-sm-4':  A.repoContext.depthScores.length == 3,
+                                                    'col-sm-6':  A.repoContext.depthScores.length == 2,
+                                                    'col-xs-12': A.repoContext.depthScores.length == 1}"
+                                         class="depth-element">
+                                        <div class="form-group context-select" ng-class="{'c-diff': !ctxEq[depthScore]}">
+                                            <label class="control-label">
+                                                <a ui-sref="repo.context({owner: account, name: repoName })">
+                                                    {{ A.repoContext.depths[depthScore].label }}</a>
+                                            </label>
+                                            <selectize ng-model-options="{ updateOn: 'default', debounce: { 'default': 1000 } }"
+                                                       config='aContextSelectConfig'
+                                                       options='A.repoContext.selectableContext[depthScore]'
+                                                       ng-model="A.chosenContext[depthScore]"></selectize>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+
+                        </td>
+                        <td class="cmp-sep no-br" >&nbsp;</td>
+
+                        <td class="col-sm-6"  style="vertical-align: bottom">
+                            <div class="row">
+                                <div class="col-xs-12 context-options">
+
+                                    <div class="col-xs-12 col-sm-5 sub-toolbar">
+                                        <ul class="list-inline">
+                                            <li>
+                                                Time:
+                                                {{ B.tagLabel }}
+                                                <a type="button"
+                                                   class="no-hover"
+                                                   data-placement="bottom-left"
+                                                   data-content="popover.content"
+                                                   data-template-url="/repo/editor/timeBCmpPopover.tpl.html"
+                                                   data-animation="am-flip-x"
+                                                   data-auto-close="1"
+                                                   bs-popover>
+                                                        <span ng-if="B.timeLabel">{{ B.timeLabel | amDateFormat:tsFormat }}</span
+                                                        ><span ng-if="!B.timeLabel" am-time-ago="B.getRepoTs()"></span>
+                                                    <i class="fa fa-caret-down"></i>
+                                                </a>
+                                            </li>
+                                        </ul>
+                                    </div>
+
+                                    <div class="col-xs-12 col-sm-7 sub-toolbar sub-nav text-right text-right-not-xs">
+                                        <ul class="list-inline editor-components">
+                                            <li class="active editor-props" ng-click="gotoEditor()">
+                                                <i class="fa fa-code"></i>Properties
+                                            </li>
+                                            <li class="editor-files" ng-click="gotoFiles()">
+                                                <i class="fa fa-file-text-o"></i>Files
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="content">
+                                <div class="row context-items-row">
+                                    <!--Right context-->
+                                    <div ng-repeat="depthScore in B.repoContext.depthScores"
+                                         ng-if="B.repoContext.loaded"
+                                         ng-class="{'col-lg-10': B.repoContext.depthScores.length == 10,
+                                                    'col-lg-9':  B.repoContext.depthScores.length == 9,
+                                                    'col-lg-8':  B.repoContext.depthScores.length == 8,
+                                                    'col-lg-7':  B.repoContext.depthScores.length == 7,
+                                                    'col-lg-6':  B.repoContext.depthScores.length == 6,
+                                                    'col-lg-15': B.repoContext.depthScores.length == 5,
+                                                    'col-md-3':  B.repoContext.depthScores.length == 4,
+                                                    'col-sm-4':  B.repoContext.depthScores.length == 3,
+                                                    'col-sm-6':  B.repoContext.depthScores.length == 2,
+                                                    'col-xs-12': B.repoContext.depthScores.length == 1}"
+                                         class="depth-element">
+                                        <div class="form-group context-select" ng-class="{'c-diff': !ctxEq[depthScore]}">
+                                            <label class="control-label">
+                                                <a ui-sref="repo.context({owner: account, name: repoName })">
+                                                    {{ B.repoContext.depths[depthScore].label }}</a>
+                                            </label>
+                                            <selectize ng-model-options="{ updateOn: 'default', debounce: { 'default': 1000 } }"
+                                                       config='bContextSelectConfig'
+                                                       options='B.repoContext.selectableContext[depthScore]'
+                                                       ng-model="B.chosenContext[depthScore]"></selectize>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!--Right context end-->
+                            </div>
+                        </td>
+                    </tr>
+                </table>
+                </div>
+            </div>
+        </div>
+
+
+        <!-- Toolbar -->
+        <div bs-affix class="row">
+            <div class="col-xs-12">
+                <div class="toolbar">
+                    <div class="row">
+
+                        <div class="col-xs-5 col-sm-4 col-md-3 search">
+                            <div class="input-group input-group-sm">
+                                <span class="input-group-addon" id="sizing-addon3"><i class="fa fa-search"></i></span>
+                                <input type="text"
+                                       ng-model="searchQuery"
+                                       ng-list=" "
+                                       ng-trim="false"
+                                       class="form-control input-sm"
+                                       autofocus="true"
+                                       spellcheck="false"
+                                       placeholder="Search keys, comments, values and context..."
+                                       ng-model-options="{ updateOn: 'default blur', debounce: { 'default': 500, 'blur': 0 } }">
+                            </div>
+                        </div>
+
+                        <div class="col-xs-7 col-sm-8 col-md-9 buttons">
+                            <div role="group" style="text-align: right">
+
+                                <button
+                                        class="btn btn-primary btn-sm"
+                                        ng-click="showNewPropertyForm()">
+                                    <span class="fa fa-plus"></span>&nbsp; New
+                                </button>
+
+                                <div class="vertical-separator"></div>
+
+                                <button href class="btn btn-sm btn-default only-icon active"
+                                        bs-tooltip
+                                        data-title="Click for single context"
+                                        ng-click="single()">
+                                    <i class="fa fa-balance-scale"></i>
+                                </button>
+
+                                <button class="btn btn-sm btn-default only-icon"
+                                        bs-tooltip
+                                        data-title="Diff only"
+                                        ng-model="diffOnly"
+                                        ng-change="diffOnlyToggle()"
+                                        ng-disabled="isJSONDiff"
+                                        bs-checkbox>
+                                    Diff only
+                                </button>
+
+                                <div class="btn-group" role="group">
+                                    <button class="btn btn-sm btn-default only-icon"
+                                            ng-class="{'active': isJSONDiff}"
+                                            ng-disabled="!fullContext && !isJSONDiff"
+                                            ng-click="jsonDiff(!isJSONDiff, sideBySide)">
+                                        API Pull
+                                    </button>
+                                    <button type="button"
+                                            tabindex="4"
+                                            ng-disabled="ut < type.member"
+                                            class="btn btn-sm btn-default dropdown-toggle"
+                                            bs-dropdown
+                                            aria-expanded="false">
+                                        <span class="caret"></span>
+                                    </button>
+                                    <ul class="dropdown-menu" role="menu">
+                                        <li><a tabindex="6" ng-click="jsonDiff(true, true)">Side by side</a></li>
+                                        <li><a tabindex="6" ng-click="jsonDiff(true, false)">Line by line</a></li>
+                                    </ul>
+                                </div>
+
+                                <div class="vertical-separator"></div>
+
+                                <button class="btn btn-sm btn-default only-icon"
+                                        ng-disabled="diffOnly || isJSONDiff"
+                                        bs-tooltip
+                                        data-title="Show all keys"
+                                        ng-model="allKeys"
+                                        bs-checkbox
+                                        ng-change="allKeyToggle()">
+                                    All
+                                </button>
+
+                                <button class="btn btn-sm btn-default only-icon"
+                                        bs-tooltip
+                                        data-title="Toggle sort order"
+                                        ng-disabled="isJSONDiff"
+                                        ng-click="toggleReverse()">
+                                    <i ng-if="!reverse" class="fa fa-sort-alpha-asc"></i>
+                                    <i ng-if="reverse" class="fa fa-sort-alpha-desc"></i>
+                                </button>
+
+                                <button class="btn btn-sm btn-default only-icon"
+                                        bs-tooltip
+                                        data-title="Context display"
+                                        ng-disabled="isJSONDiff"
+                                        ng-click="toggleContextLineup()">
+                                    <i ng-if="!lineupContext" class="fa fa-align-justify"></i>
+                                    <i ng-if="lineupContext" class="fa fa-align-right"></i>
+                                </button>
+
+                                <div class="vertical-separator"></div>
+
+                                <dir-pagination-controls
+                                    paginate-id="diffList"
+                                    template-url="/repository/templates/dirPaginationSimple.tpl.html"></dir-pagination-controls>
+
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="alert alert-danger" style="margin-bottom: 0;" ng-show="error">{{ error }}</div>
+
+        <div class="slider" ng-if="!initialized || loading">
+            <div class="row" id='kitt'>
+                <div class='col-xs-1 col-xs-offset-1 one'></div>
+                <div class='col-xs-1 two'></div>
+                <div class='col-xs-1 three'></div>
+                <div class='col-xs-1 four'></div>
+                <div class='col-xs-1 five'></div>
+                <div class='col-xs-1 six'></div>
+                <div class='col-xs-1 seven'></div>
+                <div class='col-xs-1 eight'></div>
+                <div class='col-xs-1 nine'></div>
+                <div class='col-xs-1 ten'></div>
+            </div>
+        </div>
+
+        <div new-property></div>
+
+        <div ng-if="isJSONDiff && !error && initialized">
+            <div json-diff></div>
+        </div>
+
+        <!--Diff-->
+        <div class="entries comparison" ng-if="!isJSONDiff && initialized">
+
+            <div class="no-config" ng-if="!config || config.length == 0">
+                Your request did not return any properties
+            </div>
+
+
+            <div dir-paginate="entry in config | orderObjectBy:'key':reverse | cmpKeyFilter:searchQuery:true | itemsPerPage: pageSizes.selectedOption.id:diffList"
+                 current-page="currentPage"
+                 paginate-id="diffList"
+                 ng-show="initialized">
+
+                <div repo-entry entry="entry"></div>
+            </div>
+
+            <div class="t-foot" ng-show="config.length > pageSize && propertiesLoaded">
+                <div class="summary">
+                    <select class="form-control page-size input-xs"
+                            ng-options="option.name for option in pageSizes.sizes track by option.id"
+                            ng-change="pageSizeUpdate()"
+                            ng-model="pageSizes.selectedOption"></select>
+                    / {{ config.length }} keys
+                </div>
+                <dir-pagination-controls
+                    paginate-id="diffList"
+                    template-url="/repository/templates/dirPagination.tpl.html"></dir-pagination-controls>
+            </div>
+
+        </div>
+
+
+    </div>
+</div>

@@ -1,0 +1,70 @@
+<div ng-dblclick="toggleDir(directory)">
+    <div class="key-display directory slider" ng-class="{'dir-edited': directory.isEdited}">
+
+        <div class="key-value-top">
+            <span class="keyLine">
+
+                <div class="folder-toggle">
+                    <i ng-click="toggleDir(directory)"
+                       class="dir-nav fa"
+                       ng-class="{'fa-caret-right': directory.hidden, 'fa-caret-down': !directory.hidden}"></i>
+
+                    <div class="directory-name directory-icon key-text"
+                         ng-if="!directory.isEdited"
+                         ng-class="{'closed-folder': directory.hidden}">{{directory.name}}</div>
+
+                    <span ng-if="directory.renaming"
+                          directory-editor
+                          class="directory-icon inline-directory-form"></span>
+
+                    <span ng-if="directory.moveTo"
+                          content-move
+                          class="directory-icon inline-directory-form"></span>
+
+                </div>
+
+
+                <div class="key-uses-wrapper" ng-if="!directory.isEdited">
+
+                    <span>
+                        <i class="spp"></i><span class="key-btn">
+                            <a data-animation="am-flip-x"
+                                data-html="1"
+                                data-placement="bottom-left"
+                                bs-dropdown
+                                aria-haspopup="true"
+                                aria-expanded="false">options <i class="fa fa-caret-down"></i></a>
+                            <ul class="dropdown-menu" role="menu">
+                                <li><a ng-click="newFile(directory.path)"><i class="fa fa-file-text-o dropdown-icon"></i>New file</a></li>
+                                <li><a ng-click="importInto(directory.path)"><i class="fa fa-upload dropdown-icon"></i>Import files</a></li>
+                                <li class="divider"></li>
+                                <li><a ng-click="enableDirEditor(directory)"><i class="fa fa-pencil dropdown-icon"></i>Edit or delete folder</a></li>
+                                <li><a ng-click="moveContent(directory)"><i class="fa fa-reply fa-rotate-180 dropdown-icon" style="position: relative; left: -10px;"></i>Move folder to...</a></li>
+                            </ul>
+                        </span>
+                    </span>
+
+
+                    <span ng-if="directory.hidden && (directory.fileSorter || directory.files.length > 1)">
+                         <span class="key-btn">sorted by: <a href
+                                                data-animation="am-flip-x"
+                                                data-html="1"
+                                                data-placement="bottom-left"
+                                                bs-dropdown
+                                                aria-haspopup="true"
+                                                aria-expanded="false">{{ (directory.fileSorter ? directory.fileSorter.lbl  : fileSorter.lbl) | lowercase }} <i ng-if="directory.fileSorter.asc" class="fa fa-caret-up"></i><i ng-if="!directory.fileSorter.asc" class="fa fa-caret-down"></i></a>
+                             <ul class="dropdown-menu" role="menu">
+                                 <li ng-repeat="sorter in dirSorters" ng-class="{'divider': !sorter.lbl }">
+                                     <a ng-if="sorter.lbl" ng-click="$parent.setSorter(directory, sorter)">{{ sorter.lbl }}</a>
+                                 </li>
+                             </ul>
+                        </span>
+                    </span>
+
+                </div>
+
+
+            </span>
+        </div>
+    </div>
+</div>

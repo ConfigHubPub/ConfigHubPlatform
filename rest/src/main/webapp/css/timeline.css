@@ -1,0 +1,97 @@
+.hist-items {
+    margin: 0;
+    padding: 0;
+}
+
+.history-item:last-child {
+    border-bottom: 0;
+}
+
+.history-item {
+    display: block;
+    margin: 0 0 5px 20px;
+    padding: 10px 0 10px 0;
+    position: relative;
+    border-bottom: 1px solid #efefef;
+}
+
+.history-item .key {
+    padding-top: 2px;
+}
+
+.history-item .value {
+    font-size: 12px;
+    padding: 2px 0 0 0;
+}
+
+.history-item .value:hover {
+    background-color: transparent !important;
+}
+
+.history-item i.arr {
+    margin-left: -27px;
+    top: 9px;
+    display: inline-block;
+    position: absolute;
+    border-radius: 6px;
+    border: 6px double #fff;
+    background-color: #1d89cf;
+}
+
+.history-title {
+    margin: 60px 0 0 20px;
+    padding: 2px 20px 2px 0;
+    font-size: 16px;
+    display: inline-block;
+    border-bottom: 1px solid #ccc;
+}
+
+.change-head {
+    font-size: 11px;
+    color: #666;
+    margin: -3px 0 5px 0;
+    letter-spacing: 0.5px;
+}
+
+.action {
+    position: absolute;
+    left: -100px;
+    top: 5px;
+    font-size: 12px;
+    -webkit-border-radius: 3px;
+    -moz-border-radius: 3px;
+    border-radius: 3px;
+    padding: 1px 5px;
+    color: #fff;
+    width: 60px;
+    text-align: center;
+}
+
+.action i {
+    color: #999;
+    font-size: 32px;
+}
+
+.action.ADD {
+    background-color: #5cb85c;
+}
+.action.DEL {
+    background-color: #e15144;
+}
+.action.MOD {
+    background-color: #346fbe;
+}
+
+#timeline {
+    margin: 0 0 0 100px;
+    padding-top: 25px;
+    border-left: 2px solid #ddd;
+}
+
+.commit-comment {
+    background-color: #f7fbfc;
+    padding: 5px;
+    margin-top: 5px;
+    margin-left: -5px;
+    font-size: 12px;
+}

@@ -1,0 +1,223 @@
+<div class="container padded-top30" ng-controller="EditorInitController">
+
+    <div ng-controller="EditorController">
+
+        <style ng-if="repoContext.depthScores.length > 5">
+            .container-fluid,
+            .container {
+                margin-right: auto;
+                margin-left: auto;
+                padding-left: 15px;
+                padding-right: 15px;
+                width: 100%;
+            }
+        </style>
+
+        <!-- Context tabs -->
+        <div class="context-tabs" ngCloak>
+            <div class="row context-options">
+
+                <div class="col-xs-12 col-sm-6 sub-toolbar">
+                    <time-select class="time-select"></time-select>
+                </div>
+
+                <div class="col-xs-12 col-sm-6 sub-toolbar sub-nav text-right text-right-not-xs">
+                    <ul class="list-inline editor-components">
+                        <li class="active editor-props" ng-click="gotoEditor()">
+                            <i class="fa fa-code"></i>Properties
+                        </li>
+                        <li class="editor-files" ng-click="gotoFiles()">
+                            <i class="fa fa-file-text-o"></i>Files
+                        </li>
+                    </ul>
+                </div>
+
+            </div>
+
+            <div class="content">
+                <div class="row context-items-row" ng-class="{'ignored': !localSearch && searchQuery.length > 0}">
+                    <div ng-repeat="depthScore in repoContext.depthScores"
+                         ng-if="repoContext.loaded"
+                         ng-class="{'col-md-10': repoContext.depthScores.length == 10,
+                                    'col-md-9': repoContext.depthScores.length == 9,
+                                    'col-md-8': repoContext.depthScores.length == 8,
+                                    'col-md-7': repoContext.depthScores.length == 7,
+                                    'col-md-6': repoContext.depthScores.length == 6,
+                                    'col-md-15': repoContext.depthScores.length == 5,
+                                    'col-sm-3': repoContext.depthScores.length == 4,
+                                    'col-sm-4': repoContext.depthScores.length == 3,
+                                    'col-sm-6': repoContext.depthScores.length == 2,
+                                    'col-xs-12': repoContext.depthScores.length == 1}"
+                         class="depth-element ">
+                        <div class="form-group context-select control-label">
+                            <a class="control-label sec"
+                               ui-sref="repo.context({owner: account, name: repoName })">
+                                {{ repoContext.depths[depthScore].label }}
+                            </a><span ng-if="canManageContext">/
+                            <a eat-click-if="ut < type.member"
+                               ui-sref="repo.newContextItem({owner: account, name: repoName, depthLabel: repoContext.depths[depthScore].label })"
+                               tooltip="Create new {{ label }}">new</a></span>
+
+                            <selectize
+                                    ng-model-options="{ updateOn: 'default', debounce: { 'default': 1000 } }"
+                                    config='contextSelectConfig'
+                                    options='repoContext.selectableContext[depthScore]'
+                                    ng-model="chosenContext[depthScore]"></selectize>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Toolbar -->
+        <div bs-affix class="row">
+            <div class="col-xs-12">
+                <div class="main-editor toolbar">
+                    <div class="row">
+
+                        <div class="col-sm-6 col-md-6">
+                            <div class="input-group input-group-sm" style="margin-bottom: 6px;">
+                                <div class="input-group-btn">
+                                    <button type="button"
+                                            class="btn btn-link dropdown-toggle form-control"
+                                            ng-class="{'search-focus': searchFocus }"
+                                            bs-dropdown
+                                            aria-expanded="false">
+                                        <i class="fa fa-search padded-right sixes"></i>
+                                        {{ localSearch ? 'Resolved' : 'All' }}
+                                        <i class="fa fa-caret-down padded-left"></i>
+                                    </button>
+                                    <ul class="dropdown-menu" role="menu">
+                                        <li><a ng-click="setRepoSearchMode(false, searchQuery)">All</a></li>
+                                        <li><a ng-click="setRepoSearchMode(true, searchQuery)">Resolved</a></li>
+                                    </ul>
+                                </div>
+                                <input type="text"
+                                       ng-focus="searchFocus=true"
+                                       ng-blur="searchFocus=false;"
+                                       ng-model="searchQuery"
+                                       ng-list=" "
+                                       ng-trim="false"
+                                       ng-change="searchRepo(searchQuery)"
+                                       id="searchTerm"
+                                       class="form-control input-sm nbl"
+                                       autofocus="true"
+                                       spellcheck="false"
+                                       placeholder="keys, comments and values"
+                                       ng-model-options="{ updateOn: 'default blur', debounce: { 'default': 1000, 'blur': 0 } }">
+                            </div>
+
+
+
+                        </div>
+
+                        <div class="col-sm-6 col-md-6 col-xs-12">
+                            <div role="group" class="text-right-not-xs"  style="margin-bottom: 6px;">
+
+                                <button ng-if="isLive()"
+                                        class="btn btn-primary btn-sm"
+                                        ng-disabled="ut < type.demo"
+                                        ng-click="showNewPropertyForm()">
+                                    <span class="fa fa-plus"></span>&nbsp; New
+                                </button
+                                ><div ng-if="isLive()" class="vertical-separator"></div
+                                ><button class="btn btn-sm btn-default only-icon"
+                                         bs-tooltip
+                                         data-title="Compare by context, time or tag"
+                                         data-trigger="hover"
+                                         ng-click="compare()">
+                                    <i class="fa fa-balance-scale"></i>
+                                </button
+                                ><div class="vertical-separator"></div
+                                ><button class="btn btn-sm btn-default only-icon"
+                                        bs-tooltip
+                                        data-title="Toggle all/resolved keys"
+                                        data-trigger="hover"
+                                        ng-model="allKeys"
+                                        ng-change="allKeyToggle()"
+                                        bs-checkbox>
+                                    All
+                                </button>
+                                <button class="btn btn-sm btn-default only-icon"
+                                        bs-tooltip
+                                        data-trigger="hover"
+                                        data-title="Toggle sort order"
+                                        ng-click="toggleReverse()">
+                                    <i ng-if="!reverse" class="fa fa-sort-alpha-asc"></i>
+                                    <i ng-if="reverse" class="fa fa-sort-alpha-desc"></i>
+                                </button>
+
+                                <button class="btn btn-sm btn-default only-icon"
+                                        bs-tooltip
+                                        data-trigger="hover"
+                                        data-title="Toggle context alignment"
+                                        ng-click="toggleContextLineup()">
+                                    <i ng-if="!lineupContext" class="fa fa-align-justify"></i>
+                                    <i ng-if="lineupContext" class="fa fa-align-right"></i>
+                                </button
+                                ><div class="vertical-separator"></div
+                                ><dir-pagination-controls
+                                    pagination-id="propsList"
+                                    template-url="/repository/templates/dirPaginationSimple.tpl.html"></dir-pagination-controls>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+	    </div>
+
+        <div class="entries">
+
+            <div class="slider" ng-if="!propertiesLoaded || loading">
+                <div class="row" id='kitt'>
+                    <div class='col-xs-1 col-xs-offset-1 one'></div>
+                    <div class='col-xs-1 two'></div>
+                    <div class='col-xs-1 three'></div>
+                    <div class='col-xs-1 four'></div>
+                    <div class='col-xs-1 five'></div>
+                    <div class='col-xs-1 six'></div>
+                    <div class='col-xs-1 seven'></div>
+                    <div class='col-xs-1 eight'></div>
+                    <div class='col-xs-1 nine'></div>
+                    <div class='col-xs-1 ten'></div>
+                </div>
+            </div>
+
+            <div new-property></div>
+
+            <div class="no-config" ng-if="!config || config.length == 0">
+                Your request did not return any properties
+            </div>
+
+            <div style="padding-top: 10px;" ng-if="!loading">
+
+                <div dir-paginate="entry in config | orderObjectBy:'key':reverse | keyFilter:searchQuery:localSearch | itemsPerPage: pageSizes.selectedOption.id:'propsList'  track by entry.id"
+                     current-page="currentPage"
+                     pagination-id="propsList">
+
+                    <div repo-entry entry="entry" ng-cloak></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="t-foot" ng-show="config.length > 0 && propertiesLoaded">
+            <div class="summary">
+                <select class="form-control page-size input-xs"
+                        ng-options="option.name for option in pageSizes.sizes track by option.id"
+                        ng-change="pageSizeUpdate()"
+                        ng-model="pageSizes.selectedOption"></select>
+                / {{ config.length }} keys
+            </div>
+            <dir-pagination-controls
+                    pagination-id="propsList"
+                    template-url="/repository/templates/dirPagination.tpl.html"></dir-pagination-controls>
+        </div>
+
+
+
+    </div>
+
+</div>
+
+

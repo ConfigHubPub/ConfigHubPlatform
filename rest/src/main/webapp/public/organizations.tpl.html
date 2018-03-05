@@ -1,0 +1,66 @@
+<div class="no-data" ng-if="!account.orgs || account.orgs.length == 0">
+    No organizations created for this account.
+</div>
+
+<div ng-if="account.orgs" ng-repeat="org in account.orgs | orderBy:'un'" class="panel panel-form">
+
+    <div class="panel-body">
+
+        <div class="repo-title">
+            <span class="account-type"><i class="fa fa-building-o"></i></span>
+            <a class="owner" ui-sref="owner({accountName: org.un})">{{ org.un }}</a>
+        </div>
+        <div class="acc-item join">
+            Created on {{ org.creationTs | amDateFormat:'MMMM Do YYYY' }}
+        </div>
+        <div class="row">
+            <div class="col-md-5">
+
+                <div class="padded-top">
+
+                    <table class="table table-striped">
+                        <tr>
+                            <td>Your role</td>
+                            <td>{{ org.role }}</td>
+                        </tr>
+
+                        <tr>
+                            <td>Owners</td>
+                            <td>
+                                <div ng-repeat="owner in org.owners">
+                                    <span ng-if="owner.name">{{ owner.name }}, </span>
+                                    <a ui-sref="owner({accountName: owner.un})">{{ owner.un }}</a>
+                                </div>
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td>Administrators</td>
+                            <td>
+                                <div ng-repeat="admin in org.admins">
+                                    <span ng-if="admin.name">{{ admin.name }}, </span>
+                                    <a ui-sref="owner({accountName: admin.un})">{{ admin.un }}</a>
+                                </div>
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td>Repositories</td>
+                            <td>
+                                <div ng-repeat="repo in org.repos">
+                                    <a href ui-sref="repo.editor({owner: org.un, name: repo })">{{ repo }}</a>
+                                </div>
+                            </td>
+                        </tr>
+                    </table>
+
+
+
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+
+</div>

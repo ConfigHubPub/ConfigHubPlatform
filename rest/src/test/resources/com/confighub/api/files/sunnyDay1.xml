@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tomee>
+
+    <Resource id="ConfigHubMainDS" type="DataSource">
+        JdbcDriver = org.postgresql.Driver
+        JdbcUrl = jdbc:postgresql://${ db.host }:5432/ConfigHubPSQL
+        UserName = ${ username }
+        Password = ${ password }
+        JtaManaged = false
+
+        validationQuery="SELECT 1"
+        maxWaitTime = 2 seconds
+        maxActive = 200
+    </Resource>
+
+</tomee>

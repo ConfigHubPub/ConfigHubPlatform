@@ -1,0 +1,37 @@
+<div ng-controller="PassResetController"
+     class="sign-in-wrapper padded-top100">
+
+    <div class="sign-in">
+
+        <div class="login-pannel">
+            <form novalidate>
+
+                <div class="alert alert-danger" ng-show="message">{{ message }}</div>
+
+                <div class="alert alert-success" ng-show="sent">
+                    Email with the reset link has been sent to your email.
+                    The link is valid for the next 60 minutes.
+                </div>
+
+                <div class="padded-bottom">
+                    <h3>Forgotten password</h3>
+                    <p>
+                        Enter the email address you used to create your account.
+                        We will send you password reset link there.
+                    </p>
+                </div>
+
+                <input type="text"
+                       ng-model="accountEmail"
+                       class="form-control input-lg"
+                       placeholder="Email address" required autofocus>
+
+                <div class="padded-top">
+                    <button class="btn btn-lg btn-primary btn-block"
+                            ng-click="resetPassword()">Send reset link</button>
+                </div>
+            </form>
+        </div>
+
+    </div>
+</div>

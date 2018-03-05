@@ -1,0 +1,93 @@
+<div ng-if="record.revType != 'Modify'">
+
+    <div class="single-add" ng-if="record.revType == 'Add'"></div>
+    <div class="single-del" ng-if="record.revType == 'Delete'"></div>
+    <div class="table-content">
+
+        <div>
+            <span class="f-key">{{ getLabel(record.entry.p) }} context item:</span>
+            <span class="f-value">
+                <label class="lgroup ico" ng-if="entry.type === 'Group'"></label
+                ><label class="lmember ico" ng-if="entry.type === 'Member'"></label
+            >{{ record.entry.name }}
+            </span>
+        </div>
+
+
+        <div ng-if="record.entry.assignments">
+            <span class="f-key">Assignments: </span>
+            <span class="f-value">
+                <span ng-repeat="assigned in record.entry.assignments | orderBy">
+                    <label class="lgroup ico" ng-if="entry.type === 'Member'"></label
+                    ><label class="lmember ico" ng-if="entry.type === 'Group'"></label
+                >{{ assigned }}<span ng-if="!$last">, </span
+                ></span>
+            </span>
+        </div>
+
+    </div>
+
+</div>
+
+
+<div ng-if="record.revType == 'Modify'">
+
+    <div class="noselect"></div>
+    <div class="table-content">
+
+        <div>
+            <span class="f-key">{{ getLabel(record.entry.p) }} context item:</span>
+
+            <span class="f-value">
+                <label class="lgroup ico" ng-if="entry.type === 'Group'"></label
+                ><label class="lmember ico" ng-if="entry.type === 'Member'"></label
+            ><span ng-if="objKeyPresent(diff, 'name')"
+            ><del class="diff semantic">{{ diff.name }}
+            </del
+            ><ins class="diff semantic">{{ entry.name }}
+            </ins
+            ></span
+            ><span ng-if="!objKeyPresent(diff, 'name')">{{ record.entry.name }}</span>
+            </span>
+
+            <span ng-if="objKeyPresent(diff, 'type')">
+                - changed type from {{ diff.type }} to {{ entry.type }}
+            </span>
+
+        </div>
+
+
+        <div ng-if="diffAssignments">
+
+            <span class="f-key">Assignments: </span>
+                    <span class="f-value">
+                        <span ng-repeat="assigned in diffAssignments | orderBy:'n'">
+
+                            <label class="lgroup ico" ng-if="entry.type === 'Member'"></label
+                            ><label class="lmember ico" ng-if="entry.type === 'Group'"></label
+                        ><del ng-if="assigned.m < 0" class="diff semantic">{{ assigned.n }}
+                        </del
+                        ><ins ng-if="assigned.m > 0" class="diff semantic">{{ assigned.n }}
+                        </ins
+                        ><span ng-if="assigned.m == 0">{{ assigned.n }}</span
+                        ><span ng-if="!$last">, </span>
+                        </span>
+                    </span>
+
+        </div>
+
+        <div ng-if="!diffAssignments && record.entry.assignments">
+            <span class="f-key">Assignments: </span>
+                    <span class="f-value">
+                        <span ng-repeat="assigned in record.entry.assignments | orderBy"
+                        ><label class="lgroup ico" ng-if="entry.type === 'Member'"></label
+                        ><label class="lmember ico" ng-if="entry.type === 'Group'"></label
+                        >{{ assigned }}<span ng-if="!$last">, </span
+                        ></span>
+                    </span>
+        </div>
+
+
+    </div>
+
+</div>

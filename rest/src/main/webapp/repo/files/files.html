@@ -1,0 +1,370 @@
+<style>
+    .value span.v:hover {
+        cursor: pointer;
+    }
+</style>
+<div class="container padded-top30" ng-controller="FilesController">
+
+    <div class="context-tabs" ngCloak>
+        <div class="row context-options">
+
+            <div class="col-xs-12 col-sm-6 sub-toolbar">
+                <time-select class="time-select"></time-select>
+            </div>
+
+            <div class="col-xs-12 col-sm-6 sub-toolbar sub-nav text-right text-right-not-xs">
+                <ul class="list-inline editor-components">
+                    <li class="editor-props" ng-click="gotoEditor()">
+                        <i class="fa fa-code"></i>Properties
+                    </li>
+                    <li class="active editor-files" ng-click="gotoFiles()">
+                        <i class="fa fa-file-text-o"></i>Files
+                    </li>
+                </ul>
+            </div>
+
+        </div>
+
+        <div class="content">
+            <div class="row context-items-row" ng-class="{'all-search': allFiles || (!searchResolved && searchQuery.length > 0)}">
+                <div ng-repeat="depthScore in repoContext.depthScores"
+                     ng-if="repoContext.loaded"
+                     ng-class="{'col-md-10': repoContext.depthScores.length == 10,
+                                    'col-md-9': repoContext.depthScores.length == 9,
+                                    'col-md-8': repoContext.depthScores.length == 8,
+                                    'col-md-7': repoContext.depthScores.length == 7,
+                                    'col-md-6': repoContext.depthScores.length == 6,
+                                    'col-md-15': repoContext.depthScores.length == 5,
+                                    'col-sm-3': repoContext.depthScores.length == 4,
+                                    'col-sm-4': repoContext.depthScores.length == 3,
+                                    'col-sm-6': repoContext.depthScores.length == 2,
+                                    'col-xs-12': repoContext.depthScores.length == 1}"
+                     class="depth-element ">
+                    <div class="form-group context-select control-label">
+                        <a class="control-label sec"
+                           ui-sref="repo.context({owner: account, name: repoName })">
+                            {{ repoContext.depths[depthScore].label }}
+                        </a>/
+                        <a eat-click-if="ut < type.member"
+                           ui-sref="repo.newContextItem({owner: account, name: repoName, depthLabel: repoContext.depths[depthScore].label })"
+                           tooltip="Create new {{ label }}">new</a>
+
+                        <selectize
+                                ng-model-options="{ updateOn: 'default', debounce: { 'default': 1000 } }"
+                                config='contextSelectConfig'
+                                options='repoContext.selectableContext[depthScore]'
+                                ng-model="chosenContext[depthScore]"></selectize>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div bs-affix class="row">
+        <div class="col-xs-12">
+            <div class="main-editor toolbar">
+
+                <div class="row">
+
+                    <div class="col-sm-6 col-md-6">
+
+                        <div class="input-group input-group-sm" style="margin-bottom: 6px;">
+                            <div class="input-group-btn">
+                                <button type="button"
+                                        class="btn btn-link dropdown-toggle form-control"
+                                        ng-class="{'search-focus': searchFocus }"
+                                        bs-dropdown
+                                        aria-expanded="false">
+                                    <i class="fa fa-search padded-right sixes"></i>
+                                    {{ searchResolved ? 'Resolved' : 'All' }}
+                                    <i class="fa fa-caret-down padded-left"></i>
+                                </button>
+                                <ul class="dropdown-menu" role="menu">
+                                    <li><a ng-click="setRepoSearchMode(false, searchQuery)">All</a></li>
+                                    <li><a ng-click="setRepoSearchMode(true, searchQuery)">Resolved</a></li>
+                                </ul>
+                            </div>
+                            <input type="text"
+                                   ng-focus="searchFocus=true"
+                                   ng-blur="searchFocus=false;"
+                                   ng-model="searchQuery"
+                                   ng-list=" "
+                                   ng-trim="false"
+                                   ng-change="searchFiles(searchQuery)"
+                                   id="searchTerm"
+                                   class="form-control input-sm nbl"
+                                   autofocus="true"
+                                   spellcheck="false"
+                                   placeholder="file names and content"
+                                   ng-model-options="{ updateOn: 'default blur', debounce: { 'default': 1000, 'blur': 0 } }">
+                        </div>
+                    </div>
+
+                    <div class="col-sm-6 col-md-6 col-xs-12">
+                        <div role="group" class="text-right-not-xs"  style="margin-bottom: 6px;">
+
+                            <button class="btn btn-primary btn-sm"
+                                    ng-click="newFile()"
+                                    ng-disabled="ut < type.demo">
+                               <span class="fa fa-plus"></span>&nbsp; New
+                            </button>
+
+                            <button class="no-hover btn btn-default btn-sm"
+                                    ng-class="{'active' : showImport }"
+                                    ng-click="toggleImport()">
+                                <span class="fa fa-upload"></span>&nbsp;Import
+                            </button
+                            ><div class="vertical-separator"></div
+                            ><button class="btn btn-sm btn-default only-icon"
+                                     bs-tooltip
+                                     data-title="Toggle show all files"
+                                     data-trigger="hover"
+                                     ng-model="allFiles"
+                                     ng-change="allFilesToggle()"
+                                     bs-checkbox>
+                            All
+                            </button>
+                            <button class="btn btn-sm btn-default only-icon"
+                                    bs-tooltip
+                                    data-title="Toggle context alignment"
+                                    ng-click="toggleContextLineup()">
+                                <i ng-if="!lineupContext" class="fa fa-align-justify"></i>
+                                <i ng-if="lineupContext" class="fa fa-align-right"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+
+            </div>
+        </div>
+    </div>
+
+    <div class="alert alert-danger" style="margin-bottom: 0;" ng-bind-html="message" ng-show="message"></div>
+
+
+
+    <!--Import -->
+    <div class="panel panel-form slider" ng-if="showImport">
+        <div class="panel-body">
+
+            <div class="form-horizontal">
+
+                <div class="row ie-context form-group">
+
+                    <label class="form-field-head col-sm-1 control-label">
+                        Folder:
+                    </label>
+
+                    <div class="col-sm-11">
+                        <input type="text"
+                               id="importFolder"
+                               tabindex="1"
+                               autofocus="true"
+                               class="form-control directory-name"
+                               spellcheck="false"
+                               ng-model="$parent.prefix"
+                               data-container="body"
+                               data-placement="bottom-left"
+                               data-min-length="3"
+                               data-trigger="focus"
+                               data-animation="slide"
+                               data-template="/repo/common/key-complete.tpl.html"
+                               data-limit="20"
+                               bs-options="k for k in getDirectories($viewValue)"
+                               ng-model-options="{ updateOn: 'default blur', debounce: { 'default': 400, 'blur': 0 } }"
+                               bs-typeahead="typeahead">
+                        <p class="sub-note">
+                            Folder location where to save files.  If not specified, files are placed in the root location.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="row ie-context form-group">
+
+                    <label class="form-field-head col-sm-1 control-label">
+                        Security Group:
+                    </label>
+
+                    <div class="col-sm-11">
+                        <selectize tabindex="2"
+                                   config='SGConfig'
+                                   options="encryptionProfiles"
+                                   ng-model="$parent.securityGroup"></selectize>
+                        <p class="sub-note">
+                            If selected, all files will be assigned to this security group.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="row ie-context form-group">
+
+                    <label class="form-field-head col-sm-1 control-label">
+                        Context:
+                    </label>
+
+                    <div class="col-sm-11">
+                        <div ng-repeat="depthScore in repoContext.depthScores"
+                             class="val-ctx"
+                             ng-class="{'col-md-10': repoContext.depthScores.length == 10,
+                                        'col-md-9': repoContext.depthScores.length == 9,
+                                        'col-md-8': repoContext.depthScores.length == 8,
+                                        'col-md-7': repoContext.depthScores.length == 7,
+                                        'col-md-6': repoContext.depthScores.length == 6,
+                                        'col-md-15': repoContext.depthScores.length == 5,
+                                        'col-sm-3': repoContext.depthScores.length == 4,
+                                        'col-sm-4': repoContext.depthScores.length == 3,
+                                        'col-sm-6': repoContext.depthScores.length == 2,
+                                        'col-xs-12': repoContext.depthScores.length == 1}">
+                            <div class="context-select">
+
+                                <selectize tabindex="{{ 3 + $index }}"
+                                           config='$parent.propContextSelectConfig'
+                                           options="repoContext.selectableContext[depthScore]"
+                                           ng-model="$parent.context[depthScore]"></selectize>
+                                <small class="depth-label">{{ getRepoContext(property).depths[depthScore].label }}</small>
+                            </div>
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <div class="row ie-context form-group">
+
+                    <div class="col-sm-11 col-sm-offset-1">
+                        <label class="btn btn-primary btn-sm">
+                            Choose Files...
+                            <input type="file"
+                                   ngf-select=""
+                                   ngf-max-size="2MB"
+                                   ng-disabled="isUploading()"
+                                   ngf-multiple="true"
+                                   ng-model="$parent.selectedFiles"
+                                   style="display: none;"
+                                   required="">
+                        </label>
+
+                        <span class="filesLabel" ng-if="selectedFiles.length == 0">No files selected</span>
+                        <span class="filesLabel" ng-if="selectedFiles.length > 0">{{ selectedFiles.length }} selected</span>
+                    </div>
+                </div>
+
+                <div class="ie-key-controls row" >
+                    <div class="col-sm-11 col-sm-offset-1">
+                        <div class="btn-group" role="group">
+                            <button type="button"
+                                    class="btn btn-sm btn-success comment-btn"
+                                    data-placement="bottom-left"
+                                    data-content="popover.content"
+                                    data-template-url="repo/changeComment.tpl.html"
+                                    data-animation="am-flip-x"
+                                    change-comment
+                                    bs-popover>
+                                <i class="fa fa-commenting-o"></i>
+                            </button>
+                            <button type="button"
+                                    class="btn btn-sm btn-success"
+                                    ng-disabled="ut < type.member || !selectedFiles || selectedFiles.length == 0"
+                                    ng-click="uploadFiles(selectedFiles, context)">
+                                <span class="fa fa-upload"></span>&nbsp; Import
+                            </button>
+                        </div>
+                        <button type="button" class="btn btn-sm btn-default" ng-click="cancelImport()">Cancel</button>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!--Uploading-->
+    <div class="padded-top slider" ng-if="isUploading()">
+        <div class="col-xs-12">Loading files:</div>
+
+        <div ng-repeat="(name, v) in status"
+             class="col-xs-12 faux-table access-log">
+
+            <div class="row main">
+                <div class="audit-item col-xs-12 file-link-col">
+                    <p class="item">
+                        <i class="fa fa-file-text-o"></i>
+                        {{ name }}: <b>{{ status[name].message ? status[name].message : status[name].percent + '%'}}</b>
+                    </p>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <div class="entries file-explorer">
+
+        <div class="slider" ng-if="!initialized">
+            <div class="row" id='kitt'>
+                <div class='col-xs-1 col-xs-offset-1 one'></div>
+                <div class='col-xs-1 two'></div>
+                <div class='col-xs-1 three'></div>
+                <div class='col-xs-1 four'></div>
+                <div class='col-xs-1 five'></div>
+                <div class='col-xs-1 six'></div>
+                <div class='col-xs-1 seven'></div>
+                <div class='col-xs-1 eight'></div>
+                <div class='col-xs-1 nine'></div>
+                <div class='col-xs-1 ten'></div>
+            </div>
+        </div>
+
+        <div class="no-data" ng-if="initialized && rootFiles.length == 0 && directories.length == 0">
+            There are no files and folders in this repository
+        </div>
+
+
+
+        <div style="padding-top: 10px;">
+            <div style="margin-left: 3px;">
+
+                <div ng-show="initialized"
+                     ng-repeat="directory in directories | orderObjectBy:'name':reverse track by $index" >
+
+                    <div ng-mouseover="directory.hover = true" ng-mouseleave="directory.hover = false" class="entry">
+                        <!--Directories-->
+                        <div class="entry-wrapper" ng-class="{'hovers': directory.hover}">
+                            <div ng-include='"/repo/files/directory.tpl.html"'></div>
+                        </div>
+
+                        <!--Files-->
+                        <div class="key-values slider" ng-hide="directory.hidden">
+                            <div class="value-wrapper"
+                                 ng-repeat="file in directory.files | orderBy:'name'"
+                                 ng-class-even="'even'">
+                                <div ng-include='"/repo/files/file.tpl.html"'></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div ng-repeat="directory in directory.subs "
+                         class="directory-indent slider"
+                         ng-hide="$parent.directory.hidden">
+                        <div ng-include='"/repo/files/sub.tpl.html"'></div>
+                    </div>
+
+                </div>
+            </div>
+
+            <div ng-if="initialized && rootFiles" class="entry" style="margin-left: 1px;">
+                <div class="entry-wrapper root">
+                    <div class="key-values">
+                        <div class="value-wrapper"
+                             ng-repeat="file in rootFiles | orderBy:'name'"
+                             ng-class-even="'even'">
+                            <div ng-include='"/repo/files/file.tpl.html"'></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!--<pre class="debug">{{ raw | json }}</pre>-->
+
+</div>

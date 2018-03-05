@@ -1,0 +1,183 @@
+<style>
+
+    .mgm-head {
+        margin-bottom: 15px;
+        min-height: 100px;
+        /*position: relative;*/
+    }
+
+    .mgm-cnt {
+        /*position: absolute;*/
+        /*bottom: 0;*/
+    }
+
+    .mgm-title {
+        margin-bottom: 5px;
+        font-size: 18px;
+        font-weight: 600;
+        color: #444;
+    }
+
+    .mgm-desc {
+        color: #444;
+        font-size: 12px;
+    }
+
+    div.attn {
+        line-height: 30px;
+        text-decoration: underline;
+        font-weight: 600;
+        color: #444;
+    }
+</style>
+
+<script type="text/ng-template" id="itemTpl.html">
+    <ul tabindex="-1" class="typeahead dropdown-menu" ng-show="$isVisible()" role="select">
+        <li role="presentation" ng-repeat="match in $matches" ng-class="{active: $index == $activeIndex}">
+            <a role="menuitem" tabindex="-1" class="auto-c" ng-click="$select($index, $event)">
+                <span class="member-i"><i class="fa fa-user"></i></span>
+                <span class="member-name" ng-if="match.value.name">{{ match.value.name }},</span>
+                <span class="member-un">{{ match.value.un }}</span>
+            </a>
+        </li>
+    </ul>
+</script>
+
+
+<div class="alert alert-danger" role="alert" ng-if="ownerError">{{ ownerError }}</div>
+
+<div class="row">
+    <div class="col-md-5">
+
+        <div class="padded-bottom30">
+            <div class="mgm-head">
+                <div class="mgm-cnt">
+                    <div class="mgm-title">Owners</div>
+                    <div class="mgm-desc">
+                        Owners can manage every aspect of the organization and grant administrative access to
+                        other ConfigHub users.  Owners can reset any security group password.
+                        <div class="attn">Only owners can delete repositories.</div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="owner-addon">
+                <div class="input-group">
+                    <div class="input-group-addon"><i class="fa fa-user-plus"></i></div>
+
+                    <input type="text"
+                           class="form-control"
+                           spellcheck="false"
+                           ng-model="$parent.selected"
+                           data-min-length="3"
+                           data-trigger="focus"
+                           data-target="div#owner-addon"
+                           data-container="div#owner-addon"
+                           data-template="itemTpl.html"
+                           data-placement="bottom-left"
+                           bs-options="item as item.un for item in getUsers($viewValue)"
+                           placeholder="Search by name or username"
+                           ng-model-options="{ updateOn: 'default blur', debounce: { 'default': 400, 'blur': 0 } }"
+                           bs-typeahead>
+
+                    <!--ng-disabled="!selected || !selected.un"-->
+                    <span class="input-group-btn">
+                        <button class="btn btn-primary"
+                                ng-click="addAdminOrOwner(selected, 'own')"
+                                type="button">Add
+                        </button>
+                    </span>
+                </div>
+
+            </div>
+            <div ng-repeat="member in account.owners | orderBy: 'name'">
+                <div class="listing dotted-bottom">
+
+                    <div class="btn-group">
+                        <button type="button"
+                                class="btn btn-xs btn-default edit-btn"
+                                bs-dropdown
+                                aria-haspopup="true"
+                                aria-expanded="false">
+                            <i class="fa fa-caret-down"></i>
+                        </button>
+                        <ul class="dropdown-menu" role="menu">
+                            <li><a href ng-click="removeAdminOrOwner(member.un, 'own')">Remove</a></li>
+                        </ul>
+                    </div>
+
+                    <span class="member-name" ng-if="member.name">{{ member.name }},</span>
+                    <span class="member-un"><a ui-sref="owner({ accountName: member.un, s: d })">{{ member.un }}</a></span>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="col-md-5 col-md-offset-2">
+
+        <div class="padded-bottom30">
+            <div class="mgm-head">
+                <div class="mgm-cnt">
+                    <div class="mgm-title">Administrators</div>
+                    <div class="mgm-desc">
+                        Admins can manage repositories, teams, access control and can add
+                        other ConfigHub users to the repositories.
+                    </div>
+                </div>
+            </div>
+
+            <div id="admin-addon">
+                <div class="input-group">
+                    <div class="input-group-addon"><i class="fa fa-user-plus"></i></div>
+
+                    <input type="text"
+                           class="form-control"
+                           spellcheck="false"
+                           ng-model="$parent.selectedAdmin"
+                           data-min-length="3"
+                           data-trigger="focus"
+                           data-target="div#admin-addon"
+                           data-container="div#admin-addon"
+                           data-template="itemTpl.html"
+                           data-placement="bottom-left"
+                           bs-options="item as item.un for item in getUsers($viewValue)"
+                           placeholder="Search by name or username"
+                           ng-model-options="{ updateOn: 'default blur', debounce: { 'default': 400, 'blur': 0 } }"
+                           bs-typeahead>
+
+                    <!--ng-disabled="!selected || !selected.un"-->
+                    <span class="input-group-btn">
+                        <button class="btn btn-primary"
+                                ng-click="addAdminOrOwner(selectedAdmin, 'adm')"
+                                type="button">Add
+                        </button>
+                    </span>
+                </div>
+
+            </div>
+            <div ng-repeat="member in account.admins | orderBy: 'name'">
+                <div class="listing dotted-bottom">
+
+                    <div class="btn-group">
+                        <button type="button"
+                                class="btn btn-xs btn-default edit-btn"
+                                bs-dropdown
+                                aria-haspopup="true"
+                                aria-expanded="false">
+                            <i class="fa fa-caret-down"></i>
+                        </button>
+                        <ul class="dropdown-menu" role="menu">
+                            <li><a href ng-click="removeAdminOrOwner(member.un, 'adm')">Remove</a></li>
+                        </ul>
+                    </div>
+
+                    <span class="member-name" ng-if="member.name">{{ member.name }},</span>
+                    <span class="member-un"><a ui-sref="owner({ accountName: member.un, s: d })">{{ member.un }}</a></span>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</div>

@@ -1,0 +1,47 @@
+<div class="panel panel-form">
+
+    <div class="panel-heading">Change repository public visibility</div>
+    <div class="panel-body">
+
+        <div class="row">
+            <div class="col-xs-12">
+
+                <div class="alert alert-danger" role="alert" ng-if="visibilityMessage">{{ visibilityMessage }}</div>
+
+                <div class="radio">
+                    <label>
+                        <input type="radio" ng-model="isPrivate" ng-value="false">
+                        <strong class="visLabel">Public</strong>
+                        <ul class="list-unstyled">
+                            <li>The entire world has <strong>Read-Only</strong> access to your repository.</li>
+                            <li>You control who has Write access.</li>
+                        </ul>
+                    </label>
+                </div>
+                <div class="radio padded-top">
+                    <label>
+                        <input type="radio" ng-model="isPrivate" ng-value="true">
+                        <strong class="visLabel">Private</strong>
+                        <ul class="list-unstyled">
+                            <li ng-if="repository.isPersonal">You and members have read access.</li>
+                            <li ng-if="!repository.isPersonal">You, members, administrators and owners have read access.</li>
+                            <li>You control who has Write access.</li>
+                        </ul>
+                    </label>
+                </div>
+
+
+
+                <div class="padded-top30">
+                    <button type="button"
+                            ng-click="togglePrivacy(isPrivate)"
+                            ng-disabled="ut < type.admin"
+                            class="btn btn-success">
+                        Update visibility
+                    </button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>

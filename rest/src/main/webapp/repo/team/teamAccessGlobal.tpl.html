@@ -1,0 +1,68 @@
+
+
+<!--Global config as text-->
+<div class="edit-rule"><a href ng-click="editGlobalAllRule(accessRule)">edit</a></div>
+
+<div>
+    {{ genRuleProcessTypes[aTeam.d.stopOnFirstMatchedRule] }}
+</div>
+
+<div>
+    <span class="rw" ng-if="aTeam.d.unmatchedEditable">Read/Write</span>
+    <span class="ro" ng-if="!aTeam.d.unmatchedEditable">Read-Only</span>
+    if matching rule is not found
+</div>
+
+
+<!--Global conf forms-->
+<div class="tt" style="display: none">
+    <div class="cl bn r-conn">
+        <div class="btn-group" role="group">
+            <button type="button"
+                    class="btn btn-sm btn-default dropdown-toggle"
+                    bs-dropdown
+                    aria-haspopup="true"
+                    aria-expanded="false">
+                {{ genRuleProcessTypes[genRule.process] }}
+                <span class="caret"></span>
+            </button>
+            <ul class="dropdown-menu">
+                <li ng-repeat="(k, v) in genRuleProcessTypes">
+                    <a href ng-click="aTeam.d.stopOnFirstMatchedRule = k">{{ v }}</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="cl bn l-conn dense">
+        <div class="btn-group" role="group">
+            <button type="button" class="btn btn-sm btn-primary">Set</button>
+        </div>
+    </div>
+</div>
+<div class="tt" style="display: none">
+    <div class="cl bn r-conn">
+        <div class="btn-group" role="group">
+            <button type="button"
+                    class="btn btn-sm btn-default dropdown-toggle {{ rule.access }}"
+                    bs-dropdown
+                    aria-haspopup="true"
+                    aria-expanded="false">
+                {{ accessType[rule.access] }}
+                <span class="caret"></span>
+            </button>
+            <ul class="dropdown-menu">
+                <li ng-repeat="(k, v) in accessType">
+                    <a href ng-click="rule.access = k">{{ v }}</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+    <div class="cl if-tag nbl l-conn r-conn">if matching rule is not found</div>
+
+    <div class="cl bn l-conn dense">
+        <div class="btn-group" role="group">
+            <button type="button" class="btn btn-sm btn-primary">Set</button>
+        </div>
+    </div>
+</div>

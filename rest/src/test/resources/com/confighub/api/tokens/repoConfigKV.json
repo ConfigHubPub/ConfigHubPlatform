@@ -1,0 +1,115 @@
+{
+  "enableKeyCreation": true,
+  "data": [
+    {
+      "key": "db.main.username",
+      "deprecated": false,
+      "vdt": "Text",
+      "push": false,
+      "values": [
+        {
+          "context": "*;*;*",
+          "value": "admin",
+          "active": true
+        }
+      ]
+    },
+    {
+      "key": "app.name",
+      "readme": "",
+      "deprecated": false,
+      "push": true,
+      "vdt": "Text",
+      "values": [
+        {
+          "context": "*;WebDashboard;*",
+          "value": "WebDashboard",
+          "active": true
+        },
+        {
+          "context": "*;Collector;*",
+          "value": "Collector",
+          "active": true
+        },
+        {
+          "context": "*;Analytics;*",
+          "value": "Analytics",
+          "active": true
+        }
+      ]
+    },
+    {
+      "key": "db.main.host",
+      "deprecated": false,
+      "vdt": "Text",
+      "push": false,
+      "values": [
+        {
+          "context": "Development;*;*",
+          "value": "localhost",
+          "active": true
+        },
+        {
+          "context": "Production;*;*",
+          "value": "db.domain.com",
+          "active": true
+        }
+      ]
+    },
+    {
+      "key": "confighub.logging.path",
+      "deprecated": false,
+      "vdt": "Text",
+      "push": false,
+      "values": [
+        {
+          "context": "*;*;*",
+          "value": "/var/log",
+          "active": true
+        }
+      ]
+    },
+    {
+      "key": "db.api.host",
+      "deprecated": false,
+      "vdt": "Text",
+      "push": false,
+      "values": [
+        {
+          "context": "Production;*;*",
+          "value": "backupDb.domain.com",
+          "active": true
+        },
+        {
+          "context": "Development;*;*",
+          "value": "localhost",
+          "active": true
+        },
+        {
+          "context": "Test;*;*",
+          "value": "3.2.2.2",
+          "active": true
+        }
+      ]
+    },
+    {
+      "key": "confighub.http.port",
+      "readme": "",
+      "deprecated": false,
+      "vdt": "Integer",
+      "push": false,
+      "values": [
+        {
+          "context": "Development;*;*",
+          "value": "8080",
+          "active": true
+        },
+        {
+          "context": "Production;*;*",
+          "value": "80",
+          "active": true
+        }
+      ]
+    }
+  ]
+}

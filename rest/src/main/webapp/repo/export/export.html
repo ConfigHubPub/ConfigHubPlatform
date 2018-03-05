@@ -1,0 +1,140 @@
+<style>
+    .toolbar.file-options-menu {
+        -webkit-border-radius: 0;
+        -moz-border-radius: 0;
+        border-radius: 0;
+        padding-left: 0 !important;
+    }
+
+    .full-context-required {
+        padding: 25px 0;
+        color: #df5000;
+    }
+
+
+    .loading {
+        border-left: #ddd 1px solid;
+        border-right: #ddd 1px solid;
+    }
+
+
+
+</style>
+
+<div ng-controller="ExportController">
+    <div class="container">
+
+        <h2>Export context properties</h2>
+
+        <div class="context-tabs">
+            <div class="content">
+                <div class="row">
+
+                    <div ng-repeat="depthScore in repoContext.depthScores"
+                         ng-if="repoContext.loaded"
+                         class="depth-element col-md-{{12 / repoContext.depthScores.length}}">
+                        <div class="context-select">
+                            <small class="depth-label">{{ repoContext.depths[depthScore].label }}</small>
+                            <selectize tabindex="4"
+                                       config='contextSelectConfig'
+                                       options="repoContext.selectableContext[depthScore]"
+                                       ng-change="updateContext()"
+                                       ng-model="context[depthScore]"></selectize>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row context-options">
+                    <ul class="list-inline">
+                        <li class="diff">
+                            <strong ng-class="{'active' : !isLive()}">Date/time: </strong>
+                            <a class="calendar-toggle"
+                               role="button"
+                               data-toggle="dropdown"
+                               data-target="#"
+                               href
+                               tooltip-popup-delay='500'
+                               tooltip="Show selected context at specific date and time">
+                                {{ getHistoryLabel() }}
+                                <i ng-if="isLive()" class="fa fa-caret-down"></i>
+                            </a>
+                            <span ng-if="!isLive()">
+                                 <a href ng-click="clearDate()"><i class="fa fa-close"></i></a>
+                            </span>
+
+                            <ul class="dropdown-menu" role="menu" aria-labelledby="dLabel" style="top: auto; left: auto">
+                                <datetimepicker data-ng-model="date"
+                                                data-on-set-time="changeDate()"
+                                                data-datetimepicker-config="{ dropdownSelector: '.calendar-toggle' }"></datetimepicker>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+
+
+            </div>
+
+            <div class="toolbar file-options-menu">
+                <div class="row">
+                    <div class="col-xs-7">
+                        <div role="group">
+                            <button class="btn btn-sm btn-default only-icon"
+                                    tooltip="Include comments"
+                                    ng-model="includeComments"
+                                    ng-change="updateContext()"
+                                    btn-checkbox
+                                    btn-checkbox-true="true"
+                                    btn-checkbox-false="false">
+                                <i class="fa fa-quote-right"></i>
+                            </button>
+
+                            <div class="btn-group">
+                                <button type="button"
+                                        class="btn btn-default dropdown-toggle"
+                                        data-toggle="dropdown"
+                                        bs-dropdown
+                                        aria-haspopup="true"
+                                        aria-expanded="false">
+                                    Format: {{ format.name }} &nbsp;<span class="caret"></span>
+                                </button>
+                                <ul class="dropdown-menu">
+                                    <li ng-repeat="format in commonFormats">
+                                        <a ng-click="setFormat(format)">{{ format.name }}</a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-xs-5" style="text-align: right">
+                        <button type="button"
+                                ng-click="downloadFile()"
+                                ng-disabled="!isFullContext"
+                                class="btn btn-default btn-sm">
+                            <i class="fa fa-download"></i> Raw
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="full-context-required" ng-show="!isFullContext">
+            Specify full context to see the configuration file
+        </div>
+
+        <div class="error-message" ng-if="errorMessage">{{ errorMessage }}</div>
+
+
+        <div ng-if="isFullContext" class="slider">
+
+            <div class="loading" ng-if="!configFile">
+                <i class="fa fa-spinner fa-spin fa-3x fa-fw"></i>
+            </div>
+
+            <div class="out" hljs source="configFile"></div>
+
+        </div>
+
+    </div>
+</div>

@@ -1,0 +1,40 @@
+<div class="panel panel-tag slider">
+    <div class="panel-body">
+
+        <div class="row padded-bottom10" ng-if="tag.readme">
+            <div class="col-xs-12 readme">{{ tag.readme }}</div>
+        </div>
+
+        <div class="row">
+            <div class="col-xs-12">
+                <div class="tag-name-w">
+                    <span class="tag-name">{{ tag.name }}</span>
+                    / <a eat-click-if="ut < type.demo" ng-click="edit(tag)">edit</a>
+                </div>
+                <div class="tag-date">
+                    <span class="tag-dt">{{ tag.ts | amDateFormat:tsFormat }} <span class="tz">Local time</span></span>
+                </div>
+                <div class="tag-date utc">
+                    <span class="tag-dt">{{ tag.ts | amUtc | amDateFormat:tsFormat }} <span class="tz">UTC</span></span>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="padded-top tag-tools">
+            <a ui-sref="repo.editor({owner: repository.owner, name: repository.name, tag: tag.name })">
+                <i class='dlbl props'></i>Editor</a>
+
+            <span class="sep"></span>
+
+            <a ui-sref="repo.compare({owner: repository.owner, name: repository.name, at: tag.name })">
+                <i class='dlbl cmp'></i>Compare to latest</a>
+
+            <span class="sep"></span>
+
+            <a ui-sref="repo.editor({owner: repository.owner, name: repository.name, tag: tag.name })">
+                <i class='dlbl pull'></i>API usage</a>
+        </div>
+
+    </div>
+</div>

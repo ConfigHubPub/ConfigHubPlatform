@@ -1,0 +1,111 @@
+<div class="repository-head">
+    <div class="row">
+        <div class="col-xs-12">
+            <span class="repo-title">
+                <span ng-if="repository.isPersonal" class="account-type"><i class="fa fa-user"></i></span>
+                <span ng-if="!repository.isPersonal" class="account-type"><i class="fa fa-building-o"></i></span>
+
+                <a class="owner" ui-sref="owner({accountName: account})">{{ account }}</a> /
+                <a ui-sref="repo.editor({owner: account, name: repoName })"
+                   class='repository-name'>{{ repoName }}</a>
+
+                <span ng-if="repository && !repository.isPrivate" class="role public"></span>
+            </span>
+
+            <span class="repository-ctrl visible-xs" ng-if="repository">
+
+                <button type="button"
+                        class="navbar-toggle"
+                        data-animation="am-flip-x"
+                        data-placement="bottom-right"
+                        bs-dropdown
+                        aria-haspopup="true"
+                        aria-expanded="false">
+                    <i class="fa fa-bars"></i>
+                </button>
+                <ul class="dropdown-menu repo-tabs" role="menu">
+                    <li ng-class="{'active': selectedTab === 0}">
+                        <a ng-click="gotoConf()">
+                            <i class='dlbl props'></i>Config
+                        </a>
+                    </li>
+                    <li ng-class="{'active': selectedTab === 6}">
+                        <a ui-sref="repo.audit({owner: repository.owner, name: repository.name })">
+                            <i class='dlbl revisions'></i>Revisions
+                        </a>
+                    </li>
+                    <li ng-class="{'active': selectedTab === 2}" ng-if="repository.securityProfilesEnabled">
+                        <a ui-sref="repo.security-profiles({owner: repository.owner, name: repository.name })">
+                            <i class='dlbl security'></i>Security
+                        </a>
+                    </li>
+                    <li ng-class="{'active': selectedTab === 1}">
+                        <a ui-sref="repo.tokens({owner: repository.owner, name: repository.name })">
+                            <i class='dlbl token'></i>Tokens
+                        </a>
+                    </li>
+                    <li ng-if="ut == type.demo || ut >= type.member" ng-class="{'active': selectedTab === 3}">
+                        <a ui-sref="repo.teams({owner: repository.owner, name: repository.name })">
+                            <i class='dlbl team'></i>Teams
+                        </a>
+                    </li>
+                    <li ng-if="ut == type.demo || ut > type.member" ng-class="{'active': selectedTab === 5}">
+                        <a ui-sref="repo.settings({owner: repository.owner, name: repository.name, s: 'name' })">
+                            <i class='dlbl repo'></i>Settings
+                        </a>
+                    </li>
+                </ul>
+
+
+            </span>
+
+            <div class="hidden-xs repository-description" ng-if="repository.description">
+                {{ repository.description }}
+            </div>
+
+        </div>
+    </div>
+
+
+    <div class="row hidden-xs">
+        <div class="col-md-12">
+
+            <div class="nav nav-tabs repo-tabs" ng-if="!repository"></div>
+
+            <ul class="nav nav-tabs repo-tabs" ng-if="repository">
+
+                <li ng-class="{'active': selectedTab === 0}">
+                    <a ng-click="gotoConf()">
+                        <i class='fa fa-cogs'></i>Config
+                    </a>
+                </li>
+                <li ng-class="{'active': selectedTab === 6}">
+                    <a ui-sref="repo.audit({owner: repository.owner, name: repository.name })">
+                        <i class='fa fa-history'></i>Revisions
+                    </a>
+                </li>
+                <li ng-if="repository.securityProfilesEnabled" ng-class="{'active': selectedTab === 2}">
+                    <a ui-sref="repo.security-profiles({owner: repository.owner, name: repository.name })">
+                        <i class='fa fa-lock'></i>Security
+                    </a>
+                </li>
+                <li ng-class="{'active': selectedTab === 1}">
+                    <a ui-sref="repo.tokens({owner: repository.owner, name: repository.name })">
+                        <i class='fa fa-certificate'></i>Tokens
+                    </a>
+                </li>
+                <li ng-if="ut == type.demo || ut >= type.member" ng-class="{'active': selectedTab === 3}">
+                    <a ui-sref="repo.teams({owner: repository.owner, name: repository.name })">
+                        <i class='fa fa-group'></i>Teams
+                    </a>
+                </li>
+                <li ng-if="ut == type.demo || ut > type.member" ng-class="{'active': selectedTab === 5}">
+                    <a ui-sref="repo.settings({owner: repository.owner, name: repository.name, s: 'name' })">
+                        <i class='fa fa-gear'></i>Settings
+                    </a>
+                </li>
+            </ul>
+
+        </div>
+    </div>
+</div>
