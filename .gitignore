@@ -1,2 +1,8 @@
 /server
 target
+
+### Intellij ###
+*.iml
+*.ipr
+*.iws
+.idea/*
