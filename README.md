@@ -1,4 +1,4 @@
-# ConfigHub Platform
+# ConfigHub Platform [![Build Status](https://travis-ci.org/ConfigHubPub/ConfigHubPlatform.svg?branch=master)](https://travis-ci.org/ConfigHubPub/ConfigHubPlatform)
 
 Full [Installation instructions](http://docs.confighub.com/en/latest/pages/getting_started.html) are available at [docs.confighub.com](http://docs.confighub.com/en/latest)
 
