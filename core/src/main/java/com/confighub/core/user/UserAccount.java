@@ -1,10 +1,3 @@
-/*
- * Copyright (c) 2016 ConfigHub, LLC to present - All rights reserved.
- *
- * Unauthorized copying of this file, via any medium is strictly prohibited
- * Proprietary and confidential
- */
-
 package com.confighub.core.user;
 
 import com.confighub.core.error.ConfigException;
@@ -37,7 +30,8 @@ import java.util.Set;
         @NamedQuery(name = "User.isRegistered", query = "SELECT COUNT(u.email.email) FROM UserAccount u WHERE email.email=:email"),
         @NamedQuery(name = "User.isUsernameTaken", query = "SELECT COUNT(u.account.name) FROM UserAccount u WHERE account.name=:username"),
         @NamedQuery(name = "User.getByUsername", query = "SELECT u FROM UserAccount u WHERE u.account.name=:username"),
-        @NamedQuery(name = "Users.search", query = "SELECT u FROM UserAccount u WHERE u.account.name LIKE :searchTerm OR u.name LIKE :searchTerm")
+        @NamedQuery(name = "Users.search", query = "SELECT u FROM UserAccount u WHERE u.account.name LIKE :searchTerm OR u.name LIKE :searchTerm"),
+        @NamedQuery(name = "Users.sysAdmins", query = "SELECT u FROM UserAccount u WHERE u.configHubAdmin=true ")
 })
 @EntityListeners({ UserDiffTracker.class })
 public class UserAccount
@@ -86,7 +80,6 @@ public class UserAccount
     private boolean emailBlog = true;
 
     @ManyToMany(fetch = FetchType.LAZY, cascade = { CascadeType.REFRESH, CascadeType.PERSIST })
-//    @Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
     @NotAudited
     private Set<Token> tokens;
 
@@ -273,6 +266,11 @@ public class UserAccount
     public boolean isConfigHubAdmin()
     {
         return configHubAdmin;
+    }
+
+    public void setConfigHubAdmin(boolean configHubAdmin)
+    {
+        this.configHubAdmin = configHubAdmin;
     }
 
     public boolean isEmailRepoCritical()

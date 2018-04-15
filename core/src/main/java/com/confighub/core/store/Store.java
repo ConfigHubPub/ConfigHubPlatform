@@ -1,10 +1,3 @@
-/*
- * Copyright (c) 2016 ConfigHub, LLC to present - All rights reserved.
- *
- * Unauthorized copying of this file, via any medium is strictly prohibited
- * Proprietary and confidential
- */
-
 package com.confighub.core.store;
 
 import com.confighub.core.error.ConfigException;
@@ -4546,7 +4539,54 @@ public class Store
         }
     }
 
+    // ------------------------------------------------------------------------------------
+    // System administrators
+    // ------------------------------------------------------------------------------------
+    public void addSystemAdmin(final UserAccount user,
+                               final UserAccount newSystemAdmin)
+        throws ConfigException
+    {
+        if (Utils.anyNull(user, newSystemAdmin))
+            throw new ConfigException(Error.Code.MISSING_PARAMS);
 
+        if (!user.isConfigHubAdmin())
+            throw new ConfigException(Error.Code.USER_ACCESS_DENIED);
+
+        newSystemAdmin.setConfigHubAdmin(true);
+        saveOrUpdateNonAudited(newSystemAdmin);
+    }
+
+    public void removeSystemAdmin(final UserAccount user,
+                               final UserAccount newSystemAdmin)
+            throws ConfigException
+    {
+        if (Utils.anyNull(user, newSystemAdmin))
+            throw new ConfigException(Error.Code.MISSING_PARAMS);
+
+        if (!user.isConfigHubAdmin())
+            throw new ConfigException(Error.Code.USER_ACCESS_DENIED);
+
+        List<UserAccount> admins = getSystemAdmins();
+        if (null == admins || admins.size() < 2)
+            throw new ConfigException(Error.Code.USER_ACCESS_DENIED);
+
+        newSystemAdmin.setConfigHubAdmin(false);
+        saveOrUpdateNonAudited(newSystemAdmin);
+    }
+
+    public List<UserAccount> getSystemAdmins()
+            throws ConfigException
+    {
+        try
+        {
+            return em.createNamedQuery("Users.sysAdmins").getResultList();
+        }
+        catch (NoResultException e)
+        {
+            return new ArrayList<>();
+        }
+        catch (Exception e) { handleException(e); return new ArrayList<>(); }
+    }
 
 }
 

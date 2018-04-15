@@ -114,29 +114,17 @@
                                 <h3>
                                     <span><strong>Team: </strong></span>
 
-
-                                    <!--<button type="button"-->
-                                            <!--class="btn btn-success dropdown-toggle"-->
-                                            <!--bs-dropdown-->
-                                            <!--data-placement="bottom-right"-->
-                                            <!--aria-expanded="false">-->
                                     <a bs-dropdown
                                           data-placement="bottom-right"
                                           aria-expanded="false">
                                             {{ aTeam.name }}
                                             <i class="fa fa-caret-down"></i></a>
-                                    <!--</button>-->
+
                                     <ul class="dropdown-menu" role="menu">
                                         <li ng-repeat="team in teams">
                                             <a ng-click="selectTeam(team)">{{ team.name }}</a>
                                         </li>
                                     </ul>
-
-
-
-
-
-
                                 </h3>
                                 <span ng-if="ut >= type.admin" class="padded-left">
                                     / <a ng-click="aTeam.newName = aTeam.name">edit</a>
@@ -303,8 +291,8 @@
                                             </ul>
                                         </div>
 
-                                        <span class="member-name" ng-if="member.name">{{ member.name }},</span>
                                         <span class="member-un">{{ member.un }}</span>
+                                        <span class="member-name" ng-if="member.name">, {{ member.name }}</span>
                                     </div>
                                 </div>
 

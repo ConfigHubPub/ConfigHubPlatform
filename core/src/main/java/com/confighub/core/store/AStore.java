@@ -192,7 +192,9 @@ public abstract class AStore
         return true;
     }
 
-    protected boolean saveOrUpdateAudited(final UserAccount user, final Repository repository, APersisted toSave)
+    protected boolean saveOrUpdateAudited(final UserAccount user,
+                                          final Repository repository,
+                                          final APersisted toSave)
             throws ConfigException
     {
         return saveOrUpdateAudited(user, repository, toSave, null);
@@ -201,8 +203,8 @@ public abstract class AStore
 
     protected boolean saveOrUpdateAuditedViaAPI(final String appIdentifier,
                                                 final Repository repository,
-                                                APersisted toSave,
-                                                String changeComment)
+                                                final APersisted toSave,
+                                                final String changeComment)
             throws ConfigException
     {
         if (null == toSave)
@@ -241,8 +243,8 @@ public abstract class AStore
 
     protected boolean saveOrUpdateAudited(final UserAccount user,
                                           final Repository repository,
-                                          APersisted toSave,
-                                          String changeComment)
+                                          final APersisted toSave,
+                                          final String changeComment)
             throws ConfigException
     {
         if (null == toSave)

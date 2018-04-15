@@ -483,7 +483,6 @@ textarea.change-comment,
 .token-display
 {
     font-family: Consolas, "Liberation Mono", Menlo, Courier, monospace;
-    font-size: 12px;
     display: inline !important;
 
     /* wrap long text and urls */
@@ -503,7 +502,7 @@ textarea.change-comment,
  .readme {
      color: #969896;
      margin: 0;
-     font-size: 11px;
+     /*font-size: 11px;*/
      line-height: 18px;
  }
 
@@ -1428,11 +1427,11 @@ a.blog-subscribe {
 .member-name {
     font-weight: 600;
     line-height: 22px;
-    padding: 0 5px;
+    padding: 0 5px 0 0;
 }
 .member-un {
     color: #333;
-    padding: 0 5px 0 8px;
+    padding: 0 0 0 8px;
 }
 
 .member-i i {

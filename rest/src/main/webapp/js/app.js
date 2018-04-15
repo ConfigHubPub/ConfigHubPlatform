@@ -18,6 +18,7 @@ angular
         'configHub.download',
         'configHub.common',
         'configHub.info',
+        'configHub.admin',
         'configHub.repository.timeTagSelect',
         'ngAnimate',
         'ngSanitize',
