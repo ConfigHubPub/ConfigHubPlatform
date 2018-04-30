@@ -43,7 +43,7 @@ angular
 
         $urlRouterProvider
             .when('/{owner}/{name}/files', '/{owner}/{name}/files/')
-            .when('/info/', '/info')
+            .when('/system/', '/system')
             .when('/download/', '/download')
             .when('/api/', '/api')
             .when('/terms/', '/terms')
@@ -82,9 +82,15 @@ angular
             })
 
             .state('info', {
-                url: '/info',
+                url: '/system',
                 templateUrl: 'info/info.html',
                 pageTitle: 'System Info'
+            })
+
+            .state('system.settings', {
+                url: '/system/settings?s',
+                templateUrl: 'info/info.html',
+                pageTitle: 'System'
             })
 
             .state('api', {

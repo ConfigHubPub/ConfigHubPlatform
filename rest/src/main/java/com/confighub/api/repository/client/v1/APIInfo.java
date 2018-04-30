@@ -146,6 +146,13 @@ public class APIInfo
         }
     }
 
+    /**
+     * Get information on all repositories.
+     *
+     * @param version
+     * @param pretty
+     * @return
+     */
     @GET
     @Path("/all")
     public Response get(@HeaderParam("Client-Version") String version,
@@ -210,7 +217,13 @@ public class APIInfo
         }
     }
 
-
+    /**
+     * Get currently running version information.
+     *
+     * @param version
+     * @param pretty
+     * @return
+     */
     @GET
     @Path("/system")
     public Response getSystemInfo(@HeaderParam("Client-Version") String version,

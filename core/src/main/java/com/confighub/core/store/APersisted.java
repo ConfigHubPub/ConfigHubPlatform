@@ -38,7 +38,8 @@ public abstract class APersisted
         Email(com.confighub.core.user.Email.class),
         Tag(com.confighub.core.repository.Tag.class),
         RepoFile(RepoFile.class),
-        AbsoluteFilePath(com.confighub.core.repository.AbsoluteFilePath.class);
+        AbsoluteFilePath(com.confighub.core.repository.AbsoluteFilePath.class),
+        Configuration(com.confighub.core.system.SystemConfig.class);
 
 
         Class clazz;
