@@ -5,7 +5,7 @@
 
     <groupId>ConfigHub</groupId>
     <artifactId>ConfigHub-Rest</artifactId>
-    <version>1.7</version>
+    <version>1.8</version>
     <name>ConfigHub REST</name>
     <packaging>war</packaging>
 
@@ -14,7 +14,7 @@
         <dependency>
             <groupId>ConfigHub</groupId>
             <artifactId>ConfigHub-Core</artifactId>
-            <version>1.7</version>
+            <version>1.8</version>
         </dependency>
 
         <dependency>
