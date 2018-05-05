@@ -35,20 +35,20 @@ public class SaveLDAPConfig
                                           @HeaderParam("Authorization") final String token)
     {
         Gson gson = new Gson();
-        JsonObject json = new JsonObject();
+        JsonObject ldap = new JsonObject();
 
-        json.addProperty("system_username", systemUsername);
-        json.addProperty("system_password", systemPassword);
-        json.addProperty("ldap_uri", ldapUriString);
-        json.addProperty("use_start_tls", useStartTls);
-        json.addProperty("trust_all_certificates", trustAllCertificates);
-        json.addProperty("active_directory", activeDirectory);
-        json.addProperty("search_base", searchBase);
-        json.addProperty("search_pattern", searchPattern);
-        json.addProperty("display_name", displayName);
-        json.addProperty("group_search_base", groupSearchBase);
-        json.addProperty("group_id_attribute", groupIdAttribute);
-        json.addProperty("group_search_pattern", groupSearchPattern);
+        ldap.addProperty("system_username", systemUsername);
+        ldap.addProperty("system_password", systemPassword);
+        ldap.addProperty("ldap_uri", ldapUriString);
+        ldap.addProperty("use_start_tls", useStartTls);
+        ldap.addProperty("trust_all_certificates", trustAllCertificates);
+        ldap.addProperty("active_directory", activeDirectory);
+        ldap.addProperty("search_base", searchBase);
+        ldap.addProperty("search_pattern", searchPattern);
+        ldap.addProperty("display_name", displayName);
+        ldap.addProperty("group_search_base", groupSearchBase);
+        ldap.addProperty("group_id_attribute", groupIdAttribute);
+        ldap.addProperty("group_search_pattern", groupSearchPattern);
 
         Store store = new Store();
 
@@ -62,20 +62,20 @@ public class SaveLDAPConfig
             store.saveSystemConfig(user,
                                    SystemConfig.ConfigGroup.LDAP,
                                    "ldap",
-                                   json.toString());
+                                   ldap.toString());
             store.commit();
 
-            json.addProperty("success", true);
-            return Response.ok(gson.toJson(json), MediaType.APPLICATION_JSON).build();
+            ldap.addProperty("success", true);
+            return Response.ok(gson.toJson(ldap), MediaType.APPLICATION_JSON).build();
         }
         catch (final ConfigException e)
         {
             store.rollback();
 
-            json.addProperty("message", e.getMessage());
-            json.addProperty("success", false);
+            ldap.addProperty("message", e.getMessage());
+            ldap.addProperty("success", false);
 
-            return Response.ok(gson.toJson(json), MediaType.APPLICATION_JSON).build();
+            return Response.ok(gson.toJson(ldap), MediaType.APPLICATION_JSON).build();
         }
         finally
         {
