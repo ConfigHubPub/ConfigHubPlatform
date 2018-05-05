@@ -1,6 +1,7 @@
 package com.confighub.core.system;
 
 import com.confighub.core.store.APersisted;
+import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -18,9 +19,15 @@ import javax.persistence.*;
 @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
 @Getter
 @Setter
+@Table(
+        uniqueConstraints = @UniqueConstraint(columnNames = {"config_group", "config_key"}),
+        indexes = {@Index(name = "SYSTEM_CONFIG_INDEX", columnList = "id, config_group, config_key")}
+)
 @NamedQueries({
       @NamedQuery(name = "SysConfig.byGroup",
-                  query = "SELECT c FROM SystemConfig c WHERE configGroup=:groupName")
+                  query = "SELECT c FROM SystemConfig c WHERE configGroup=:groupName"),
+      @NamedQuery(name = "SysConfig.byKey",
+                  query = "SELECT c FROM SystemConfig c WHERE configGroup=:groupName AND key=:key")
 })
 public class SystemConfig
         extends APersisted
@@ -38,7 +45,8 @@ public class SystemConfig
     @Column(name = "config_key", nullable = false, unique = true)
     private String key;
 
-    @Column(name = "value")
+    @Column(name = "value",
+            length = 8192)
     private String value;
 
     @Enumerated(EnumType.STRING)
@@ -54,7 +62,10 @@ public class SystemConfig
         json.addProperty("key", this.key);
 
         if (!this.encrypted)
-            json.addProperty("value", this.value);
+        {
+            Gson gson = new Gson();
+            json.add("value", gson.fromJson(this.value, JsonObject.class));
+        }
 
         json.addProperty("configGroup", this.configGroup.name());
         json.addProperty("encrypted", this.encrypted);

@@ -5,7 +5,7 @@ angular
         ['$scope', '$rootScope', '$stateParams', '$http', '$filter', '$httpParamSerializer',
             function ($scope, $rootScope, $stateParams, $http, $filter, $httpParamSerializer) {
 
-                var form;
+                var form, arr, i;
                 $scope.ldap = {};
 
                 initLDAP();
@@ -15,7 +15,40 @@ angular
                     $http
                         .get("/rest/getLDAPConfig")
                         .then(function (response) {
-                            $scope.ldap = response.data.ldap;
+
+                            if (response.data.conf && response.data.conf.length > 0)
+                            {
+                                arr = response.data.conf;
+                                for (i in arr)
+                                {
+                                    if (arr[i].key == 'ldap')
+                                    {
+                                        $scope.ldapForm = arr[i].value;
+                                        break;
+                                    }
+                                }
+                            }
+
+                            if (!$scope.ldapForm)
+                            {
+                                $scope.ldapForm = {
+                                    "system_username": "cn=read-only-admin,dc=example,dc=com",
+                                    "system_password": "password",
+                                    "ldap_uri": "ldap://ldap.forumsys.com:389",
+                                    "use_start_tls": true,
+                                    "trust_all_certificates": true,
+                                    "active_directory": false,
+                                    "search_base": "dc=example,dc=com",
+                                    "search_pattern": "(&(objectClass=*)(uid={0}))",
+                                    "principal": "riemann",
+                                    "password": "password",
+                                    "test_connect_only": false,
+                                    "group_search_base": "",
+                                    "group_id_attribute": "",
+                                    "group_search_pattern": ""
+                                };
+
+                            }
                         });
                 }
 
@@ -23,28 +56,6 @@ angular
                 $scope.enableLdap = function() {
 
                 };
-
-
-                $scope.ldapForm = {
-                    "system_username": "cn=read-only-admin,dc=example,dc=com",  // ok
-                    "system_password": "password",  // ok
-                    "ldap_uri": "ldap://ldap.forumsys.com:389",  // ok
-
-                    "use_start_tls": true,
-                    "trust_all_certificates": true,
-                    "active_directory": false, // ok
-
-                    "search_base": "dc=example,dc=com",  // ok
-                    "search_pattern": "(&(objectClass=*)(uid={0}))",  // ok
-
-                    "principal": "riemann", // ok
-                    "password": "password", // ok
-                    "test_connect_only": false,
-                    "group_search_base": "",
-                    "group_id_attribute": "",
-                    "group_search_pattern": ""
-                };
-
 
                 $scope.systemTestCompleted = false;
                 $scope.testResponse;
@@ -63,8 +74,6 @@ angular
                         headers: {'Content-Type': 'application/x-www-form-urlencoded'}
                     }).then(function (response)
                     {
-                        console.log(response.data);
-
                         $scope.systemTestCompleted = true;
 
                         $scope.testResponse = response.data.success;
@@ -73,6 +82,30 @@ angular
                         }
                         else {
                             $scope.testErrorResponse = null;
+                        }
+                    });
+
+                };
+
+
+                $scope.ldapSaveErrorMessage = null;
+                $scope.saveLdap = function () {
+
+                    form = angular.copy($scope.ldapForm);
+
+                    $http({
+                        method: 'POST',
+                        url: '/rest/saveLDAPConfig',
+                        data: $httpParamSerializer(form),
+                        headers: {'Content-Type': 'application/x-www-form-urlencoded'}
+                    }).then(function (response)
+                    {
+                        console.log(response);
+                        if (!response.data.success) {
+                            $scope.ldapSaveErrorMessage = response.data.errorMessage;
+                        }
+                        else {
+                            $scope.ldapSaveErrorMessage = null;
                         }
                     });
 

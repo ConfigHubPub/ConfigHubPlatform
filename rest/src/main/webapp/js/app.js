@@ -87,6 +87,11 @@ angular
                 pageTitle: 'System Info'
             })
 
+            .state('system', {
+                templateUrl: 'info/info.html',
+                'abstract': true
+            })
+
             .state('system.settings', {
                 url: '/system/settings?s',
                 templateUrl: 'info/info.html',

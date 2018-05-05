@@ -39,13 +39,17 @@ public class GetLDAPConfig
 
         try
         {
+            JsonObject json = new JsonObject();
+
             final UserAccount user = TokenState.getUser(token, store);
             List<SystemConfig> config = store.getSystemConfig(SystemConfig.ConfigGroup.LDAP);
 
             JsonArray conf = new JsonArray();
             config.forEach(p -> conf.add(p.toJson()));
 
-            return Response.ok(gson.toJson(conf), MediaType.APPLICATION_JSON).build();
+            json.add("conf", conf);
+
+            return Response.ok(gson.toJson(json), MediaType.APPLICATION_JSON).build();
         }
         finally
         {

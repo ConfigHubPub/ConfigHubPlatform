@@ -4640,25 +4640,70 @@ public class Store
     // ------------------------------------------------------------------------------------
     // ConfigHub Configuration
     // ------------------------------------------------------------------------------------
+    public void saveSystemConfig(final UserAccount user,
+                                 final SystemConfig.ConfigGroup group,
+                                 final String key,
+                                 final String value)
+            throws ConfigException
+    {
+        if (Utils.anyNull(user, group, key))
+            throw new ConfigException(Error.Code.MISSING_PARAMS);
+
+        if (!user.isConfigHubAdmin())
+            throw new ConfigException(Error.Code.USER_ACCESS_DENIED);
+
+        SystemConfig config = getSystemConfig(group, key);
+
+        if (null == config)
+            config = new SystemConfig();
+
+        config.setConfigGroup(group);
+        config.setKey(key);
+        config.setValue(value);
+
+        saveOrUpdateNonAudited(config);
+    }
+
     public List<SystemConfig> getSystemConfig(final SystemConfig.ConfigGroup group)
             throws ConfigException
     {
-//        try
-//        {
-//            return em.createNamedQuery("SysConfig.byGroup")
-//                     .setParameter("groupName", group)
-//                     .getResultList();
-//        }
-//        catch (NoResultException e)
-//        {
+        try
+        {
+            return em.createNamedQuery("SysConfig.byGroup")
+                     .setParameter("groupName", group)
+                     .getResultList();
+        }
+        catch (NoResultException e)
+        {
             return Collections.EMPTY_LIST;
-//        }
-//        catch (Exception e)
-//        {
-//            handleException(e);
-//            return Collections.EMPTY_LIST;
-//        }
+        }
+        catch (Exception e)
+        {
+            handleException(e);
+            return Collections.EMPTY_LIST;
+        }
+    }
 
+    public SystemConfig getSystemConfig(final SystemConfig.ConfigGroup group,
+                                              final String key)
+            throws ConfigException
+    {
+        try
+        {
+            return (SystemConfig) em.createNamedQuery("SysConfig.byKey")
+                     .setParameter("groupName", group)
+                     .setParameter("key", key)
+                     .getSingleResult();
+        }
+        catch (NoResultException e)
+        {
+            return null;
+        }
+        catch (Exception e)
+        {
+            handleException(e);
+            return null;
+        }
     }
 }
 
