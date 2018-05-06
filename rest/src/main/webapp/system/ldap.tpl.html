@@ -12,7 +12,7 @@
         <div class="form-group">
             <label class="col-sm-3 control-label">
                 <input type="checkbox"
-                       ng-model="enableLdapToggle"
+                       ng-model="ldapEnabled"
                        ng-change="enableLdap()"
                        class="inline-checkbox">
             </label>
@@ -24,8 +24,8 @@
         </div>
 
 
-        <section>
-            <h3 class="section">1. Server Configuration</h3>
+        <section ng-show="ldapEnabled" class="slider">
+            <h3 class="section">Server Configuration</h3>
 
             <div class="form-group">
                 <label class="col-sm-3 control-label"><strong>Server Type</strong></label>
@@ -34,6 +34,7 @@
                         <label class="margin-right15">
                             <input type="radio"
                                    ng-model="ldapForm['activeDirectory']"
+                                   ng-disabled="!ldapEnabled"
                                    ng-value="false">
                             LDAP
                         </label>
@@ -41,6 +42,7 @@
                         <label>
                             <input type="radio"
                                    ng-model="ldapForm['activeDirectory']"
+                                   ng-disabled="!ldapEnabled"
                                    ng-value="true">
                             Active Directory
                         </label>
@@ -56,6 +58,7 @@
                     <input type="text"
                            class="form-control input-sm"
                            ng-model="ldapForm['ldapUrl']"
+                           ng-disabled="!ldapEnabled"
                            placeholder="ldap://some.domain:389">
 
                 </div>
@@ -68,6 +71,7 @@
                     <input type="text"
                            class="form-control input-sm"
                            ng-model="ldapForm['systemUsername']"
+                           ng-disabled="!ldapEnabled"
                            placeholder="uid=admin,ou=system">
                     <p class="sub slider" ng-show="!active_directory">
                         The username for the initial connection to the LDAP server, e.g.
@@ -89,21 +93,18 @@
                     <input type="password"
                            class="form-control input-sm"
                            ng-model="ldapForm['systemPassword']"
+                           ng-disabled="!ldapEnabled"
                            placeholder="">
                     <p class="sub">The password for the initial connection to the LDAP server.</p>
                 </div>
             </div>
-        </section>
-
-
-        <section>
-            <h3 class="section">2. Connection Test</h3>
 
 
             <div class="padded-top form-group">
                 <div class="col-sm-offset-3 col-sm-9">
                     <button ng-click="testLdap(true)"
                             class="btn btn-sm btn-primary"
+                            ng-disabled="!ldapEnabled"
                             type="button">Test Server Connection
                     </button>
                     <p class="sub">
@@ -131,8 +132,8 @@
         </section>
 
 
-        <section>
-            <h3 class="section">3. User Mapping</h3>
+        <section ng-show="ldapEnabled" class="slider">
+            <h3 class="section">User Mapping</h3>
 
 
             <div class="form-group">
@@ -141,6 +142,7 @@
                     <input type="text"
                            class="form-control input-sm"
                            ng-model="ldapForm['searchBase']"
+                           ng-disabled="!ldapEnabled"
                            placeholder="cn=users,dc=example,dc.com">
                     <p class="sub">
                         The base tree to limit the LDAP/Active Directory search query to,
@@ -155,6 +157,7 @@
                     <input type="text"
                            class="form-control input-sm"
                            ng-model="ldapForm['searchPattern']"
+                           ng-disabled="!ldapEnabled"
                            placeholder="(&(objectClass=user)(sAMAccountName={0}))">
                     <p class="sub">
                         For example <code>(&(objectClass=user)(sAMAccountName={0}))</code>.
@@ -169,6 +172,7 @@
                     <input type="text"
                            class="form-control input-sm"
                            ng-model="ldapForm['displayName']"
+                           ng-disabled="!ldapEnabled"
                            placeholder="displayName">
                     <p class="sub">
                         Which attribute to use for the full name of the user in ConfigHub,
@@ -179,8 +183,8 @@
         </section>
 
 
-        <section>
-            <h3 class="section">4. Login Test</h3>
+        <section ng-show="ldapEnabled" class="slider">
+            <h3 class="section">Login Test</h3>
 
             <div class="form-group">
                 <label class="col-sm-3 control-label"><strong>Login Test</strong></label>
@@ -191,17 +195,20 @@
                             <input type="text"
                                    class="form-control"
                                    ng-model="principal"
+                                   ng-disabled="!ldapEnabled"
                                    placeholder="Username / Email">
                         </div>
                         <div class="form-group col-sm-5">
                             <input type="password"
                                    class="form-control"
                                    ng-model="password"
+                                   ng-disabled="!ldapEnabled"
                                    placeholder="Password">
                         </div>
                         <div class="col-sm-2">
                             <button ng-click="testLdap(false)"
                                     class="btn btn-sm btn-primary"
+                                    ng-disabled="!ldapEnabled"
                                     type="button">Test Login
                             </button>
 
@@ -234,11 +241,9 @@
         </section>
 
         <section>
-            <h3 class="section">5. Save Settings</h3>
-
             <div class="col-sm-offset-3">
                 <button ng-click="saveLdap()"
-                        class="btn btn-lg btn-success"
+                        class="btn  btn-success"
                         type="button">Save Settings
                 </button>
             </div>

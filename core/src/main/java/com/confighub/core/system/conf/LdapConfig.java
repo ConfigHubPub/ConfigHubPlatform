@@ -30,26 +30,43 @@ public class LdapConfig
 
     public static LdapConfig build(final Map<String, SystemConfig> config)
     {
+        if (null == config)
+            return new LdapConfig();
+
         return LdapConfig.builder()
-                         .ldapEnabled(config.containsKey("ldapEnabled")
-                                              ? Boolean.valueOf(config.get("ldapEnabled").getValue())
-                                              : false)
-                         .systemUsername(config.get("systemUsername").getValue())
-                         .systemPassword(config.get("systemPassword").getValue())
-                         .ldapUrl(config.get("ldapUrl").getValue())
-                         .trustAllCertificates(config.containsKey("trustAllCertificates")
-                                                       ? Boolean.valueOf(config.get("trustAllCertificates").getValue())
-                                                       : false)
-                         .activeDirectory(config.containsKey("activeDirectory")
-                                                  ? Boolean.valueOf(config.get("activeDirectory").getValue())
-                                                  : false)
-                         .searchBase(config.get("searchBase").getValue())
-                         .searchPattern(config.get("searchPattern").getValue())
-                         .displayName(config.get("displayName").getValue())
-                         .groupSearchBase(config.get("groupSearchBase").getValue())
-                         .groupIdAttribute(config.get("groupIdAttribute").getValue())
-                         .groupSearchPattern(config.get("groupSearchPattern").getValue())
+                         .ldapEnabled(iorb(config, "ldapEnabled", false))
+                         .systemUsername(ior(config, "systemUsername", null))
+                         .systemPassword(ior(config, "systemPassword", null))
+                         .ldapUrl(ior(config, "ldapUrl", null))
+                         .trustAllCertificates(iorb(config,"trustAllCertificates", false))
+                         .activeDirectory(iorb(config, "activeDirectory", false))
+                         .searchBase(ior(config, "searchBase", null))
+                         .searchPattern(ior(config, "searchPattern", null))
+                         .displayName(ior(config, "displayName", null))
+                         .groupSearchBase(ior(config, "groupSearchBase", null))
+                         .groupIdAttribute(ior(config, "groupIdAttribute", null))
+                         .groupSearchPattern(ior(config, "groupSearchPattern", null))
                          .build();
+    }
+
+    private static String ior(final Map<String, SystemConfig> config,
+                             final String key,
+                             final String de)
+    {
+        if (config.containsKey(key))
+            return config.get(key).getValue();
+
+        return de;
+    }
+
+    private static boolean iorb(final Map<String, SystemConfig> config,
+                                final String key,
+                                final boolean de)
+    {
+        if (config.containsKey(key))
+            return Boolean.valueOf(config.get(key).getValue());
+
+        return de;
     }
 
 }

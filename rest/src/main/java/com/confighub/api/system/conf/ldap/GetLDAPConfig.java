@@ -35,13 +35,19 @@ public class GetLDAPConfig
     @Produces(MediaType.APPLICATION_JSON)
     public LdapConfig create(@HeaderParam("Authorization") final String token)
     {
+        log.info(">>>>>> starting");
         Store store = new Store();
 
         try
         {
             final UserAccount user = TokenState.getUser(token, store);
             LdapConfig conf = LdapConfig.build(store.getSystemConfig(SystemConfig.ConfigGroup.LDAP));
+
             return conf;
+        }
+        catch (final Exception e)
+        {
+            return new LdapConfig();
         }
         finally
         {

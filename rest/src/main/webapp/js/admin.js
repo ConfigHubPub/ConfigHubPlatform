@@ -7,7 +7,7 @@ angular
 
                 var form, arr, i;
                 $scope.ldap = {};
-
+                $scope.ldapEnabled = false;
                 initLDAP();
 
                 function initLDAP()
@@ -16,12 +16,12 @@ angular
                         .get("/rest/getLDAPConfig")
                         .then(function (response) {
                             $scope.ldapForm = response.data;
+                            $scope.ldapEnabled = $scope.ldapForm && $scope.ldapForm.ldapEnabled;
                         });
                 }
 
-                $scope.enableLdapToggle = false;
                 $scope.enableLdap = function() {
-
+                    $scope.ldapForm.ldapEnabled = $scope.ldapEnabled;
                 };
 
                 $scope.runningTest = false;
