@@ -167,11 +167,26 @@
             </div>
 
             <div class="form-group">
-                <label class="col-sm-3 control-label"><strong>Display Name Attribute</strong></label>
+                <label class="col-sm-3 control-label"><strong>Email Attribute</strong></label>
                 <div class="col-sm-9">
                     <input type="text"
                            class="form-control input-sm"
-                           ng-model="ldapForm['displayName']"
+                           ng-model="ldapForm['emailAttribute']"
+                           ng-disabled="!ldapEnabled"
+                           placeholder="mail">
+                    <p class="sub">
+                        Which attribute to use for the email address of the user in ConfigHub,
+                        e.g. <code>mail</code>.
+                    </p>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="col-sm-3 control-label"><strong>Full Name Attribute</strong></label>
+                <div class="col-sm-9">
+                    <input type="text"
+                           class="form-control input-sm"
+                           ng-model="ldapForm['nameAttribute']"
                            ng-disabled="!ldapEnabled"
                            placeholder="displayName">
                     <p class="sub">
@@ -180,6 +195,7 @@
                     </p>
                 </div>
             </div>
+
         </section>
 
 
@@ -232,7 +248,10 @@
 
                 <div class="row slider" ng-if="systemTestCompleted && !runningTest">
                     <div class="col-sm-offset-3 col-sm-9">
-                        <div ng-class="{'successful_connection': testResponse, 'connection_failed': !testResponse}" class="slider"></div>
+                        <div ng-class="{'successful_connection': testResponse, 'connection_failed': !testResponse}" class="slider">
+                            <pre>{{ testResponseDetails | json }}</pre>
+                        </div>
+
                     </div>
                 </div>
             </div>

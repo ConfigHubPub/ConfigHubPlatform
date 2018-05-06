@@ -218,6 +218,23 @@ public class Store
         return user;
     }
 
+    public UserAccount getUserAccount(final String username)
+            throws ConfigException
+    {
+        if (Utils.anyBlank(username))
+            throw new ConfigException(Error.Code.MISSING_PARAMS);
+
+        try
+        {
+            return (UserAccount)em.createNamedQuery("User.loginByUsername")
+                                  .setParameter("username", username)
+                                  .getSingleResult();
+        }
+        catch (Exception e)
+        {
+            return null;
+        }
+    }
     /**
      * @param username of a user
      * @param password for the user
@@ -4658,7 +4675,8 @@ public class Store
         saveOrUpdateNonAudited(getLdapCfg("activeDirectory", String.valueOf(ldapConfig.isActiveDirectory())));
         saveOrUpdateNonAudited(getLdapCfg("searchBase", ldapConfig.getSearchBase()));
         saveOrUpdateNonAudited(getLdapCfg("searchPattern", ldapConfig.getSearchPattern()));
-        saveOrUpdateNonAudited(getLdapCfg("displayName", ldapConfig.getDisplayName()));
+        saveOrUpdateNonAudited(getLdapCfg("nameAttribute", ldapConfig.getNameAttribute()));
+        saveOrUpdateNonAudited(getLdapCfg("emailAttribute", ldapConfig.getEmailAttribute()));
         saveOrUpdateNonAudited(getLdapCfg("groupSearchBase", ldapConfig.getGroupSearchBase()));
         saveOrUpdateNonAudited(getLdapCfg("groupIdAttribute", ldapConfig.getGroupIdAttribute()));
         saveOrUpdateNonAudited(getLdapCfg("groupSearchPattern", ldapConfig.getGroupSearchPattern()));

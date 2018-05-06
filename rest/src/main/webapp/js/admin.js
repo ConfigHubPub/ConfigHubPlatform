@@ -52,6 +52,13 @@ angular
                         $scope.systemTestCompleted = true;
 
                         $scope.testResponse = response.data.success;
+                        if (!connectionOnly)
+                        {
+                            $scope.testResponseDetails = {
+                                "nameAttribute": response.data.nameAttribute,
+                                "emailAttribute": response.data.emailAttribute
+                            };
+                        }
                         if (!response.data.success) {
                             $scope.testErrorResponse = response.data.errorMessage;
                         }

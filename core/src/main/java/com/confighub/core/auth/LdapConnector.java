@@ -1,11 +1,11 @@
 package com.confighub.core.auth;
 
+import com.confighub.core.system.conf.LdapConfig;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Sets;
 import com.google.common.util.concurrent.SimpleTimeLimiter;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.common.util.concurrent.UncheckedTimeoutException;
-import org.apache.directory.api.ldap.model.cursor.CursorException;
 import org.apache.directory.api.ldap.model.cursor.EntryCursor;
 import org.apache.directory.api.ldap.model.entry.Attribute;
 import org.apache.directory.api.ldap.model.entry.Entry;
@@ -38,7 +38,6 @@ import java.util.concurrent.TimeUnit;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Strings.isNullOrEmpty;
 
-//@Slf4j
 public class LdapConnector
 {
     private static final Logger log = LogManager.getLogger(LdapConnector.class);
@@ -64,8 +63,7 @@ public class LdapConnector
         final ThreadFactory threadFactory = new ThreadFactoryBuilder().setNameFormat("ldap-connector-%d").build();
         final SimpleTimeLimiter timeLimiter = SimpleTimeLimiter.create(Executors.newSingleThreadExecutor
                                                                                          (threadFactory));
-        @SuppressWarnings("unchecked")
-        final Callable<Boolean> timeLimitedConnection = timeLimiter.newProxy(new Callable<Boolean>()
+        @SuppressWarnings("unchecked") final Callable<Boolean> timeLimitedConnection = timeLimiter.newProxy(new Callable<Boolean>()
         {
             @Override
             public Boolean call()
@@ -98,32 +96,26 @@ public class LdapConnector
     }
 
     @Nullable
-    public LdapEntry search(LdapNetworkConnection connection,
-                            String searchBase,
-                            String searchPattern,
-                            String displayNameAttribute,
-                            String principal,
-                            boolean activeDirectory,
-                            String groupSearchBase,
-                            String groupIdAttribute,
-                            String groupSearchPattern)
-            throws LdapException, CursorException
+    public LdapEntry search(final LdapNetworkConnection connection,
+                            final LdapConfig config,
+                            final String username)
+            throws LdapException
     {
         final LdapEntry ldapEntry = new LdapEntry();
         final Set<String> groupDns = Sets.newHashSet();
 
-        final String filter = new MessageFormat(searchPattern, Locale.ENGLISH).format(new Object[]{
-                sanitizePrincipal(principal) });
+        final String filter = new MessageFormat(config.getSearchPattern(), Locale.ENGLISH).format(new Object[]{
+                sanitizePrincipal(username) });
         log.info("Search {} for {}, starting at {}",
-                  activeDirectory ? "ActiveDirectory" : "LDAP",
-                  filter,
-                  searchBase);
+                 config.isActiveDirectory() ? "ActiveDirectory" : "LDAP",
+                 filter,
+                 config.getSearchBase());
 
-        try (final EntryCursor entryCursor = connection.search(searchBase,
+        try (final EntryCursor entryCursor = connection.search(config.getSearchBase(),
                                                                filter,
                                                                SearchScope.SUBTREE,
-                                                               groupIdAttribute,
-                                                               displayNameAttribute,
+                                                               config.getGroupIdAttribute(),
+                                                               "*",
                                                                "dn",
                                                                "uid",
                                                                "userPrincipalName",
@@ -141,14 +133,14 @@ public class LdapConnector
 
                 // for generic LDAP use the dn of the entry for the subsequent bind, active directory needs the
                 // userPrincipalName attribute (set below)
-                if (!activeDirectory)
+                if (!config.isActiveDirectory())
                 {
                     ldapEntry.setBindPrincipal(e.getDn().getName());
                 }
 
                 for (Attribute attribute : e.getAttributes())
                 {
-                    if (activeDirectory && "userPrincipalName".equalsIgnoreCase(attribute.getId()))
+                    if (config.isActiveDirectory() && "userPrincipalName".equalsIgnoreCase(attribute.getId()))
                     {
                         ldapEntry.setBindPrincipal(attribute.getString());
                     }
@@ -157,8 +149,8 @@ public class LdapConnector
                         ldapEntry.put(attribute.getId(), Joiner.on(", ").join(attribute.iterator()));
                     }
                     // ActiveDirectory (memberOf) and Sun Directory Server (isMemberOf)
-                    if ("memberOf".equalsIgnoreCase(attribute.getId()) || "isMemberOf".equalsIgnoreCase(attribute
-                                                                                                                .getId()))
+                    if ("memberOf".equalsIgnoreCase(attribute.getId())
+                                || "isMemberOf".equalsIgnoreCase(attribute.getId()))
                     {
                         for (Value<?> group : attribute)
                         {
@@ -173,7 +165,9 @@ public class LdapConnector
                 log.info("No LDAP entry found for filter {}", filter);
                 return null;
             }
-            if (!groupDns.isEmpty() && !isNullOrEmpty(groupSearchBase) && !isNullOrEmpty(groupIdAttribute))
+            if (!groupDns.isEmpty()
+                        && !isNullOrEmpty(config.getGroupSearchBase())
+                        && !isNullOrEmpty(config.getGroupIdAttribute()))
             {
                 // user had a memberOf attribute which contained group references. resolve each group and collect
                 // group names
@@ -185,13 +179,13 @@ public class LdapConnector
                         log.info("Looking up group {}", groupDn);
                         try
                         {
-                            Entry group = connection.lookup(groupDn, groupIdAttribute);
+                            Entry group = connection.lookup(groupDn, config.getGroupIdAttribute());
                             // The groupDn lookup can return null if the group belongs to a different domain and the
                             // connection user does not have the permissions to lookup details.
                             // See: https://github.com/ConfigHub2/ConfigHub2-server/issues/1453
                             if (group != null)
                             {
-                                final Attribute groupId = group.get(groupIdAttribute);
+                                final Attribute groupId = group.get(config.getGroupIdAttribute());
                                 log.info("Resolved {} to group {}", groupDn, groupId);
                                 if (groupId != null)
                                 {
@@ -215,20 +209,20 @@ public class LdapConnector
                     log.error("Unexpected error during LDAP group resolution", e);
                 }
             }
-            if (ldapEntry.getGroups()
-                         .isEmpty() && !isNullOrEmpty(groupSearchBase) && !isNullOrEmpty(groupIdAttribute) &&
-                        !isNullOrEmpty(
-                    groupSearchPattern))
+            if (ldapEntry.getGroups().isEmpty()
+                        && !isNullOrEmpty(config.getGroupSearchBase())
+                        && !isNullOrEmpty(config.getGroupIdAttribute())
+                        && !isNullOrEmpty(config.getGroupSearchPattern()))
             {
                 ldapEntry.addGroups(findGroups(connection,
-                                               groupSearchBase,
-                                               groupSearchPattern,
-                                               groupIdAttribute,
+                                               config.getGroupSearchBase(),
+                                               config.getGroupSearchPattern(),
+                                               config.getGroupIdAttribute(),
                                                ldapEntry));
                 log.info("LDAP search found entry for DN {} with search filter {}: {}",
-                          ldapEntry.getDn(),
-                          filter,
-                          ldapEntry);
+                         ldapEntry.getDn(),
+                         filter,
+                         ldapEntry);
             }
             else
             {

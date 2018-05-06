@@ -1,8 +1,11 @@
 package com.confighub.core.system.conf;
 
+import com.confighub.core.auth.TrustAllX509TrustManager;
 import com.confighub.core.system.SystemConfig;
 import lombok.*;
+import org.apache.directory.ldap.client.api.LdapConnectionConfig;
 
+import java.net.URI;
 import java.util.Map;
 
 @Getter
@@ -15,7 +18,7 @@ public class LdapConfig
 {
     private final static SystemConfig.ConfigGroup group = SystemConfig.ConfigGroup.LDAP;
 
-    private boolean ldapEnabled;
+    private boolean ldapEnabled = false;
     private String systemUsername;
     private String systemPassword;
     private String ldapUrl;
@@ -23,10 +26,31 @@ public class LdapConfig
     private boolean activeDirectory;
     private String searchBase;
     private String searchPattern;
-    private String displayName;
+    private String nameAttribute;
+    private String emailAttribute;
     private String groupSearchBase;
     private String groupIdAttribute;
     private String groupSearchPattern;
+
+    public LdapConnectionConfig toConnectionConfig()
+    {
+        final LdapConnectionConfig config = new LdapConnectionConfig();
+        final URI ldapUri = URI.create(this.getLdapUrl());
+        config.setLdapHost(ldapUri.getHost());
+        config.setLdapPort(ldapUri.getPort());
+        config.setUseSsl(ldapUri.getScheme().startsWith("ldaps"));
+        config.setUseTls(false);
+
+        if (this.isTrustAllCertificates())
+        {
+            config.setTrustManagers(new TrustAllX509TrustManager());
+        }
+
+        config.setName(this.getSystemUsername());
+        config.setCredentials(this.getSystemPassword());
+
+        return config;
+    }
 
     public static LdapConfig build(final Map<String, SystemConfig> config)
     {
@@ -42,7 +66,8 @@ public class LdapConfig
                          .activeDirectory(iorb(config, "activeDirectory", false))
                          .searchBase(ior(config, "searchBase", null))
                          .searchPattern(ior(config, "searchPattern", null))
-                         .displayName(ior(config, "displayName", null))
+                         .nameAttribute(ior(config, "nameAttribute", null))
+                         .emailAttribute(ior(config, "emailAttribute", null))
                          .groupSearchBase(ior(config, "groupSearchBase", null))
                          .groupIdAttribute(ior(config, "groupIdAttribute", null))
                          .groupSearchPattern(ior(config, "groupSearchPattern", null))

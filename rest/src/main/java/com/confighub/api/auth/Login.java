@@ -1,10 +1,3 @@
-/*
- * Copyright (c) 2016 ConfigHub, LLC to present - All rights reserved.
- *
- * Unauthorized copying of this file, via any medium is strictly prohibited
- * Proprietary and confidential
- */
-
 package com.confighub.api.auth;
 
 import com.confighub.api.server.AuthenticationNotRequired;
@@ -14,6 +7,8 @@ import com.confighub.core.store.Store;
 import com.confighub.core.user.UserAccount;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import javax.ws.rs.FormParam;
 import javax.ws.rs.POST;
@@ -26,6 +21,7 @@ import javax.ws.rs.core.Response;
 @Produces("application/json")
 public class Login
 {
+    private static final Logger log = LogManager.getLogger(Login.class);
 
     @AuthenticationNotRequired
     @POST
@@ -38,7 +34,16 @@ public class Login
 
         try
         {
-            UserAccount user = store.login(email, password);
+            UserAccount user;
+
+            if (Auth.isLdapEnabled())
+            {
+                user = Auth.ldapAuth(email, password);
+            }
+            else
+            {
+                user = store.login(email, password);
+            }
 
             json.addProperty("token", Auth.createUserToken(user));
             json.addProperty("success", true);

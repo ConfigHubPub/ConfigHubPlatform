@@ -4,7 +4,6 @@ import com.confighub.api.server.auth.TokenState;
 import com.confighub.api.system.ASysAdminAccessValidation;
 import com.confighub.core.auth.LdapConnector;
 import com.confighub.core.auth.LdapEntry;
-import com.confighub.core.auth.TrustAllX509TrustManager;
 import com.confighub.core.store.Store;
 import com.confighub.core.system.SystemConfig;
 import com.confighub.core.system.conf.LdapConfig;
@@ -12,7 +11,6 @@ import com.confighub.core.system.conf.LdapTestConfig;
 import com.confighub.core.user.UserAccount;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
-import org.apache.directory.api.ldap.model.cursor.CursorException;
 import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.ldap.client.api.LdapConnectionConfig;
 import org.apache.directory.ldap.client.api.LdapNetworkConnection;
@@ -23,7 +21,6 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
-import java.net.URI;
 
 @Path("/getLDAPConfig")
 public class GetLDAPConfig
@@ -40,7 +37,7 @@ public class GetLDAPConfig
         try
         {
             final UserAccount user = TokenState.getUser(token, store);
-            LdapConfig conf = LdapConfig.build(store.getSystemConfig(SystemConfig.ConfigGroup.LDAP));
+            final LdapConfig conf = LdapConfig.build(store.getSystemConfig(SystemConfig.ConfigGroup.LDAP));
 
             return conf;
         }
@@ -74,21 +71,7 @@ public class GetLDAPConfig
             store.close();
         }
 
-        final LdapConnectionConfig config = new LdapConnectionConfig();
-        final URI ldapUri = URI.create(ldapConfig.getLdapUrl());
-        config.setLdapHost(ldapUri.getHost());
-        config.setLdapPort(ldapUri.getPort());
-        config.setUseSsl(ldapUri.getScheme().startsWith("ldaps"));
-        config.setUseTls(false);
-
-        if (ldapConfig.isTrustAllCertificates())
-        {
-            config.setTrustManagers(new TrustAllX509TrustManager());
-        }
-
-        config.setName(ldapConfig.getSystemUsername());
-        config.setCredentials(ldapConfig.getSystemPassword());
-
+        final LdapConnectionConfig config = ldapConfig.toConnectionConfig();
         LdapNetworkConnection connection = null;
         try
         {
@@ -138,26 +121,26 @@ public class GetLDAPConfig
             try
             {
                 final LdapEntry entry = ldapConnector.search(connection,
-                                                             ldapConfig.getSearchBase(),
-                                                             ldapConfig.getSearchPattern(),
-                                                             "*",
-                                                             ldapConfig.getPrincipal(),
-                                                             ldapConfig.isActiveDirectory(),
-                                                             ldapConfig.getGroupSearchBase(),
-                                                             ldapConfig.getGroupIdAttribute(),
-                                                             ldapConfig.getGroupSearchPattern());
+                                                             ldapConfig,
+                                                             ldapConfig.getPrincipal());
 
                 if (entry != null)
                 {
+                    log.warn("ldapEntry: " + entry);
+
                     userPrincipalName = entry.getBindPrincipal();
 
                     json.addProperty("entry", entry.toString());
-                    json.addProperty("displayName",
-                                     entry.getAttributes().getOrDefault(ldapConfig.getDisplayName(),
+                    json.addProperty("nameAttribute",
+                                      entry.getAttributes().getOrDefault(ldapConfig.getNameAttribute(),
                                                                         ldapConfig.getPrincipal()));
+                    json.addProperty("emailAttribute",
+                                     entry.getAttributes().getOrDefault(ldapConfig.getEmailAttribute(),
+                                                                        null));
+
                 }
             }
-            catch (CursorException | LdapException e)
+            catch (LdapException e)
             {
                 log.error(e.getMessage());
                 json.addProperty("errorMessage", e.getMessage());
