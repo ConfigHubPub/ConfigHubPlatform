@@ -59,7 +59,6 @@ angular
                             $scope.testErrorResponse = null;
                         }
                     });
-
                 };
 
 

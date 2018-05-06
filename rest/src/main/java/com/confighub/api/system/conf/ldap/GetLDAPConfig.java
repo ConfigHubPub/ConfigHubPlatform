@@ -35,7 +35,6 @@ public class GetLDAPConfig
     @Produces(MediaType.APPLICATION_JSON)
     public LdapConfig create(@HeaderParam("Authorization") final String token)
     {
-        log.info(">>>>>> starting");
         Store store = new Store();
 
         try
