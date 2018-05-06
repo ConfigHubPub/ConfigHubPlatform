@@ -249,6 +249,10 @@
                 <div class="row slider" ng-if="systemTestCompleted && !runningTest">
                     <div class="col-sm-offset-3 col-sm-9">
                         <div ng-class="{'successful_connection': testResponse, 'connection_failed': !testResponse}" class="slider">
+                            <strong>LDAP Attributes:</strong>
+                            <pre>{{ ldapEntry }}</pre>
+
+                            <strong class="padded-top10">Mapped Attributes:</strong>
                             <pre>{{ testResponseDetails | json }}</pre>
                         </div>
 

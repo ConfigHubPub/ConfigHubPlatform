@@ -58,6 +58,7 @@ angular
                                 "nameAttribute": response.data.nameAttribute,
                                 "emailAttribute": response.data.emailAttribute
                             };
+                            $scope.ldapEntry = response.data.entry;
                         }
                         if (!response.data.success) {
                             $scope.testErrorResponse = response.data.errorMessage;
