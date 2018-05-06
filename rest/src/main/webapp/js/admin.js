@@ -24,12 +24,16 @@ angular
 
                 };
 
+                $scope.runningTest = false;
                 $scope.systemTestCompleted = false;
                 $scope.testResponse;
+                $scope.connectionOnlyTest = false;
 
                 $scope.testLdap = function (connectionOnly) {
 
                     $scope.systemTestCompleted = false;
+                    $scope.connectionOnlyTest = connectionOnly;
+                    $scope.runningTest = true;
 
                     form = angular.copy($scope.ldapForm);
 
@@ -44,6 +48,7 @@ angular
                         headers: {'Content-Type': 'application/json'}
                     }).then(function (response)
                     {
+                        $scope.runningTest = false;
                         $scope.systemTestCompleted = true;
 
                         $scope.testResponse = response.data.success;

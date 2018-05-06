@@ -113,9 +113,18 @@
                 </div>
             </div>
 
-            <div class="row" ng-if="systemTestCompleted">
-                <div class="col-sm-offset-3 col-sm-9">
-                    <div ng-class="{'successful_connection': testResponse, 'connection_failed': !testResponse}" class="slider"></div>
+            <div ng-show="connectionOnlyTest">
+                <div class="row slider" ng-show="runningTest">
+                    <div class="col-sm-offset-3 col-sm-9">
+                        <img src="/img/loading.svg" style="width: 20px;">
+                        Loading...
+                    </div>
+                </div>
+
+                <div class="row slider" ng-if="systemTestCompleted && !runningTest">
+                    <div class="col-sm-offset-3 col-sm-9">
+                        <div ng-class="{'successful_connection': testResponse, 'connection_failed': !testResponse}" class="slider"></div>
+                    </div>
                 </div>
             </div>
 
@@ -204,6 +213,23 @@
                     </p>
                 </div>
             </div>
+
+
+            <div ng-show="!connectionOnlyTest">
+                <div class="row slider" ng-show="runningTest">
+                    <div class="col-sm-offset-3 col-sm-9">
+                        <img src="/img/loading.svg" style="width: 20px;">
+                        Loading...
+                    </div>
+                </div>
+
+                <div class="row slider" ng-if="systemTestCompleted && !runningTest">
+                    <div class="col-sm-offset-3 col-sm-9">
+                        <div ng-class="{'successful_connection': testResponse, 'connection_failed': !testResponse}" class="slider"></div>
+                    </div>
+                </div>
+            </div>
+
 
         </section>
 
