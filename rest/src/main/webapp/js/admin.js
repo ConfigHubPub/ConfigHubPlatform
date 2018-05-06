@@ -15,40 +15,7 @@ angular
                     $http
                         .get("/rest/getLDAPConfig")
                         .then(function (response) {
-
-                            if (response.data.conf && response.data.conf.length > 0)
-                            {
-                                arr = response.data.conf;
-                                for (i in arr)
-                                {
-                                    if (arr[i].key == 'ldap')
-                                    {
-                                        $scope.ldapForm = arr[i].value;
-                                        break;
-                                    }
-                                }
-                            }
-
-                            if (!$scope.ldapForm)
-                            {
-                                $scope.ldapForm = {
-                                    "system_username": "cn=read-only-admin,dc=example,dc=com",
-                                    "system_password": "password",
-                                    "ldap_uri": "ldap://ldap.forumsys.com:389",
-                                    "use_start_tls": true,
-                                    "trust_all_certificates": true,
-                                    "active_directory": false,
-                                    "search_base": "dc=example,dc=com",
-                                    "search_pattern": "(&(objectClass=*)(uid={0}))",
-                                    "principal": "riemann",
-                                    "password": "password",
-                                    "test_connect_only": false,
-                                    "group_search_base": "",
-                                    "group_id_attribute": "",
-                                    "group_search_pattern": ""
-                                };
-
-                            }
+                            $scope.ldapForm = response.data;
                         });
                 }
 
@@ -65,13 +32,16 @@ angular
                     $scope.systemTestCompleted = false;
 
                     form = angular.copy($scope.ldapForm);
-                    form.test_connect_only = connectionOnly;
+
+                    form.testConnectionOnly = connectionOnly;
+                    form.principal = $scope.principal;
+                    form.password = $scope.password;
 
                     $http({
                         method: 'POST',
                         url: '/rest/getLDAPConfig/testLdap',
-                        data: $httpParamSerializer(form),
-                        headers: {'Content-Type': 'application/x-www-form-urlencoded'}
+                        data: form,
+                        headers: {'Content-Type': 'application/json'}
                     }).then(function (response)
                     {
                         $scope.systemTestCompleted = true;
@@ -96,11 +66,10 @@ angular
                     $http({
                         method: 'POST',
                         url: '/rest/saveLDAPConfig',
-                        data: $httpParamSerializer(form),
-                        headers: {'Content-Type': 'application/x-www-form-urlencoded'}
+                        data: form,
+                        headers: {'Content-Type': 'application/json'}
                     }).then(function (response)
                     {
-                        console.log(response);
                         if (!response.data.success) {
                             $scope.ldapSaveErrorMessage = response.data.errorMessage;
                         }

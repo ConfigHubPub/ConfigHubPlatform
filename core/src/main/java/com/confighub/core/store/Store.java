@@ -11,6 +11,7 @@ import com.confighub.core.security.CipherTransformation;
 import com.confighub.core.security.SecurityProfile;
 import com.confighub.core.security.Token;
 import com.confighub.core.system.SystemConfig;
+import com.confighub.core.system.conf.LdapConfig;
 import com.confighub.core.user.Account;
 import com.confighub.core.user.UserAccount;
 import com.confighub.core.utils.FileUtils;
@@ -4640,6 +4641,44 @@ public class Store
     // ------------------------------------------------------------------------------------
     // ConfigHub Configuration
     // ------------------------------------------------------------------------------------
+    public void save(final UserAccount user,
+                     final LdapConfig ldapConfig)
+    {
+        if (Utils.anyNull(user, ldapConfig))
+            throw new ConfigException(Error.Code.MISSING_PARAMS);
+
+        if (!user.isConfigHubAdmin())
+            throw new ConfigException(Error.Code.USER_ACCESS_DENIED);
+
+        saveOrUpdateNonAudited(getLdapCfg("ldapEnabled", String.valueOf(ldapConfig.isLdapEnabled())));
+        saveOrUpdateNonAudited(getLdapCfg("systemUsername", ldapConfig.getSystemUsername()));
+        saveOrUpdateNonAudited(getLdapCfg("systemPassword", ldapConfig.getSystemPassword()));
+        saveOrUpdateNonAudited(getLdapCfg("ldapUrl", ldapConfig.getLdapUrl()));
+        saveOrUpdateNonAudited(getLdapCfg("trustAllCertificates", String.valueOf(ldapConfig.isTrustAllCertificates())));
+        saveOrUpdateNonAudited(getLdapCfg("activeDirectory", String.valueOf(ldapConfig.isActiveDirectory())));
+        saveOrUpdateNonAudited(getLdapCfg("searchBase", ldapConfig.getSearchBase()));
+        saveOrUpdateNonAudited(getLdapCfg("searchPattern", ldapConfig.getSearchPattern()));
+        saveOrUpdateNonAudited(getLdapCfg("displayName", ldapConfig.getDisplayName()));
+        saveOrUpdateNonAudited(getLdapCfg("groupSearchBase", ldapConfig.getGroupSearchBase()));
+        saveOrUpdateNonAudited(getLdapCfg("groupIdAttribute", ldapConfig.getGroupIdAttribute()));
+        saveOrUpdateNonAudited(getLdapCfg("groupSearchPattern", ldapConfig.getGroupSearchPattern()));
+    }
+
+    private SystemConfig getLdapCfg(final String key, final String value)
+    {
+        SystemConfig config = getSystemConfig(SystemConfig.ConfigGroup.LDAP, key);
+
+        if (null == config)
+            config = new SystemConfig();
+
+        config.setConfigGroup(SystemConfig.ConfigGroup.LDAP);
+        config.setKey(key);
+        config.setValue(value);
+
+        return config;
+    }
+
+
     public void saveSystemConfig(final UserAccount user,
                                  final SystemConfig.ConfigGroup group,
                                  final String key,
@@ -4664,28 +4703,32 @@ public class Store
         saveOrUpdateNonAudited(config);
     }
 
-    public List<SystemConfig> getSystemConfig(final SystemConfig.ConfigGroup group)
+    public Map<String, SystemConfig> getSystemConfig(final SystemConfig.ConfigGroup group)
             throws ConfigException
     {
         try
         {
-            return em.createNamedQuery("SysConfig.byGroup")
-                     .setParameter("groupName", group)
-                     .getResultList();
+            List<SystemConfig> list = em.createNamedQuery("SysConfig.byGroup")
+                                        .setParameter("groupName", group)
+                                        .getResultList();
+
+            Map<String, SystemConfig> map = new HashMap<>();
+            list.forEach(e -> map.put(e.getKey(), e));
+
+            return map;
         }
         catch (NoResultException e)
         {
-            return Collections.EMPTY_LIST;
+            return Collections.EMPTY_MAP;
         }
         catch (Exception e)
         {
             handleException(e);
-            return Collections.EMPTY_LIST;
+            return Collections.EMPTY_MAP;
         }
     }
 
-    public SystemConfig getSystemConfig(final SystemConfig.ConfigGroup group,
-                                              final String key)
+    public SystemConfig getSystemConfig(final SystemConfig.ConfigGroup group, final String key)
             throws ConfigException
     {
         try

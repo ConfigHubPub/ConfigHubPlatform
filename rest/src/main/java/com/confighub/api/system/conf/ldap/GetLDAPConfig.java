@@ -1,14 +1,16 @@
 package com.confighub.api.system.conf.ldap;
 
 import com.confighub.api.server.auth.TokenState;
+import com.confighub.api.system.ASysAdminAccessValidation;
 import com.confighub.core.auth.LdapConnector;
 import com.confighub.core.auth.LdapEntry;
 import com.confighub.core.auth.TrustAllX509TrustManager;
 import com.confighub.core.store.Store;
 import com.confighub.core.system.SystemConfig;
+import com.confighub.core.system.conf.LdapConfig;
+import com.confighub.core.system.conf.LdapTestConfig;
 import com.confighub.core.user.UserAccount;
 import com.google.gson.Gson;
-import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import org.apache.directory.api.ldap.model.cursor.CursorException;
 import org.apache.directory.api.ldap.model.exception.LdapException;
@@ -22,34 +24,24 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.net.URI;
-import java.util.List;
 
-//@Slf4j
 @Path("/getLDAPConfig")
 public class GetLDAPConfig
+        extends ASysAdminAccessValidation
 {
     private static final Logger log = LogManager.getLogger(GetLDAPConfig.class);
 
     @GET
-    @Produces("application/json")
-    public Response create(@HeaderParam("Authorization") final String token)
+    @Produces(MediaType.APPLICATION_JSON)
+    public LdapConfig create(@HeaderParam("Authorization") final String token)
     {
-        Gson gson = new Gson();
         Store store = new Store();
 
         try
         {
-            JsonObject json = new JsonObject();
-
             final UserAccount user = TokenState.getUser(token, store);
-            List<SystemConfig> config = store.getSystemConfig(SystemConfig.ConfigGroup.LDAP);
-
-            JsonArray conf = new JsonArray();
-            config.forEach(p -> conf.add(p.toJson()));
-
-            json.add("conf", conf);
-
-            return Response.ok(gson.toJson(json), MediaType.APPLICATION_JSON).build();
+            LdapConfig conf = LdapConfig.build(store.getSystemConfig(SystemConfig.ConfigGroup.LDAP));
+            return conf;
         }
         finally
         {
@@ -58,41 +50,39 @@ public class GetLDAPConfig
     }
 
     @POST
-    @Produces("application/json")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
     @Path("/testLdap")
-    public Response testLdapConfiguration(@FormParam("system_username") String systemUsername,
-                                          @FormParam("system_password") String systemPassword,
-                                          @FormParam("ldap_uri") String ldapUriString,
-                                          @FormParam("use_start_tls") boolean useStartTls,
-                                          @FormParam("trust_all_certificates") boolean trustAllCertificates,
-                                          @FormParam("active_directory") boolean activeDirectory,
-                                          @FormParam("search_base") String searchBase,
-                                          @FormParam("search_pattern") String searchPattern,
-                                          @FormParam("display_name") String displayName,
-                                          @FormParam("principal") String principal,
-                                          @FormParam("password") String password,
-                                          @FormParam("test_connect_only") boolean testConnectOnly,
-                                          @FormParam("group_search_base") String groupSearchBase,
-                                          @FormParam("group_id_attribute") String groupIdAttribute,
-                                          @FormParam("group_search_pattern") String groupSearchPattern)
+    public Response testLdapConfiguration(final LdapTestConfig ldapConfig,
+                                          @HeaderParam("Authorization") final String token)
     {
         Gson gson = new Gson();
-
+        Store store = new Store();
+        try
+        {
+            int status = validateCHAdmin(token, store);
+            if (0 != status)
+                return Response.status(status).build();
+        }
+        finally
+        {
+            store.close();
+        }
 
         final LdapConnectionConfig config = new LdapConnectionConfig();
-        final URI ldapUri = URI.create(ldapUriString);
+        final URI ldapUri = URI.create(ldapConfig.getLdapUrl());
         config.setLdapHost(ldapUri.getHost());
         config.setLdapPort(ldapUri.getPort());
         config.setUseSsl(ldapUri.getScheme().startsWith("ldaps"));
-        config.setUseTls(useStartTls);
+        config.setUseTls(false);
 
-        if (trustAllCertificates)
+        if (ldapConfig.isTrustAllCertificates())
         {
             config.setTrustManagers(new TrustAllX509TrustManager());
         }
 
-        config.setName(systemUsername);
-        config.setCredentials(systemPassword);
+        config.setName(ldapConfig.getSystemUsername());
+        config.setCredentials(ldapConfig.getSystemPassword());
 
         LdapNetworkConnection connection = null;
         try
@@ -121,7 +111,7 @@ public class GetLDAPConfig
             boolean systemAuthenticated = connection.isAuthenticated();
 
             // the web interface allows testing the connection only, in that case we can bail out early.
-            if (null == connection || testConnectOnly)
+            if (null == connection || ldapConfig.isTestConnectionOnly())
             {
                 JsonObject json = new JsonObject();
                 json.addProperty("success", connected && systemAuthenticated);
@@ -143,21 +133,23 @@ public class GetLDAPConfig
             try
             {
                 final LdapEntry entry = ldapConnector.search(connection,
-                                                             searchBase,
-                                                             searchPattern,
+                                                             ldapConfig.getSearchBase(),
+                                                             ldapConfig.getSearchPattern(),
                                                              "*",
-                                                             principal,
-                                                             activeDirectory,
-                                                             groupSearchBase,
-                                                             groupIdAttribute,
-                                                             groupSearchPattern);
+                                                             ldapConfig.getPrincipal(),
+                                                             ldapConfig.isActiveDirectory(),
+                                                             ldapConfig.getGroupSearchBase(),
+                                                             ldapConfig.getGroupIdAttribute(),
+                                                             ldapConfig.getGroupSearchPattern());
 
                 if (entry != null)
                 {
                     userPrincipalName = entry.getBindPrincipal();
 
                     json.addProperty("entry", entry.toString());
-                    json.addProperty("displayName", entry.getAttributes().getOrDefault(displayName, principal));
+                    json.addProperty("displayName",
+                                     entry.getAttributes().getOrDefault(ldapConfig.getDisplayName(),
+                                                                        ldapConfig.getPrincipal()));
                 }
             }
             catch (CursorException | LdapException e)
@@ -169,7 +161,9 @@ public class GetLDAPConfig
 
             try
             {
-                loginAuthenticated = ldapConnector.authenticate(connection, userPrincipalName, password);
+                loginAuthenticated = ldapConnector.authenticate(connection,
+                                                                userPrincipalName,
+                                                                ldapConfig.getPassword());
             }
             catch (Exception e)
             {

@@ -33,14 +33,14 @@
                     <div class="radio">
                         <label class="margin-right15">
                             <input type="radio"
-                                   ng-model="ldapForm['active_directory']"
+                                   ng-model="ldapForm['activeDirectory']"
                                    ng-value="false">
                             LDAP
                         </label>
 
                         <label>
                             <input type="radio"
-                                   ng-model="ldapForm['active_directory']"
+                                   ng-model="ldapForm['activeDirectory']"
                                    ng-value="true">
                             Active Directory
                         </label>
@@ -55,7 +55,7 @@
                 <div class="col-sm-9">
                     <input type="text"
                            class="form-control input-sm"
-                           ng-model="ldapForm['ldap_uri']"
+                           ng-model="ldapForm['ldapUrl']"
                            placeholder="ldap://some.domain:389">
 
                 </div>
@@ -67,7 +67,7 @@
                 <div class="col-sm-9">
                     <input type="text"
                            class="form-control input-sm"
-                           ng-model="ldapForm['system_username']"
+                           ng-model="ldapForm['systemUsername']"
                            placeholder="uid=admin,ou=system">
                     <p class="sub slider" ng-show="!active_directory">
                         The username for the initial connection to the LDAP server, e.g.
@@ -88,7 +88,7 @@
                 <div class="col-sm-9">
                     <input type="password"
                            class="form-control input-sm"
-                           ng-model="ldapForm['system_password']"
+                           ng-model="ldapForm['systemPassword']"
                            placeholder="">
                     <p class="sub">The password for the initial connection to the LDAP server.</p>
                 </div>
@@ -131,7 +131,7 @@
                 <div class="col-sm-9">
                     <input type="text"
                            class="form-control input-sm"
-                           ng-model="ldapForm['search_base']"
+                           ng-model="ldapForm['searchBase']"
                            placeholder="cn=users,dc=example,dc.com">
                     <p class="sub">
                         The base tree to limit the LDAP/Active Directory search query to,
@@ -145,7 +145,7 @@
                 <div class="col-sm-9">
                     <input type="text"
                            class="form-control input-sm"
-                           ng-model="ldapForm['search_pattern']"
+                           ng-model="ldapForm['searchPattern']"
                            placeholder="(&(objectClass=user)(sAMAccountName={0}))">
                     <p class="sub">
                         For example <code>(&(objectClass=user)(sAMAccountName={0}))</code>.
@@ -159,7 +159,7 @@
                 <div class="col-sm-9">
                     <input type="text"
                            class="form-control input-sm"
-                           ng-model="ldapForm['display_name']"
+                           ng-model="ldapForm['displayName']"
                            placeholder="displayName">
                     <p class="sub">
                         Which attribute to use for the full name of the user in ConfigHub,
@@ -181,13 +181,13 @@
                         <div class="form-group col-sm-5">
                             <input type="text"
                                    class="form-control"
-                                   ng-model="ldapForm['principal']"
+                                   ng-model="principal"
                                    placeholder="Username / Email">
                         </div>
                         <div class="form-group col-sm-5">
                             <input type="password"
                                    class="form-control"
-                                   ng-model="ldapForm['password']"
+                                   ng-model="password"
                                    placeholder="Password">
                         </div>
                         <div class="col-sm-2">

@@ -46,7 +46,7 @@ public class SystemConfig
     private String key;
 
     @Column(name = "value",
-            length = 8192)
+            length = 512)
     private String value;
 
     @Enumerated(EnumType.STRING)
