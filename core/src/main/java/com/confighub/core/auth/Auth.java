@@ -99,13 +99,14 @@ public final class Auth
         }
     }
 
-    public static UserAccount ldapAuth(final String username, final String password)
+    public static UserAccount ldapAuth(final String username,
+                                       final String password,
+                                       final Store store)
             throws ConfigException
     {
         if (Utils.anyBlank(username, password))
             throw new ConfigException(Error.Code.USER_AUTH);
 
-        final Store store = new Store();
         try
         {
             final LdapEntry entry = ldapConnector.search(ldapNetworkConnection,
@@ -113,6 +114,7 @@ public final class Auth
                                                          username);
             if (null == entry)
                 throw new LdapException();
+
 
             ldapConnector.authenticate(ldapNetworkConnection,
                                        entry.getBindPrincipal(),
@@ -137,10 +139,6 @@ public final class Auth
             log.error("Failed to auth username: " + username + " to LDAP");
             return null;
         }
-        finally
-        {
-            store.close();
-        }
     }
 
     public static final CipherTransformation internalCipher =
@@ -164,6 +162,7 @@ public final class Auth
                       .sign(Algorithm.HMAC256(userSecret));
         }
         catch (Exception e) {
+            e.printStackTrace();
             log.error("Failed to create user token.  Contact ConfigHub Support.");
             throw new ConfigException(Error.Code.INTERNAL_ERROR);
         }

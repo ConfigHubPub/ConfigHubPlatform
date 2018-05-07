@@ -25,7 +25,7 @@ public class Login
 
     @AuthenticationNotRequired
     @POST
-    public Response login(@FormParam("email") String email,
+    public Response login(@FormParam("email") String login,
                           @FormParam("password") String password)
     {
         Store store = new Store();
@@ -34,15 +34,16 @@ public class Login
 
         try
         {
-            UserAccount user;
+            UserAccount user = null;
 
             if (Auth.isLdapEnabled())
             {
-                user = Auth.ldapAuth(email, password);
+                user = Auth.ldapAuth(login, password, store);
             }
-            else
+
+            if (null == user)
             {
-                user = store.login(email, password);
+                user = store.login(login, password);
             }
 
             json.addProperty("token", Auth.createUserToken(user));
@@ -52,6 +53,9 @@ public class Login
         }
         catch (ConfigException e)
         {
+            e.printStackTrace();
+
+
             json.addProperty("success", false);
             json.addProperty("message", e.getMessage());
 
