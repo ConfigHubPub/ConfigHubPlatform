@@ -4668,6 +4668,7 @@ public class Store
             throw new ConfigException(Error.Code.USER_ACCESS_DENIED);
 
         saveOrUpdateNonAudited(getLdapCfg("ldapEnabled", String.valueOf(ldapConfig.isLdapEnabled())));
+        saveOrUpdateNonAudited(getLdapCfg("localAccountsEnabled", String.valueOf(ldapConfig.isLocalAccountsEnabled())));
         saveOrUpdateNonAudited(getLdapCfg("systemUsername", ldapConfig.getSystemUsername()));
         saveOrUpdateNonAudited(getLdapCfg("systemPassword", ldapConfig.getSystemPassword()));
         saveOrUpdateNonAudited(getLdapCfg("ldapUrl", ldapConfig.getLdapUrl()));

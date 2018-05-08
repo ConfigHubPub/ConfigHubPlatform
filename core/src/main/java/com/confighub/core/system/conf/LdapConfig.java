@@ -19,6 +19,7 @@ public class LdapConfig
     private final static SystemConfig.ConfigGroup group = SystemConfig.ConfigGroup.LDAP;
 
     private boolean ldapEnabled = false;
+    private boolean localAccountsEnabled = true;
     private String systemUsername;
     private String systemPassword;
     private String ldapUrl;
@@ -59,6 +60,7 @@ public class LdapConfig
 
         return LdapConfig.builder()
                          .ldapEnabled(iorb(config, "ldapEnabled", false))
+                         .localAccountsEnabled(iorb(config, "localAccountsEnabled", true))
                          .systemUsername(ior(config, "systemUsername", null))
                          .systemPassword(ior(config, "systemPassword", null))
                          .ldapUrl(ior(config, "ldapUrl", null))

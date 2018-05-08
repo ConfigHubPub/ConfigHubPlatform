@@ -23,6 +23,20 @@
             </div>
         </div>
 
+        <div class="form-group" ng-show="ldapEnabled">
+            <label class="col-sm-3 control-label">
+                <input type="checkbox"
+                       ng-model="ldapForm['localAccountsEnabled']"
+                       class="inline-checkbox">
+            </label>
+
+            <div class="col-sm-9">
+                <strong>Enable Local Accounts</strong><br>
+                <span class="dim">Local user accounts can be created; If a user auth fails against
+                                  LDAP/Active Directory auth, local auth check is performed.</span>
+            </div>
+        </div>
+
 
         <section ng-show="ldapEnabled" class="slider">
             <h3 class="section">Server Configuration</h3>
