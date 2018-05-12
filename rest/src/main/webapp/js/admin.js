@@ -2,10 +2,10 @@ angular
     .module('configHub.admin', [])
 
     .controller('LdapController',
-        ['$scope', '$rootScope', '$stateParams', '$http', '$filter', '$httpParamSerializer',
-            function ($scope, $rootScope, $stateParams, $http, $filter, $httpParamSerializer) {
+        ['$scope', '$rootScope', '$stateParams', '$http', '$timeout',
+            function ($scope, $rootScope, $stateParams, $http, $timeout) {
 
-                var form, arr, i;
+                var form;
                 $scope.ldap = {};
                 $scope.ldapEnabled = false;
                 initLDAP();
@@ -71,8 +71,9 @@ angular
 
 
                 $scope.ldapSaveErrorMessage = null;
+                $scope.saving = false;
                 $scope.saveLdap = function () {
-
+                    $scope.saving = true;
                     form = angular.copy($scope.ldapForm);
 
                     $http({
@@ -88,6 +89,12 @@ angular
                         else {
                             $scope.ldapSaveErrorMessage = null;
                         }
+
+                        $timeout(function()
+                        {
+                            $scope.saving = false;
+                        }, 1000);
+
                     });
 
                 };

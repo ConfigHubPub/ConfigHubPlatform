@@ -50,7 +50,7 @@ public class Maintenance
             Store store = new Store();
             try {
                 final LdapConfig ldap = LdapConfig.build(store.getSystemConfig(SystemConfig.ConfigGroup.LDAP));
-                Auth.setLdapEnabled(ldap.isLdapEnabled());
+
                 if (ldap.isLdapEnabled())
                     Auth.updateLdap(ldap);
             }

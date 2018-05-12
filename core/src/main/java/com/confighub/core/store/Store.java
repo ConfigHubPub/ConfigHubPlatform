@@ -1,5 +1,6 @@
 package com.confighub.core.store;
 
+import com.confighub.core.auth.Auth;
 import com.confighub.core.error.ConfigException;
 import com.confighub.core.error.Error;
 import com.confighub.core.organization.Organization;
@@ -4695,6 +4696,8 @@ public class Store
         saveOrUpdateNonAudited(getLdapCfg("groupSearchBase", ldapConfig.getGroupSearchBase()));
         saveOrUpdateNonAudited(getLdapCfg("groupIdAttribute", ldapConfig.getGroupIdAttribute()));
         saveOrUpdateNonAudited(getLdapCfg("groupSearchPattern", ldapConfig.getGroupSearchPattern()));
+
+        Auth.updateLdap(ldapConfig);
     }
 
     private SystemConfig getLdapCfg(final String key, final String value)

@@ -89,12 +89,19 @@ public final class Auth
 
         try
         {
-            ldapNetworkConnection = ldapConnector.connect(ldapConfig.toConnectionConfig());
-            ldapEnabled = true;
+            ldapEnabled = ldapConfig.isLdapEnabled();
+
+            if (ldapEnabled)
+                ldapNetworkConnection = ldapConnector.connect(ldapConfig.toConnectionConfig());
+            else
+                ldapNetworkConnection = null;
+
+            localAccountsEnabled = ldapEnabled ? ldapConfig.isLocalAccountsEnabled() : true;
         }
         catch (LdapException e)
         {
             ldapEnabled = false;
+            localAccountsEnabled = true;
             log.error("Failed to connect to LDAP: " + e.getMessage());
         }
     }
@@ -307,18 +314,9 @@ public final class Auth
         return ldapEnabled;
     }
 
-    public static void setLdapEnabled(boolean ldapEnabled)
-    {
-        Auth.ldapEnabled = ldapEnabled;
-    }
-
     public static boolean isLocalAccountsEnabled()
     {
         return localAccountsEnabled;
     }
 
-    public static void setLocalAccountsEnabled(boolean localAccountsEnabled)
-    {
-        Auth.localAccountsEnabled = localAccountsEnabled;
-    }
 }
