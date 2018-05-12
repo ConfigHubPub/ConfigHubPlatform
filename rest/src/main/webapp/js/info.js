@@ -27,7 +27,7 @@ angular
             if ($stateParams.s)
                 $scope.selectedIndex = indexOf($scope.settings, 's', $stateParams.s);
             else
-                $scope.selectedIndex = 1;
+                $scope.selectedIndex = 0;
 
             function selectSection()
             {

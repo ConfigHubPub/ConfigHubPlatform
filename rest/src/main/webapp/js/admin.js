@@ -99,11 +99,8 @@ angular
         ['$scope', '$rootScope', '$stateParams', '$http', '$filter', '$httpParamSerializer',
             function ($scope, $rootScope, $stateParams, $http, $filter, $httpParamSerializer) {
 
-                var orderBy = $filter('orderBy'),
-                    form,
-                    i,
-                    un;
-
+                var un;
+                $scope.initialized = false;
                 $scope.admins = [];
                 $scope.isAdmin = false;
 
@@ -119,11 +116,14 @@ angular
                  */
                 function initAdmins()
                 {
+                    $scope.initialized = false;
+
                     $http
                         .get("/rest/getSystemAdmins")
                         .then(function (response) {
                             $scope.admins = response.data.admins;
                             $scope.isAdmin = response.data.isAdmin;
+                            $scope.initialized = true;
                         });
                 }
 
@@ -133,6 +133,14 @@ angular
                     }).then(function (response) {
                         return response.data;
                     });
+                };
+
+                $scope.makeMeAnAdmin = function()
+                {
+                    return $http.post('/rest/makeMeAnAdmin')
+                        .then(function (response) {
+                            initAdmins();
+                        });
                 };
 
                 $scope.addAdmin = function (f) {
