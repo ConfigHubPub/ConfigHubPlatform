@@ -4,6 +4,17 @@ angular
     .controller('SignupCtrl', ['$http', '$state', '$scope', 'store', 'jwtHelper', '$rootScope', '$httpParamSerializer',
         function ($http, $state, $scope, store, jwtHelper, $rootScope, $httpParamSerializer)
     {
+        $scope.initialized = false;
+        $scope.accountsEnabled = false;
+
+        $http
+            .get("/rest/localAccountsAvailable")
+            .then(function (response) {
+                $scope.accountsEnabled = response.data.enabled;
+                $scope.initialized = true;
+            });
+
+
         $scope.name = '';
         $scope.email = '';
         $scope.username = '';

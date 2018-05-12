@@ -3,6 +3,7 @@ package com.confighub.api.auth;
 import com.confighub.api.server.AuthenticationNotRequired;
 import com.confighub.core.auth.Auth;
 import com.confighub.core.error.ConfigException;
+import com.confighub.core.error.Error;
 import com.confighub.core.store.Store;
 import com.confighub.core.user.UserAccount;
 import com.google.gson.Gson;
@@ -41,9 +42,14 @@ public class Login
                 user = Auth.ldapAuth(login, password, store);
             }
 
-            if (null == user)
+            if (null == user && Auth.isLocalAccountsEnabled())
             {
                 user = store.login(login, password);
+            }
+
+            if (null == user)
+            {
+                throw new ConfigException(Error.Code.USER_AUTH);
             }
 
             json.addProperty("token", Auth.createUserToken(user));

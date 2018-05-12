@@ -280,8 +280,11 @@
         <section>
             <div class="col-sm-offset-3">
                 <button ng-click="saveLdap()"
+                        ng-disabled="saving"
                         class="btn  btn-success"
-                        type="button">Save Settings
+                        type="button">
+                    <span ng-hide="saving">Save Settings</span>
+                    <span ng-show="saving">Saving...</span>
                 </button>
             </div>
         </section>

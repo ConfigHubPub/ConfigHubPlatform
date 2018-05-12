@@ -1,5 +1,6 @@
 package com.confighub.core.store;
 
+import com.confighub.core.auth.Auth;
 import com.confighub.core.error.ConfigException;
 import com.confighub.core.error.Error;
 import com.confighub.core.organization.Organization;
@@ -22,6 +23,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.hibernate.envers.AuditReader;
@@ -205,6 +207,9 @@ public class Store
     public UserAccount createUser(final String email, final String username, final String password)
             throws ConfigException
     {
+        if (!Auth.isLocalAccountsEnabled())
+            throw new ConfigException(Error.Code.LOCAL_ACCOUNTS_DISABLED);
+
         if (isEmailRegistered(email))
             throw new ConfigException(Error.Code.EMAIL_REGISTERED);
 
@@ -4606,6 +4611,19 @@ public class Store
     // ------------------------------------------------------------------------------------
     // System administrators
     // ------------------------------------------------------------------------------------
+    public void addSystemAdmin(final UserAccount user)
+            throws ConfigException
+    {
+        if (Utils.anyNull(user))
+            throw new ConfigException(Error.Code.MISSING_PARAMS);
+
+        if (CollectionUtils.isEmpty(getSystemAdmins()))
+        {
+            user.setConfigHubAdmin(true);
+            saveOrUpdateNonAudited(user);
+        }
+    }
+
     public void addSystemAdmin(final UserAccount user, final UserAccount newSystemAdmin)
             throws ConfigException
     {
@@ -4681,6 +4699,8 @@ public class Store
         saveOrUpdateNonAudited(getLdapCfg("groupSearchBase", ldapConfig.getGroupSearchBase()));
         saveOrUpdateNonAudited(getLdapCfg("groupIdAttribute", ldapConfig.getGroupIdAttribute()));
         saveOrUpdateNonAudited(getLdapCfg("groupSearchPattern", ldapConfig.getGroupSearchPattern()));
+
+        Auth.updateLdap(ldapConfig);
     }
 
     private SystemConfig getLdapCfg(final String key, final String value)

@@ -2,10 +2,10 @@ angular
     .module('configHub.admin', [])
 
     .controller('LdapController',
-        ['$scope', '$rootScope', '$stateParams', '$http', '$filter', '$httpParamSerializer',
-            function ($scope, $rootScope, $stateParams, $http, $filter, $httpParamSerializer) {
+        ['$scope', '$rootScope', '$stateParams', '$http', '$timeout',
+            function ($scope, $rootScope, $stateParams, $http, $timeout) {
 
-                var form, arr, i;
+                var form;
                 $scope.ldap = {};
                 $scope.ldapEnabled = false;
                 initLDAP();
@@ -71,8 +71,9 @@ angular
 
 
                 $scope.ldapSaveErrorMessage = null;
+                $scope.saving = false;
                 $scope.saveLdap = function () {
-
+                    $scope.saving = true;
                     form = angular.copy($scope.ldapForm);
 
                     $http({
@@ -88,6 +89,12 @@ angular
                         else {
                             $scope.ldapSaveErrorMessage = null;
                         }
+
+                        $timeout(function()
+                        {
+                            $scope.saving = false;
+                        }, 1000);
+
                     });
 
                 };
@@ -99,11 +106,8 @@ angular
         ['$scope', '$rootScope', '$stateParams', '$http', '$filter', '$httpParamSerializer',
             function ($scope, $rootScope, $stateParams, $http, $filter, $httpParamSerializer) {
 
-                var orderBy = $filter('orderBy'),
-                    form,
-                    i,
-                    un;
-
+                var un;
+                $scope.initialized = false;
                 $scope.admins = [];
                 $scope.isAdmin = false;
 
@@ -119,11 +123,14 @@ angular
                  */
                 function initAdmins()
                 {
+                    $scope.initialized = false;
+
                     $http
                         .get("/rest/getSystemAdmins")
                         .then(function (response) {
                             $scope.admins = response.data.admins;
                             $scope.isAdmin = response.data.isAdmin;
+                            $scope.initialized = true;
                         });
                 }
 
@@ -133,6 +140,14 @@ angular
                     }).then(function (response) {
                         return response.data;
                     });
+                };
+
+                $scope.makeMeAnAdmin = function()
+                {
+                    return $http.post('/rest/makeMeAnAdmin')
+                        .then(function (response) {
+                            initAdmins();
+                        });
                 };
 
                 $scope.addAdmin = function (f) {

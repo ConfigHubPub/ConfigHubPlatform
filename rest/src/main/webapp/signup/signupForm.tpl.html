@@ -1,6 +1,7 @@
 <div ng-controller="SignupCtrl">
 
-    <form novalidate class="">
+    <div ng-show="initialized && accountsEnabled">
+        <form novalidate class="">
 
         <div class="alert alert-danger slider" ng-show="message">{{ message }}</div>
 
@@ -52,5 +53,11 @@
             <a href="/terms">Terms of Service</a> and the <a href="/privacy">Privacy Policy</a>.
         </div>
     </form>
+    </div>
+
+    <div ng-if="initialized && !accountsEnabled" class="alert alert-warning">
+        ConfigHub instance is configured to disable local account creation.
+        All authentication is done via LDAP/Active directory.
+    </div>
 
 </div>
