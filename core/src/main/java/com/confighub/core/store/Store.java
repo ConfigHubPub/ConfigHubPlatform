@@ -207,6 +207,9 @@ public class Store
     public UserAccount createUser(final String email, final String username, final String password)
             throws ConfigException
     {
+        if (!Auth.isLocalAccountsEnabled())
+            throw new ConfigException(Error.Code.LOCAL_ACCOUNTS_DISABLED);
+
         if (isEmailRegistered(email))
             throw new ConfigException(Error.Code.EMAIL_REGISTERED);
 
