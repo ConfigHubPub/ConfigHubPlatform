@@ -487,6 +487,7 @@ textarea.change-comment,
 .token-display
 {
     font-family: Consolas, "Liberation Mono", Menlo, Courier, monospace;
+    font-size: 12px;
     display: inline !important;
 
     /* wrap long text and urls */

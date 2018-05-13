@@ -231,7 +231,7 @@ angular
                         case 403: // Forbidden
                             deferred = $q.defer();
                             $rootScope.notAuthorized = true;
-                            return deferred.promise;
+                            return response;
 
                         case 404:
                             deferred = $q.defer();

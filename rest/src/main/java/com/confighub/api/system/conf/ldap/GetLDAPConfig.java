@@ -1,6 +1,5 @@
 package com.confighub.api.system.conf.ldap;
 
-import com.confighub.api.server.auth.TokenState;
 import com.confighub.api.system.ASysAdminAccessValidation;
 import com.confighub.core.auth.LdapConnector;
 import com.confighub.core.auth.LdapEntry;
@@ -8,7 +7,6 @@ import com.confighub.core.store.Store;
 import com.confighub.core.system.SystemConfig;
 import com.confighub.core.system.conf.LdapConfig;
 import com.confighub.core.system.conf.LdapTestConfig;
-import com.confighub.core.user.UserAccount;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import org.apache.directory.api.ldap.model.exception.LdapException;
@@ -30,20 +28,21 @@ public class GetLDAPConfig
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public LdapConfig create(@HeaderParam("Authorization") final String token)
+    public Response create(@HeaderParam("Authorization") final String token)
     {
         Store store = new Store();
 
         try
         {
-            final UserAccount user = TokenState.getUser(token, store);
-            final LdapConfig conf = LdapConfig.build(store.getSystemConfig(SystemConfig.ConfigGroup.LDAP));
+            int status = validateCHAdmin(token, store);
+            if (0 != status)
+                return Response.status(Response.Status.FORBIDDEN).entity(new LdapConfig()).build();
 
-            return conf;
+            return Response.ok().entity(LdapConfig.build(store.getSystemConfig(SystemConfig.ConfigGroup.LDAP))).build();
         }
         catch (final Exception e)
         {
-            return new LdapConfig();
+            return Response.serverError().entity(new LdapConfig()).build();
         }
         finally
         {

@@ -8,6 +8,7 @@ angular
                 var form;
                 $scope.ldap = {};
                 $scope.ldapEnabled = false;
+                $scope.isAdmin = false;
                 initLDAP();
 
                 function initLDAP()
@@ -15,7 +16,22 @@ angular
                     $http
                         .get("/rest/getLDAPConfig")
                         .then(function (response) {
+
                             $scope.ldapForm = response.data;
+                            switch (response.status)
+                            {
+                                case 403:
+                                    $scope.isAdmin = false;
+                                    $scope.isAdmin = false;
+                                    break;
+
+                                case 500:
+                                    $scope.error = "Failed to fetch system configuration.";
+
+                                default:
+                                    $scope.isAdmin = true;
+                            }
+
                             $scope.ldapEnabled = $scope.ldapForm && $scope.ldapForm.ldapEnabled;
                         });
                 }
