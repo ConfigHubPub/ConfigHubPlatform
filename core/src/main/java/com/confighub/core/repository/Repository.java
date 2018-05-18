@@ -93,9 +93,7 @@ public class Repository
     @JoinColumn(name="accountId")
     private Account account;
 
-    @Column(name = "adminContextControlled",
-            columnDefinition = "BIT",
-            length = 1)
+    @Column(name = "adminContextControlled")
     private boolean adminContextControlled = false;
 
     @Column(name = "accessControlEnabled")
@@ -110,14 +108,10 @@ public class Repository
     @Column(name = "contextClustersEnabled")
     private boolean contextClustersEnabled;
 
-    @Column(name = "allowTokenFreeAPIPush",
-            columnDefinition = "BIT",
-            length = 1)
+    @Column(name = "allowTokenFreeAPIPush")
     private boolean allowTokenFreeAPIPush;
 
-    @Column(name = "allowTokenFreeAPIPull",
-            columnDefinition = "BIT",
-            length = 1)
+    @Column(name = "allowTokenFreeAPIPull")
     private boolean allowTokenFreeAPIPull;
 
     @NotAudited
