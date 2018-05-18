@@ -80,6 +80,15 @@
                 </div>
             </div>
 
+            <div class="form-group" style="margin-top: -12px;">
+                <div class="col-sm-offset-3 col-sm-9">
+                    <input type="checkbox"
+                           ng-model="ldapForm['trustAllCertificates']"
+                           ng-disabled="!ldapEnabled || !isAdmin">
+                    Trust all certificates
+                </div>
+            </div>
+
 
             <div class="form-group">
                 <label class="col-sm-3 control-label"><strong>System Username</strong></label>
