@@ -35,6 +35,7 @@ angular
         'configHub.download',
         'configHub.common',
         'configHub.info',
+        'configHub.admin',
         'configHub.repository.timeTagSelect',
         'ngAnimate',
         'ngSanitize',
@@ -59,7 +60,7 @@ angular
 
         $urlRouterProvider
             .when('/{owner}/{name}/files', '/{owner}/{name}/files/')
-            .when('/info/', '/info')
+            .when('/system/', '/system')
             .when('/download/', '/download')
             .when('/api/', '/api')
             .when('/terms/', '/terms')
@@ -98,9 +99,20 @@ angular
             })
 
             .state('info', {
-                url: '/info',
+                url: '/system',
                 templateUrl: 'info/info.html',
                 pageTitle: 'System Info'
+            })
+
+            .state('system', {
+                templateUrl: 'info/info.html',
+                'abstract': true
+            })
+
+            .state('system.settings', {
+                url: '/system/settings?s',
+                templateUrl: 'info/info.html',
+                pageTitle: 'System'
             })
 
             .state('api', {
@@ -236,7 +248,7 @@ angular
                         case 403: // Forbidden
                             deferred = $q.defer();
                             $rootScope.notAuthorized = true;
-                            return deferred.promise;
+                            return response;
 
                         case 404:
                             deferred = $q.defer();
@@ -444,10 +456,7 @@ angular
         return {
             restrict: 'A',
             link: function(scope, element, attrs) {
-                // var href = element.href;
-                if(true) {  // replace with your condition
-                    element.attr("target", "_blank");
-                }
+                element.attr("target", "_blank");
             }
         };
     });

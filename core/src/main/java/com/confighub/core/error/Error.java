@@ -151,6 +151,9 @@ public abstract class Error
         TOKEN_FREE_PUSH_ACCESS_DENIED("This repository does not allow API Push without specifying a token"),
         TAG_NOT_FOUND("Specified repository tag not found."),
 
+        // LDAP
+        LOCAL_ACCOUNTS_DISABLED("Local account creation is disabled.  User access is managed via LDAP/Active directory."),
+
         // Enterprise
         EXPIRED("ConfigHub Licence has either expired, or you have reached the license allowed property limit.  " +
                         "Configuration Pull will continue to work, but all data modification is disabled.")

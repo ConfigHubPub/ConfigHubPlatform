@@ -24,32 +24,30 @@ import com.confighub.core.store.Store;
 import com.confighub.core.store.diff.ADiffTracker;
 import com.confighub.core.user.UserAccount;
 import com.confighub.core.utils.Utils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import lombok.extern.slf4j.Slf4j;
 
 import javax.ws.rs.core.Response;
 
+@Slf4j
 public abstract class AAdminAccessValidation
 {
-    private static final Logger log = LogManager.getLogger(AAdminAccessValidation.class);
     protected UserAccount user;
     protected Repository repository;
 
-    protected int validate(String account,
-                           String repositoryName,
-                           String token,
-                           Store store)
+    protected int validate(final String account,
+                           final String repositoryName,
+                           final String token,
+                           final Store store)
     {
         return validate(account, repositoryName, token, store, false);
     }
 
-    protected int validateWrite(String account,
-                                String repositoryName,
-                                String token,
-                                Store store,
-                                boolean enableTracking)
+    protected int validateWrite(final String account,
+                                final String repositoryName,
+                                final String token,
+                                final Store store,
+                                final boolean enableTracking)
     {
-        // ToDo - should this be in write
         if (enableTracking) ADiffTracker.track();
 
         int status = validate(account, repositoryName, token, store, enableTracking);
@@ -72,11 +70,11 @@ public abstract class AAdminAccessValidation
         return 0;
     }
 
-    protected int validate(String account,
-                           String repositoryName,
-                           String token,
-                           Store store,
-                           boolean enableTracking)
+    protected int validate(final String account,
+                           final String repositoryName,
+                           final String token,
+                           final Store store,
+                           final boolean enableTracking)
     {
         if (Utils.anyBlank(account, repositoryName))
         {
@@ -110,12 +108,11 @@ public abstract class AAdminAccessValidation
                 }
             }
         }
-        catch (ConfigException e)
+        catch (final ConfigException e)
         {
             log.error(e.getMessage());
             e.printStackTrace();
 
-            // Server error - 500
             return Response.Status.INTERNAL_SERVER_ERROR.getStatusCode();
         }
 

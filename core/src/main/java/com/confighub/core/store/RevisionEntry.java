@@ -115,16 +115,17 @@ public class RevisionEntry
     @Column(name = "notify")
     private boolean notify;
 
-    @Column(length = 10485760, name = "searchKey")
+    @Column(name = "searchKey")
+    @Lob
     private String searchKey;
 
-    @Column(length = 10485760)
+    @Lob
     private String revType;
 
     @Enumerated(EnumType.STRING)
     private CommitGroup commitGroup;
 
-    @Column(columnDefinition = "TEXT")
+    @Lob
     private String changeComment;
 
     public enum CommitGroup {
@@ -281,7 +282,7 @@ public class RevisionEntry
     public String toString()
     {
         return String.format("%s | rev# %d | type: %s | userId: %d | appId: %s, repositoryId: %d | %s",
-                             DateTimeUtils.standardDTFormatter.get().format(new Date(this.timestamp)),
+                             DateTimeUtils.standardDTFormatter.get().format(new Date(this.timestamp.longValue())),
                              this.id,
                              this.revType,
                              this.userId,

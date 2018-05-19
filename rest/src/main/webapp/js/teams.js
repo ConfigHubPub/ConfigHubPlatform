@@ -32,8 +32,6 @@ angular
             $rootScope.selectedTab = 3;
             $scope.account = $stateParams.owner;
             $scope.repoName = $stateParams.name;
-            // $scope.teamNames = [];
-            // $scope.selectedTeam = '';
 
             // --------------------------------
             // Initialize and choose team

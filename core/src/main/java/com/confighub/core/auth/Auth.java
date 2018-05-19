@@ -26,9 +26,13 @@ import com.confighub.core.error.ConfigException;
 import com.confighub.core.error.Error;
 import com.confighub.core.repository.Repository;
 import com.confighub.core.security.CipherTransformation;
+import com.confighub.core.store.Store;
+import com.confighub.core.system.conf.LdapConfig;
 import com.confighub.core.user.UserAccount;
 import com.confighub.core.utils.Utils;
 import org.apache.commons.io.IOUtils;
+import org.apache.directory.api.ldap.model.exception.LdapException;
+import org.apache.directory.ldap.client.api.LdapNetworkConnection;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -54,6 +58,13 @@ public final class Auth
     private static JWTVerifier userTokenVerifier;
 
     private static final String issuer = "ConfigHub";
+    private static boolean ldapEnabled = false;
+    private static boolean localAccountsEnabled = true;
+
+    private static LdapConfig ldapConfig;
+    private static LdapNetworkConnection ldapNetworkConnection;
+    private static final LdapConnector ldapConnector = new LdapConnector();
+
     static
     {
         init();
@@ -89,6 +100,71 @@ public final class Auth
         log.warn("Initializing Auth keys completed");
     }
 
+    public static void updateLdap(final LdapConfig config)
+    {
+        ldapConfig = config;
+
+        try
+        {
+            ldapEnabled = ldapConfig.isLdapEnabled();
+
+            if (ldapEnabled)
+                ldapNetworkConnection = ldapConnector.connect(ldapConfig.toConnectionConfig());
+            else
+                ldapNetworkConnection = null;
+
+            localAccountsEnabled = ldapEnabled ? ldapConfig.isLocalAccountsEnabled() : true;
+        }
+        catch (LdapException e)
+        {
+            ldapEnabled = false;
+            localAccountsEnabled = true;
+            log.error("Failed to connect to LDAP: " + e.getMessage());
+        }
+    }
+
+    public static UserAccount ldapAuth(final String username,
+                                       final String password,
+                                       final Store store)
+            throws ConfigException
+    {
+        if (Utils.anyBlank(username, password))
+            throw new ConfigException(Error.Code.USER_AUTH);
+
+        try
+        {
+            final LdapEntry entry = ldapConnector.search(ldapNetworkConnection,
+                                                         ldapConfig,
+                                                         username);
+            if (null == entry)
+                throw new LdapException();
+
+
+            ldapConnector.authenticate(ldapNetworkConnection,
+                                       entry.getBindPrincipal(),
+                                       password);
+
+            UserAccount ua = store.getUserAccount(username);
+
+            if (null == ua)
+            {
+                store.begin();
+                ua = store.createUser(entry.getAttributes().getOrDefault(ldapConfig.getEmailAttribute(), null),
+                                 username,
+                                 password);
+                ua.setName(entry.getAttributes().getOrDefault(ldapConfig.getNameAttribute(), username));
+                store.commit();
+            }
+
+            return ua;
+        }
+        catch (LdapException e)
+        {
+            log.error("Failed to auth username: " + username + " to LDAP");
+            return null;
+        }
+    }
+
     public static final CipherTransformation internalCipher =
             CipherTransformation.DESede_CBC_PKCS5Padding;
 
@@ -110,6 +186,7 @@ public final class Auth
                       .sign(Algorithm.HMAC256(userSecret));
         }
         catch (Exception e) {
+            e.printStackTrace();
             log.error("Failed to create user token.  Contact ConfigHub Support.");
             throw new ConfigException(Error.Code.INTERNAL_ERROR);
         }
@@ -248,4 +325,15 @@ public final class Auth
     {
         return securityGroupPassword;
     }
+
+    public static boolean isLdapEnabled()
+    {
+        return ldapEnabled;
+    }
+
+    public static boolean isLocalAccountsEnabled()
+    {
+        return localAccountsEnabled;
+    }
+
 }

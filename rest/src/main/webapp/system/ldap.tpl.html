@@ -1,0 +1,307 @@
+<div ng-controller="LdapController" class="system">
+
+
+    <div class="margin-bottom20">
+        <div class="hp-section-title margin-bottom50">
+            LDAP Settings
+        </div>
+    </div>
+
+    <form class="form-horizontal">
+
+        <div class="form-group">
+            <label class="col-sm-3 control-label">
+                <input type="checkbox"
+                       ng-model="ldapEnabled"
+                       ng-disabled="!isAdmin"
+                       ng-change="enableLdap()"
+                       class="inline-checkbox">
+            </label>
+
+            <div class="col-sm-9">
+                <strong>Enable LDAP</strong><br>
+                <span class="dim">User accounts will be authenticated via LDAP/Active Directory</span>
+            </div>
+        </div>
+
+        <div class="form-group" ng-show="ldapEnabled">
+            <label class="col-sm-3 control-label">
+                <input type="checkbox"
+                       ng-disabled="!isAdmin"
+                       ng-model="ldapForm['localAccountsEnabled']"
+                       class="inline-checkbox">
+            </label>
+
+            <div class="col-sm-9">
+                <strong>Enable Local Accounts</strong><br>
+                <span class="dim">Local user accounts can be created; If a user auth fails against
+                                  LDAP/Active Directory auth, local auth check is performed.</span>
+            </div>
+        </div>
+
+
+        <section ng-show="ldapEnabled">
+            <h3 class="section">Server Configuration</h3>
+
+            <div class="form-group">
+                <label class="col-sm-3 control-label"><strong>Server Type</strong></label>
+                <div class="col-sm-9">
+                    <div class="radio">
+                        <label class="margin-right15">
+                            <input type="radio"
+                                   ng-model="ldapForm['activeDirectory']"
+                                   ng-disabled="!ldapEnabled || !isAdmin"
+                                   ng-value="false">
+                            LDAP
+                        </label>
+
+                        <label>
+                            <input type="radio"
+                                   ng-model="ldapForm['activeDirectory']"
+                                   ng-disabled="!ldapEnabled || !isAdmin"
+                                   ng-value="true">
+                            Active Directory
+                        </label>
+
+                    </div>
+                </div>
+            </div>
+
+
+            <div class="form-group">
+                <label class="col-sm-3 control-label"><strong>Server Address</strong></label>
+                <div class="col-sm-9">
+                    <input type="text"
+                           class="form-control input-sm"
+                           ng-model="ldapForm['ldapUrl']"
+                           ng-disabled="!ldapEnabled || !isAdmin"
+                           placeholder="ldap://some.domain:389">
+
+                </div>
+            </div>
+
+            <div class="form-group" style="margin-top: -12px;">
+                <div class="col-sm-offset-3 col-sm-9">
+                    <input type="checkbox"
+                           ng-model="ldapForm['trustAllCertificates']"
+                           ng-disabled="!ldapEnabled || !isAdmin">
+                    Trust all certificates
+                </div>
+            </div>
+
+
+            <div class="form-group">
+                <label class="col-sm-3 control-label"><strong>System Username</strong></label>
+                <div class="col-sm-9">
+                    <input type="text"
+                           class="form-control input-sm"
+                           ng-model="ldapForm['systemUsername']"
+                           ng-disabled="!ldapEnabled || !isAdmin"
+                           placeholder="uid=admin,ou=system">
+                    <p class="sub slider" ng-show="!active_directory">
+                        The username for the initial connection to the LDAP server, e.g.
+                        <code>uid=admin,ou=system</code>. This might be optional
+                        depending on your LDAP server.
+                    </p>
+                    <p class="sub slider" ng-show="active_directory">
+                        The username for the initial connection to the Active Directory server, e.g.
+                        <code>ldapbind@some.domain</code>. This needs to match <code>userPrincipalName</code>.
+                    </p>
+
+                </div>
+            </div>
+
+
+            <div class="form-group">
+                <label class="col-sm-3 control-label"><strong>System Password</strong></label>
+                <div class="col-sm-9">
+                    <input type="password"
+                           class="form-control input-sm"
+                           ng-model="ldapForm['systemPassword']"
+                           ng-disabled="!ldapEnabled || !isAdmin"
+                           placeholder="">
+                    <p class="sub">The password for the initial connection to the LDAP server.</p>
+                </div>
+            </div>
+
+
+            <div class="padded-top form-group">
+                <div class="col-sm-offset-3 col-sm-9">
+                    <button ng-click="testLdap(true)"
+                            class="btn btn-sm btn-primary"
+                            ng-disabled="!ldapEnabled || !isAdmin"
+                            type="button">Test Server Connection
+                    </button>
+                    <p class="sub">
+                        Performs a background connection check with the address and
+                        credentials above.
+                    </p>
+                </div>
+            </div>
+
+            <div ng-show="connectionOnlyTest">
+                <div class="row slider" ng-show="runningTest">
+                    <div class="col-sm-offset-3 col-sm-9">
+                        <img src="/img/loading.svg" style="width: 20px;">
+                        Loading...
+                    </div>
+                </div>
+
+                <div class="row slider" ng-if="systemTestCompleted && !runningTest">
+                    <div class="col-sm-offset-3 col-sm-9">
+                        <div ng-class="{'successful_connection': testResponse, 'connection_failed': !testResponse}" class="slider"></div>
+                    </div>
+                </div>
+            </div>
+
+        </section>
+
+
+        <section ng-show="ldapEnabled">
+            <h3 class="section">User Mapping</h3>
+
+
+            <div class="form-group">
+                <label class="col-sm-3 control-label"><strong>Search Base DN</strong></label>
+                <div class="col-sm-9">
+                    <input type="text"
+                           class="form-control input-sm"
+                           ng-model="ldapForm['searchBase']"
+                           ng-disabled="!ldapEnabled || !isAdmin"
+                           placeholder="cn=users,dc=example,dc.com">
+                    <p class="sub">
+                        The base tree to limit the LDAP/Active Directory search query to,
+                        e.g. <code>cn=users,dc=example,dc.com</code>.
+                    </p>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="col-sm-3 control-label"><strong>User Search Pattern</strong></label>
+                <div class="col-sm-9">
+                    <input type="text"
+                           class="form-control input-sm"
+                           ng-model="ldapForm['searchPattern']"
+                           ng-disabled="!ldapEnabled || !isAdmin"
+                           placeholder="(&(objectClass=user)(sAMAccountName={0}))">
+                    <p class="sub">
+                        For example <code>(&(objectClass=user)(sAMAccountName={0}))</code>.
+                        The string <code>{0}</code> will be replaced by the entered username.
+                    </p>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="col-sm-3 control-label"><strong>Email Attribute</strong></label>
+                <div class="col-sm-9">
+                    <input type="text"
+                           class="form-control input-sm"
+                           ng-model="ldapForm['emailAttribute']"
+                           ng-disabled="!ldapEnabled || !isAdmin"
+                           placeholder="mail">
+                    <p class="sub">
+                        Which attribute to use for the email address of the user in ConfigHub,
+                        e.g. <code>mail</code>.
+                    </p>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="col-sm-3 control-label"><strong>Full Name Attribute</strong></label>
+                <div class="col-sm-9">
+                    <input type="text"
+                           class="form-control input-sm"
+                           ng-model="ldapForm['nameAttribute']"
+                           ng-disabled="!ldapEnabled || !isAdmin"
+                           placeholder="displayName">
+                    <p class="sub">
+                        Which attribute to use for the full name of the user in ConfigHub,
+                        e.g. <code>displayName</code>.
+                    </p>
+                </div>
+            </div>
+
+        </section>
+
+
+        <section ng-show="ldapEnabled">
+            <h3 class="section">Login Test</h3>
+
+            <div class="form-group">
+                <label class="col-sm-3 control-label"><strong>Login Test</strong></label>
+
+                <div class="col-sm-9">
+                    <div class="row">
+                        <div class="form-group col-sm-5">
+                            <input type="text"
+                                   class="form-control"
+                                   ng-model="principal"
+                                   ng-disabled="!ldapEnabled || !isAdmin"
+                                   placeholder="Username / Email">
+                        </div>
+                        <div class="form-group col-sm-5">
+                            <input type="password"
+                                   class="form-control"
+                                   ng-model="password"
+                                   ng-disabled="!ldapEnabled || !isAdmin"
+                                   placeholder="Password">
+                        </div>
+                        <div class="col-sm-2">
+                            <button ng-click="testLdap(false)"
+                                    class="btn btn-sm btn-primary"
+                                    ng-disabled="!ldapEnabled || !isAdmin"
+                                    type="button">Test Login
+                            </button>
+
+                        </div>
+                    </div>
+                    <p class="sub">
+                        Verify the previous settings by logging in the given username.
+                        If you skip the password, no authentication attempt will be made.
+                    </p>
+                </div>
+            </div>
+
+
+            <div ng-show="!connectionOnlyTest">
+                <div class="row slider" ng-show="runningTest">
+                    <div class="col-sm-offset-3 col-sm-9">
+                        <img src="/img/loading.svg" style="width: 20px;">
+                        Loading...
+                    </div>
+                </div>
+
+                <div class="row slider" ng-if="systemTestCompleted && !runningTest">
+                    <div class="col-sm-offset-3 col-sm-9">
+                        <div ng-class="{'successful_connection': testResponse, 'connection_failed': !testResponse}" class="slider">
+                            <strong>LDAP Attributes:</strong>
+                            <pre>{{ ldapEntry }}</pre>
+
+                            <strong class="padded-top10">Mapped Attributes:</strong>
+                            <pre>{{ testResponseDetails | json }}</pre>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+
+        </section>
+
+        <section>
+            <div class="col-sm-offset-3">
+                <button ng-click="saveLdap()"
+                        ng-disabled="saving || !isAdmin"
+                        class="btn  btn-success"
+                        type="button">
+                    <span ng-hide="saving">Save Settings</span>
+                    <span ng-show="saving">Saving...</span>
+                </button>
+            </div>
+        </section>
+
+
+    </form>
+
+
+</div>

@@ -364,6 +364,10 @@ body {
     margin-right: 5px;
 }
 
+.margin-right15 {
+    margin-right: 15px;
+}
+
 .muted {
     color: #777;
 }
@@ -503,7 +507,7 @@ textarea.change-comment,
  .readme {
      color: #969896;
      margin: 0;
-     font-size: 11px;
+     /*font-size: 11px;*/
      line-height: 18px;
  }
 
@@ -1428,11 +1432,11 @@ a.blog-subscribe {
 .member-name {
     font-weight: 600;
     line-height: 22px;
-    padding: 0 5px;
+    padding: 0 5px 0 0;
 }
 .member-un {
     color: #333;
-    padding: 0 5px 0 8px;
+    padding: 0 0 0 8px;
 }
 
 .member-i i {
@@ -2197,7 +2201,8 @@ ul.inline-form button {
 }
 
 p.sub {
-    font-size: 11px;
+    padding-top: 3px;
+    font-size: 12px;
     color: #666;
 }
 
@@ -2848,4 +2853,34 @@ a.user-prefix:before {
 
 .team-selector {
     display: inline-block ;
+}
+
+.system section {
+    margin: 50px 0 0 0;
+}
+
+.system h3.section {
+    margin-top: 0;
+    padding-bottom: 5px;
+    border-bottom: 1px solid #eee;
+}
+
+.connection_failed,
+.successful_connection {
+    padding: 10px;
+    margin-left: 5px;
+    border-radius: 3px;
+    border: 1px solid #efefef;
+}
+.connection_failed {
+    background-color: #F8E0DE;
+}
+.connection_failed:after {
+    content: "Connection failed";
+}
+.successful_connection {
+    background-color: #e1f8e9;
+}
+.successful_connection:after {
+    content: "Connection succesful";
 }

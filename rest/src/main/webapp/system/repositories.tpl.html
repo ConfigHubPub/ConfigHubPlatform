@@ -1,0 +1,22 @@
+<div>
+    <div class="hp-section-title margin-bottom50">Repositories</div>
+    <div ng-repeat="repository in data | orderBy: 'name'">
+        <div class="padded-bottom5">
+
+            <span ng-if="repository.isPersonal" class="account-type"><i class="fa fa-user"></i></span>
+            <span ng-if="!repository.isPersonal" class="account-type"><i
+                    class="fa fa-building-o"></i></span>
+
+            <a class="owner" ui-sref="owner({accountName: repository.account})">{{ repository.account }}</a>
+            /
+            <a class="repository-name"
+               ui-sref="repo.editor({owner: repository.account, name: repository.name })">
+                {{ repository.name }}</a>
+            <span ng-if="!repository.isPrivate" class="role public"></span>
+
+            <div ng-if="repository.description" class="dim description">
+                {{repository.description}}
+            </div>
+        </div>
+    </div>
+</div>

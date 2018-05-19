@@ -44,7 +44,6 @@ public final class TokenState
             return user;
         }
         catch (Exception ignore) {
-            ignore.printStackTrace();
             return null;
         }
     }

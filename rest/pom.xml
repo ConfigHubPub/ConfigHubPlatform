@@ -5,7 +5,7 @@
 
     <groupId>ConfigHub</groupId>
     <artifactId>ConfigHub-Rest</artifactId>
-    <version>1.7</version>
+    <version>1.8</version>
     <name>ConfigHub REST</name>
     <packaging>war</packaging>
 
@@ -14,7 +14,7 @@
         <dependency>
             <groupId>ConfigHub</groupId>
             <artifactId>ConfigHub-Core</artifactId>
-            <version>1.7</version>
+            <version>1.8</version>
         </dependency>
 
         <dependency>
@@ -25,11 +25,22 @@
         </dependency>
 
         <dependency>
-            <groupId>com.sun.jersey.contribs</groupId>
-            <artifactId>jersey-multipart</artifactId>
-            <version>1.19.1</version>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>1.16.20</version>
         </dependency>
 
+        <dependency>
+            <groupId>com.sun.jersey.contribs</groupId>
+            <artifactId>jersey-multipart</artifactId>
+            <version>1.19.4</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.sun.jersey</groupId>
+            <artifactId>jersey-json</artifactId>
+            <version>1.19.4</version>
+        </dependency>
 
         <!--
             Test scope

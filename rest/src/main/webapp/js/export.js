@@ -171,7 +171,7 @@ angular
             $scope.getHistoryLabel = function ()
             {
                 if (null == $scope.date)
-                    return "Live";
+                    return "Latest";
                 else
                     return $filter('date')($scope.date, 'MMMM d, y @ h:mm a');
             };

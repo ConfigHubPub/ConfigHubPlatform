@@ -79,7 +79,7 @@ public class PropertyKey
     @Column(name = "propertyKey", nullable = false)
     private String key;
 
-    @Column(columnDefinition = "TEXT")
+    @Lob
     private String readme;
 
     @Column(name="deprecated")

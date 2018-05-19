@@ -23,8 +23,6 @@ import com.confighub.core.store.APersisted;
 import com.confighub.core.store.diff.LevelDiffTracker;
 import com.confighub.core.utils.Utils;
 import com.google.gson.JsonObject;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.envers.AuditMappedBy;
@@ -36,7 +34,7 @@ import java.util.*;
 @Entity
 @Cacheable
 @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
-@Table(
+@Table( name = "Repo_Level",
         uniqueConstraints=@UniqueConstraint(columnNames = {"name", "depth", "repositoryId"}),
         indexes = {@Index(name = "LVL_repoIndex", columnList = "id, repositoryId")}
 )
@@ -58,7 +56,6 @@ public class Level
         extends APersisted
         implements Comparable<Level>
 {
-    private static final Logger log = LogManager.getLogger(Level.class);
     public enum LevelType { Standalone, Group, Member}
 
     @Id

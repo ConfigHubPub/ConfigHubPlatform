@@ -18,7 +18,10 @@
 package com.confighub.api.server;
 
 import com.confighub.api.util.ServiceConfiguration;
+import com.confighub.core.auth.Auth;
 import com.confighub.core.store.Store;
+import com.confighub.core.system.SystemConfig;
+import com.confighub.core.system.conf.LdapConfig;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import org.apache.logging.log4j.LogManager;
@@ -52,6 +55,22 @@ public class Maintenance
     @Override
     public void contextInitialized(ServletContextEvent servletContextEvent)
     {
+        // Initialize LDAP
+        {
+            Store store = new Store();
+            try {
+                final LdapConfig ldap = LdapConfig.build(store.getSystemConfig(SystemConfig.ConfigGroup.LDAP));
+
+                if (ldap.isLdapEnabled())
+                    Auth.updateLdap(ldap);
+            }
+            finally
+            {
+                store.close();
+            }
+        }
+
+
         // Database connection keep-alive.
         maintenanceTimer.schedule(new TimerTask()
         {

@@ -1,0 +1,95 @@
+<div ng-controller="AdminController">
+
+    <div ng-if="errorMessage">{{ errorMessage }}</div>
+
+    <div class="margin-bottom20">
+        <div class="hp-section-title margin-bottom50">
+            Administrators
+        </div>
+    </div>
+
+    <div ng-show="initialized">
+        <div id="member-addon" ng-hide="ut < type.admin || !isAdmin">
+            <div class="input-group">
+                <div class="input-group-addon"><i class="fa fa-user-plus"></i></div>
+
+                <input type="text"
+                       class="form-control"
+                       spellcheck="false"
+                       ng-model="selected"
+                       data-min-length="3"
+                       data-trigger="focus"
+                       data-target="div#member-addon"
+                       data-container="div#member-addon"
+                       data-template="itemTpl.html"
+                       data-placement="bottom-left"
+                       bs-options="item as item.un for item in getUsers($viewValue)"
+                       placeholder="Add by username or full name"
+                       ng-model-options="{ updateOn: 'default blur', debounce: { 'default': 400, 'blur': 0 } }"
+                       bs-typeahead>
+
+                <span class="input-group-btn">
+                    <button class="btn btn-primary"
+                            ng-click="addAdmin(selected)"
+                            ng-disabled="ut < type.admin"
+                            type="button">Add
+                    </button>
+                </span>
+            </div>
+
+            <script type="text/ng-template" id="itemTpl.html">
+                <ul tabindex="-1" class="typeahead dropdown-menu" ng-show="$isVisible()" role="select">
+                    <li role="presentation" ng-repeat="match in $matches"
+                        ng-class="{active: $index == $activeIndex}">
+                        <a role="menuitem" tabindex="-1" class="auto-c" ng-click="$select($index, $event)">
+                            <span class="member-i"><i class="fa fa-user"></i></span>
+                            <span class="member-name" ng-if="match.value.name">{{ match.value.name }},</span>
+                            <span class="member-un">{{ match.value.un }}</span>
+                        </a>
+                    </li>
+                </ul>
+            </script>
+
+            <div class="alert alert-danger team-error" ng-if="adminError">{{ adminError }}</div>
+        </div>
+
+        <div ng-repeat="admin in admins | orderBy: 'un'">
+
+            <div class="listing dotted-bottom">
+
+                <div class="btn-group" ng-show="isAdmin">
+                    <button type="button"
+                            class="btn btn-xs btn-default edit-btn"
+                            bs-dropdown
+                            ng-disabled="ut < type.admin"
+                            aria-haspopup="true"
+                            aria-expanded="false">
+                        <i class="fa fa-caret-down"></i>
+                    </button>
+                    <ul class="dropdown-menu" role="menu">
+                        <li><a ng-click="removeAdmin(admin)">Remove</a></li>
+                    </ul>
+                </div>
+
+                <span class="member-un">{{ admin.un }}</span>
+                <span class="member-name" ng-if="admin.name">, {{ admin.name }}</span>
+
+            </div>
+        </div>
+
+        <div ng-if="!admins || admins.length == 0" class="padded-top">
+            <strong>Your ConfigHub instance has no assigned administrators.</strong>
+
+            <div ng-show="isLoggedIn()" class="padded-top10">
+                <p>
+                    Do you want to be a ConfigHub administrator?<br>
+                    By accepting - you will be the only person who can add other
+                    administrators (afterwards they will join your ranks).
+                </p>
+                <p>
+                    <a ng-click="makeMeAnAdmin()">Yes, make me a ConfigHub administrator.</a>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>

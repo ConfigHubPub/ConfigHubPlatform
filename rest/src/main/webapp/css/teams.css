@@ -1,13 +1,12 @@
 .nwrap {
     -webkit-box-shadow: #ddd -1px 0 0 0 inset;
-    background-image: linear-gradient(to right, rgb(255, 255, 255) 90%, rgb(246, 246, 246) 100%);
-    box-shadow: #ddd -1px 0 0 0 inset;
+    background-color: #fbfbfb;
     box-sizing: border-box;
     color: rgb(51, 51, 51);
     display: block;
     line-height: 18px;
     padding-bottom: 200px;
-    /*padding-top: 10px;*/
+    padding-left: 10px;
     position: relative;
     width: 100%;
     word-wrap: break-word;

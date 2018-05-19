@@ -1,0 +1,29 @@
+<!--Version and repositories-->
+<div>
+    <div class="margin-bottom20">
+        <div class="hp-section-title margin-bottom50">
+            Version
+            <span class="pull-right">{{ system.version }}</span>
+        </div>
+    </div>
+
+    <div class="margin-bottom50" ng-if="!upgrade">
+        Latest version installed
+    </div>
+
+    <div class="margin-bottom50" ng-if="upgrade">
+
+        <h5 class="margin-bottom30">
+            <a href="https://www.confighub.com/download" target="_web">New version available<span
+                    class="new-indicator"></span></a>
+            <span class="pull-right">{{ upgrade.version }}</span>
+        </h5>
+
+        <article class="markdown-body">
+            <div btf-markdown="upgrade.releaseNotes"></div>
+        </article>
+
+    </div>
+
+
+</div>

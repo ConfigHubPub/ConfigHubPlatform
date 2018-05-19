@@ -17,6 +17,7 @@
 
 package com.confighub.core.store;
 
+import com.confighub.core.auth.Auth;
 import com.confighub.core.error.ConfigException;
 import com.confighub.core.error.Error;
 import com.confighub.core.organization.Organization;
@@ -27,6 +28,8 @@ import com.confighub.core.rules.AccessRuleWrapper;
 import com.confighub.core.security.CipherTransformation;
 import com.confighub.core.security.SecurityProfile;
 import com.confighub.core.security.Token;
+import com.confighub.core.system.SystemConfig;
+import com.confighub.core.system.conf.LdapConfig;
 import com.confighub.core.user.Account;
 import com.confighub.core.user.UserAccount;
 import com.confighub.core.utils.FileUtils;
@@ -37,6 +40,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.hibernate.envers.AuditReader;
@@ -93,7 +97,9 @@ public class Store
     {
         try
         {
-            return (UserAccount)em.createNamedQuery("User.getByUsername").setParameter("username", username).getSingleResult();
+            return (UserAccount)em.createNamedQuery("User.getByUsername")
+                                  .setParameter("username", username)
+                                  .getSingleResult();
         }
         catch (NoResultException e)
         {
@@ -114,7 +120,7 @@ public class Store
     }
 
     public UserAccount updateUserPassword(final UserAccount user, final String password)
-        throws ConfigException
+            throws ConfigException
     {
         user.setPassword(password);
         saveOrUpdateNonAudited(user);
@@ -126,7 +132,7 @@ public class Store
                                          final String accountName,
                                          final String newName,
                                          final String password)
-        throws ConfigException
+            throws ConfigException
     {
         if (Utils.anyNull(user, accountName, newName))
             throw new ConfigException(Error.Code.MISSING_PARAMS);
@@ -158,7 +164,6 @@ public class Store
 
 
     /**
-     *
      * @param user
      * @param name
      * @param company
@@ -210,8 +215,6 @@ public class Store
     }
 
     /**
-     *
-     *
      * @param email
      * @param username
      * @param password
@@ -221,6 +224,9 @@ public class Store
     public UserAccount createUser(final String email, final String username, final String password)
             throws ConfigException
     {
+        if (!Auth.isLocalAccountsEnabled())
+            throw new ConfigException(Error.Code.LOCAL_ACCOUNTS_DISABLED);
+
         if (isEmailRegistered(email))
             throw new ConfigException(Error.Code.EMAIL_REGISTERED);
 
@@ -234,6 +240,23 @@ public class Store
         return user;
     }
 
+    public UserAccount getUserAccount(final String username)
+            throws ConfigException
+    {
+        if (Utils.anyBlank(username))
+            throw new ConfigException(Error.Code.MISSING_PARAMS);
+
+        try
+        {
+            return (UserAccount)em.createNamedQuery("User.loginByUsername")
+                                  .setParameter("username", username)
+                                  .getSingleResult();
+        }
+        catch (Exception e)
+        {
+            return null;
+        }
+    }
     /**
      * @param username of a user
      * @param password for the user
@@ -255,7 +278,8 @@ public class Store
                 user = (UserAccount)em.createNamedQuery("User.loginByEmail")
                                       .setParameter("email", username)
                                       .getSingleResult();
-            } else
+            }
+            else
             {
                 user = (UserAccount)em.createNamedQuery("User.loginByUsername")
                                       .setParameter("username", username)
@@ -377,11 +401,10 @@ public class Store
     // --------------------------------------------------------------------------------------------
 
     /**
-     *
      * @param user
      * @param repository
      * @param searchTerm
-     * @return Map<PropertyKey, Collection<Property>> of keys and values that contain the searchTerm
+     * @return Map<PropertyKey   ,       Collection   <   Property>> of keys and values that contain the searchTerm
      * @throws ConfigException
      */
     public Map<PropertyKey, Collection<Property>> searchKeysAndValues(final UserAccount user,
@@ -408,17 +431,16 @@ public class Store
                          .setParameter("searchTerm", "%" + searchTerm.toUpperCase() + "%")
                          .getResultList();
             }
-            catch(NoResultException ignore) { }
+            catch (NoResultException ignore) { }
             catch (Exception e) { handleException(e); }
 
             try
             {
-                props = em.createNamedQuery("Search.values")
-                                         .setParameter("repository", repository)
-                                         .setParameter("searchTerm", "%" + searchTerm.toUpperCase() + "%")
-                                         .getResultList();
+                props = em.createNamedQuery("Search.values").setParameter("repository", repository).setParameter(
+                        "searchTerm",
+                        "%" + searchTerm.toUpperCase() + "%").getResultList();
             }
-            catch(NoResultException ignore) { }
+            catch (NoResultException ignore) { }
             catch (Exception e) { handleException(e); }
 
         }
@@ -449,25 +471,25 @@ public class Store
 
         if (null != props)
         {
-            props.forEach(p ->
-                          {
-                              PropertyKey key = p.getPropertyKey();
-                              if (keyListMap.containsKey(key))
-                              {
-                                  Collection<Property> ps = keyListMap.get(key);
-                                  if (null == ps)
-                                  {
-                                      ps = new ArrayList<>();
-                                      keyListMap.put(key, ps);
-                                  }
-                                  ps.add(p);
-                              } else
-                              {
-                                  ArrayList<Property> ps = new ArrayList<>();
-                                  ps.add(p);
-                                  keyListMap.put(key, ps);
-                              }
-                          });
+            props.forEach(p -> {
+                PropertyKey key = p.getPropertyKey();
+                if (keyListMap.containsKey(key))
+                {
+                    Collection<Property> ps = keyListMap.get(key);
+                    if (null == ps)
+                    {
+                        ps = new ArrayList<>();
+                        keyListMap.put(key, ps);
+                    }
+                    ps.add(p);
+                }
+                else
+                {
+                    ArrayList<Property> ps = new ArrayList<>();
+                    ps.add(p);
+                    keyListMap.put(key, ps);
+                }
+            });
         }
         return keyListMap;
 
@@ -584,7 +606,7 @@ public class Store
 
 
     public Repository updateDepthLabels(final Repository repository, final UserAccount user, String[] labels)
-        throws ConfigException
+            throws ConfigException
     {
         if (Utils.anyNull(repository, user, labels))
             throw new ConfigException(Error.Code.MISSING_PARAMS);
@@ -620,7 +642,6 @@ public class Store
     }
 
     /**
-     *
      * @param repository
      * @param currentOwner
      * @param newOwner
@@ -630,7 +651,7 @@ public class Store
     public Repository transferOwnership(final Repository repository,
                                         final UserAccount currentOwner,
                                         final Account newOwner)
-        throws ConfigException
+            throws ConfigException
     {
         if (Utils.anyNull(repository, currentOwner, newOwner))
             throw new ConfigException(Error.Code.MISSING_PARAMS);
@@ -646,7 +667,8 @@ public class Store
 
     public List<Repository> getAllRepositories()
     {
-        try {
+        try
+        {
             return em.createNamedQuery("Repository.getAll").getResultList();
         }
         catch (NoResultException e)
@@ -719,7 +741,7 @@ public class Store
 
         try
         {
-            return (Repository) query.getSingleResult();
+            return (Repository)query.getSingleResult();
         }
         catch (NoResultException e)
         {
@@ -733,7 +755,6 @@ public class Store
     }
 
     /**
-     *
      * @param repository
      * @param user
      * @param label
@@ -741,8 +762,11 @@ public class Store
      * @return
      * @throws ConfigException
      */
-    public Repository expandContextScope(final Repository repository, final UserAccount user, String label, int insertIndex)
-        throws ConfigException
+    public Repository expandContextScope(final Repository repository,
+                                         final UserAccount user,
+                                         String label,
+                                         int insertIndex)
+            throws ConfigException
     {
         if (Utils.anyNull(repository, user, label))
             throw new ConfigException(Error.Code.MISSING_PARAMS);
@@ -847,7 +871,6 @@ public class Store
     }
 
     /**
-     *
      * @param repository
      * @param user
      * @param depthToRemove
@@ -855,7 +878,7 @@ public class Store
      * @throws ConfigException
      */
     public Repository removeContextRank(final Repository repository, final UserAccount user, final Depth depthToRemove)
-        throws ConfigException
+            throws ConfigException
     {
         if (Utils.anyNull(repository, user, depthToRemove))
             throw new ConfigException(Error.Code.MISSING_PARAMS);
@@ -880,10 +903,10 @@ public class Store
 
         int removeIndex = depthToRemove.getIndex();
 
-        for (int depthIndex = removeIndex+1;  depthIndex <= currIndex; depthIndex++)
+        for (int depthIndex = removeIndex + 1; depthIndex <= currIndex; depthIndex++)
         {
             Depth oldDepth = Depth.getByIndex(depthIndex);
-            Depth newDepth = Depth.getByIndex(depthIndex-1);
+            Depth newDepth = Depth.getByIndex(depthIndex - 1);
 
             levels = getLevelsForDepth(repository, user, oldDepth);
             levels.stream().forEach(l -> {
@@ -893,10 +916,10 @@ public class Store
         }
 
         Map<Depth, String> depthLabelMap = repository.getDepthLabels();
-        for (int depthIndex = removeIndex;  depthIndex < currIndex; depthIndex++)
+        for (int depthIndex = removeIndex; depthIndex < currIndex; depthIndex++)
         {
             Depth depth = Depth.getByIndex(depthIndex);
-            Depth widerDepth = Depth.getByIndex(depthIndex+1);
+            Depth widerDepth = Depth.getByIndex(depthIndex + 1);
 
             depthLabelMap.put(depth, depthLabelMap.get(widerDepth));
         }
@@ -950,7 +973,7 @@ public class Store
 
     // ToDo: depending on ownership, make sure permissions are there
     public void deleteToken(final Repository repository, final UserAccount user, final Long tokenId)
-        throws ConfigException
+            throws ConfigException
     {
         if (Utils.anyNull(repository, user, tokenId))
             throw new ConfigException(Error.Code.MISSING_PARAMS);
@@ -998,10 +1021,9 @@ public class Store
 
         try
         {
-            return (Token) em.createNamedQuery("Token.getToken")
-                             .setParameter("repository", repository)
-                             .setParameter("token", token)
-                             .getSingleResult();
+            return (Token)em.createNamedQuery("Token.getToken").setParameter("repository", repository).setParameter(
+                    "token",
+                    token).getSingleResult();
         }
         catch (NoResultException e)
         {
@@ -1028,7 +1050,8 @@ public class Store
         {
             return (Token)em.createNamedQuery("Token.byId")
                             .setParameter("repository", repository)
-                            .setParameter("id", tokenId)
+                            .setParameter("id",
+                                          tokenId)
                             .getSingleResult();
 
         }
@@ -1049,16 +1072,13 @@ public class Store
     // --------------------------------------------------------------------------------------------
 
     /**
-     * @param name   for the new level
-     * @param depth  contextual hierarchy
-     * @param user created by
+     * @param name  for the new level
+     * @param depth contextual hierarchy
+     * @param user  created by
      * @return Level create
      * @throws ConfigException is thrown if unable to persist
      */
-    public Level createLevel(final String name,
-                             final Depth depth,
-                             final UserAccount user,
-                             final Repository repository)
+    public Level createLevel(final String name, final Depth depth, final UserAccount user, final Repository repository)
             throws ConfigException
     {
         if (!repository.hasWriteAccess(user))
@@ -1078,7 +1098,6 @@ public class Store
     }
 
     /**
-     *
      * @param name
      * @param depth
      * @param repository
@@ -1103,9 +1122,7 @@ public class Store
         return level;
     }
 
-    public Level createNonPersistedLevel(final String name,
-                                         final Depth depth,
-                                         final Repository repository)
+    public Level createNonPersistedLevel(final String name, final Depth depth, final Repository repository)
             throws ConfigException
     {
         Level level = new Level(repository, depth);
@@ -1134,7 +1151,8 @@ public class Store
         {
             return (Level)em.createNamedQuery("Level.byId")
                             .setParameter("id", levelId)
-                            .setParameter("repository", repository)
+                            .setParameter("repository",
+                                          repository)
                             .getSingleResult();
         }
         catch (NoResultException e)
@@ -1155,7 +1173,7 @@ public class Store
      * non-null Collection of Level objects, which might be empty.
      *
      * @param repository to which levels as assigned
-     * @return Map<Depth, Collection<Level>>
+     * @return Map<Depth ,   Collection < Level>>
      * @throws ConfigException if unable to fetch from the database
      */
     public Map<Depth, Collection<Level>> getLevelsByDepth(final Repository repository)
@@ -1176,7 +1194,7 @@ public class Store
     }
 
     public Collection<Level> getLevelsForDepth(final Repository repository, final UserAccount user, final Depth depth)
-        throws ConfigException
+            throws ConfigException
     {
         if (null == repository)
             throw new ConfigException(Error.Code.MISSING_PARAMS);
@@ -1188,7 +1206,8 @@ public class Store
         {
             return em.createNamedQuery("Level.getForDepth")
                      .setParameter("repository", repository)
-                     .setParameter("depth", depth)
+                     .setParameter("depth",
+                                   depth)
                      .getResultList();
         }
         catch (NoResultException e)
@@ -1230,7 +1249,6 @@ public class Store
     }
 
     /**
-     *
      * @param repository
      * @param user
      * @param id
@@ -1248,7 +1266,7 @@ public class Store
                                      final Level.LevelType type,
                                      final Collection<Long> assignmentIds,
                                      final String depthLabel)
-        throws ConfigException
+            throws ConfigException
     {
         if (Utils.anyNull(repository, name))
             throw new ConfigException(Error.Code.MISSING_PARAMS);
@@ -1289,10 +1307,10 @@ public class Store
         // - if a Level type changes from Group
         // - if level name has changed
 
-        updatePropertyContextStrings |=
-                levelTypeChanged &&
-                        (Level.LevelType.Group.equals(type) ||
-                         Level.LevelType.Group.equals(level.getType()));
+        updatePropertyContextStrings |= levelTypeChanged && (Level.LevelType.Group.equals(type) || Level.LevelType.Group
+                                                                                                           .equals
+                                                                                                                    (level
+                                                                                                                             .getType()));
 
 
         // Check access to the edited level
@@ -1305,8 +1323,6 @@ public class Store
             if (!isLevelModificationAllowed(accessRuleWrapper, accessControlled, level))
                 throw new ConfigException(Error.Code.LEVEL_EDITING_ACCESS_DENIED, level.toJson());
         }
-
-
 
 
         // Collect all level assignments;
@@ -1435,7 +1451,8 @@ public class Store
         }
 
         level.setType(type);
-        if (updatePropertyContextStrings) {
+        if (updatePropertyContextStrings)
+        {
             if (null != level.getProperties())
                 level.getProperties().forEach(Property::updateContextString);
             if (null != level.getFiles())
@@ -1473,7 +1490,7 @@ public class Store
     /**
      * Delete level
      *
-     * @param user     that is deleting the level
+     * @param user       that is deleting the level
      * @param repository to which level belongs
      * @param level      to be deleted
      * @return true if deleted
@@ -1609,10 +1626,9 @@ public class Store
 
         try
         {
-            return (Property)em.createNamedQuery("Property.get")
-                               .setParameter("repository", repository)
-                               .setParameter("id", propertyId)
-                               .getSingleResult();
+            return (Property)em.createNamedQuery("Property.get").setParameter("repository", repository).setParameter(
+                    "id",
+                    propertyId).getSingleResult();
         }
         catch (NoResultException e)
         {
@@ -1624,8 +1640,6 @@ public class Store
             return null;
         }
     }
-
-
 
 
     public void savePropertyKey(final String appIdentity,
@@ -1653,6 +1667,7 @@ public class Store
 
     /**
      * Create and persist new Property object
+     *
      * @param key
      * @param value
      * @param active
@@ -1793,7 +1808,6 @@ public class Store
     }
 
     /**
-     *
      * @param propertyId
      * @param value
      * @param context
@@ -1865,9 +1879,7 @@ public class Store
      * @return
      * @throws ConfigException
      */
-    public boolean deleteUnusedKeys(final UserAccount user,
-                                    final Repository repository,
-                                    final List<String> keys)
+    public boolean deleteUnusedKeys(final UserAccount user, final Repository repository, final List<String> keys)
             throws ConfigException
     {
         if (Utils.anyNull(repository, keys))
@@ -1896,7 +1908,6 @@ public class Store
     }
 
     /**
-     *
      * @param user
      * @param repository
      * @param keyString
@@ -1983,7 +1994,7 @@ public class Store
      * Delete the property.  If this property was the last one assigned to the key,
      * then part of this change will be the removal of the property key as well.
      *
-     * @param user     User deleting this property
+     * @param user       User deleting this property
      * @param propertyId to be deleted
      * @return true if deleted, otherwise false
      * @throws ConfigException is thrown if unable to delete property
@@ -2001,7 +2012,8 @@ public class Store
             throw new ConfigException(Error.Code.USER_ACCESS_DENIED);
 
         Property property = getProperty(user, repository, propertyId);
-        if (null == property) return true;
+        if (null == property)
+            return true;
 
         validateWriteAccess(repository, user, property);
 
@@ -2017,8 +2029,8 @@ public class Store
         ret = deleteAudited(user, repository, property);
         PropertyKey propertyKey = getKey(repository, key);
 
-        if (propertyKey.getProperties().size() == 0 &&
-                (null == propertyKey.getFiles() || propertyKey.getFiles().size() == 0))
+        if (propertyKey.getProperties().size() == 0 && (null == propertyKey.getFiles() || propertyKey.getFiles()
+                                                                                                     .size() == 0))
             ret &= deleteAudited(user, repository, propertyKey);
 
         return ret;
@@ -2036,7 +2048,8 @@ public class Store
             throw new ConfigException(Error.Code.MISSING_PARAMS);
 
         Property property = get(Property.class, propertyId);
-        if (null == property) return true;
+        if (null == property)
+            return true;
 
         validateWriteAccess(repository, token, property);
 
@@ -2050,13 +2063,12 @@ public class Store
         if (propertyKey.isSecure() && !propertyKey.getSecurityProfile().isSecretValid(password))
             throw new ConfigException(Error.Code.INVALID_PASSWORD);
 
-        if (propertyKey.getProperties().size() == 0 &&
-                (null == propertyKey.getFiles() || propertyKey.getFiles().size() == 0))
+        if (propertyKey.getProperties().size() == 0 && (null == propertyKey.getFiles() || propertyKey.getFiles()
+                                                                                                     .size() == 0))
             ret &= deleteAuditedViaAPI(appIdentity, repository, propertyKey, changeComment);
 
         return ret;
     }
-
 
 
     /**
@@ -2195,7 +2207,11 @@ public class Store
         {
             return null;
         }
-        catch (Exception e) { handleException(e); return null; }
+        catch (Exception e)
+        {
+            handleException(e);
+            return null;
+        }
     }
 
     public enum KeyUpdateStatus
@@ -2295,8 +2311,8 @@ public class Store
             // keys are merging
             else
             {
-                if (repository.isSecurityProfilesEnabled() &&
-                    !Utils.same(originalKey.getSecurityProfile(), newKey.getSecurityProfile()))
+                if (repository.isSecurityProfilesEnabled() && !Utils.same(originalKey.getSecurityProfile(),
+                                                                          newKey.getSecurityProfile()))
                     throw new ConfigException(Error.Code.ENCRYPTION_MISMATCH);
 
                 if (!Utils.same(originalKey.getValueDataType(), newKey.getValueDataType()))
@@ -2341,22 +2357,24 @@ public class Store
             toSave = originalKey;
         }
 
-        if (repository.isValueTypeEnabled() && null != toSave.getValueDataType() &&
-            !valueDataType.equals(toSave.getValueDataType()))
+        if (repository.isValueTypeEnabled() && null != toSave.getValueDataType() && !valueDataType.equals(toSave
+                                                                                                                  .getValueDataType()))
         {
             PropertyKey.ValueDataType oldDataType = toSave.getValueDataType();
             PropertyKey.ValueDataType newDataType = valueDataType;
 
-            SecurityProfile sp = repository.isSecurityProfilesEnabled() && !Utils.isBlank(spName)
-                    ? getSecurityProfile(user, repository, null, spName)
-                    : null;
+            SecurityProfile sp = repository.isSecurityProfilesEnabled() && !Utils.isBlank(spName) ? getSecurityProfile(
+                    user,
+                    repository,
+                    null,
+                    spName) : null;
 
             toSave.setValueDataType(newDataType);
 
             toSave.getProperties().stream().forEach(property -> {
                 String value = (null == sp || !sp.encryptionEnabled())
-                        ? property.getValue()
-                        : sp.decrypt(property.getValue(), currentPassword);
+                               ? property.getValue()
+                               : sp.decrypt(property.getValue(), currentPassword);
 
                 if (null == value)
                     property.setValue(null, currentPassword);
@@ -2393,7 +2411,8 @@ public class Store
                                 case FileRef:
                                     AbsoluteFilePath absoluteFilePath = getAbsFilePath(repository, value, null);
                                     if (null != absoluteFilePath)
-                                        //                                    throw new ConfigException(Error.Code.FILE_NOT_FOUND);
+                                        //                                    throw new ConfigException(Error.Code
+                                        // .FILE_NOT_FOUND);
 
                                         //                                else
                                         property.setAbsoluteFilePath(absoluteFilePath);
@@ -2730,7 +2749,7 @@ public class Store
         if (null != toDelete)
         {
             Iterator<Property> pii = toDelete.getProperties().iterator();
-            while(pii.hasNext())
+            while (pii.hasNext())
             {
                 Property p = pii.next();
                 pii.remove();
@@ -2744,9 +2763,7 @@ public class Store
     }
 
 
-
     /**
-     *
      * @param searchTerm
      * @param max
      * @param repository
@@ -2769,11 +2786,15 @@ public class Store
         {
             return null;
         }
-        catch (Exception e) { handleException(e); return null; }
+        catch (Exception e)
+        {
+            handleException(e);
+            return null;
+        }
     }
 
     public List<PropertyKey> nonTextTypeKeys(final Repository repository, final UserAccount user)
-        throws ConfigException
+            throws ConfigException
     {
         if (Utils.anyNull(user, repository))
             throw new ConfigException(Error.Code.MISSING_PARAMS);
@@ -2785,14 +2806,19 @@ public class Store
         {
             return em.createNamedQuery("Key.getNonText")
                      .setParameter("repository", repository)
-                     .setParameter("type", PropertyKey.ValueDataType.Text)
+                     .setParameter("type",
+                                   PropertyKey.ValueDataType.Text)
                      .getResultList();
         }
         catch (NoResultException e)
         {
             return null;
         }
-        catch (Exception e) { handleException(e); return null; }
+        catch (Exception e)
+        {
+            handleException(e);
+            return null;
+        }
     }
 
     // --------------------------------------------------------------------------------------------
@@ -2817,7 +2843,7 @@ public class Store
     // --------------------------------------------------------------------------------------------
 
     public Team updateTeam(final Repository repository, final UserAccount user, final Team team)
-        throws ConfigException
+            throws ConfigException
     {
         if (Utils.anyNull(user, repository, team))
             throw new ConfigException(Error.Code.MISSING_PARAMS);
@@ -2846,7 +2872,7 @@ public class Store
                                          final UserAccount user,
                                          final String teamName,
                                          final boolean value)
-        throws ConfigException
+            throws ConfigException
     {
         if (Utils.anyNull(user, repository, teamName))
             throw new ConfigException(Error.Code.MISSING_PARAMS);
@@ -2887,12 +2913,14 @@ public class Store
     }
 
     private Team getTeam(final Repository repository, final String name)
-        throws ConfigException
+            throws ConfigException
     {
-        try {
+        try
+        {
             return (Team)em.createNamedQuery("Team.get")
                            .setParameter("repository", repository)
-                           .setParameter("name", name)
+                           .setParameter("name",
+                                         name)
                            .getSingleResult();
         }
         catch (NoResultException e)
@@ -2910,11 +2938,11 @@ public class Store
     public Team getTeamForMember(final Repository repository, final UserAccount member)
             throws ConfigException
     {
-        try {
-            return (Team)em.createNamedQuery("Team.forMember")
-                           .setParameter("repository", repository)
-                           .setParameter("member", member)
-                           .getSingleResult();
+        try
+        {
+            return (Team)em.createNamedQuery("Team.forMember").setParameter("repository", repository).setParameter(
+                    "member",
+                    member).getSingleResult();
         }
         catch (NoResultException e)
         {
@@ -2928,7 +2956,10 @@ public class Store
         return null;
     }
 
-    public Team addTeamMember(final Repository repository, final UserAccount user, String teamName, UserAccount newMember)
+    public Team addTeamMember(final Repository repository,
+                              final UserAccount user,
+                              String teamName,
+                              UserAccount newMember)
             throws ConfigException
     {
         if (Utils.anyNull(user, repository, teamName, newMember))
@@ -2952,7 +2983,7 @@ public class Store
     }
 
     public Team removeTeamMember(final Repository repository, final UserAccount user, final UserAccount member)
-        throws ConfigException
+            throws ConfigException
     {
         if (Utils.anyNull(user, repository, member))
             throw new ConfigException(Error.Code.MISSING_PARAMS);
@@ -2972,7 +3003,7 @@ public class Store
     }
 
     public void createTeam(final Repository repository, final UserAccount user, final String teamName)
-        throws ConfigException
+            throws ConfigException
     {
         if (Utils.anyNull(repository, user, teamName))
             throw new ConfigException(Error.Code.MISSING_PARAMS);
@@ -2985,7 +3016,6 @@ public class Store
     }
 
     /**
-     *
      * @param team
      * @param user
      * @throws ConfigException
@@ -3004,7 +3034,6 @@ public class Store
     }
 
     /**
-     *
      * @param team
      * @param ruleId
      * @return
@@ -3027,11 +3056,14 @@ public class Store
         {
             return null;
         }
-        catch (Exception e) { handleException(e); return null; }
+        catch (Exception e)
+        {
+            handleException(e);
+            return null;
+        }
     }
 
     /**
-     *
      * @param repository
      * @param user
      * @param teamName
@@ -3053,9 +3085,11 @@ public class Store
         deleteAudited(user, repository, team);
     }
 
-    public Team moveMemberToAnotherTeam(final Repository repository, final UserAccount user,
-                                        final UserAccount member, final String toTeam)
-        throws ConfigException
+    public Team moveMemberToAnotherTeam(final Repository repository,
+                                        final UserAccount user,
+                                        final UserAccount member,
+                                        final String toTeam)
+            throws ConfigException
     {
         if (Utils.anyNull(user, repository, member, toTeam))
             throw new ConfigException(Error.Code.MISSING_PARAMS);
@@ -3079,7 +3113,6 @@ public class Store
     // --------------------------------------------------------------------------------------------
 
     /**
-     *
      * @param user
      * @param repository
      * @param spName
@@ -3109,7 +3142,8 @@ public class Store
             if (null == date)
             {
                 return (SecurityProfile)em.createNamedQuery("SecurityProfile.byName")
-                                          .setParameter("repository", repository)
+                                          .setParameter("repository",
+                                                        repository)
                                           .setParameter("name", spName)
                                           .getSingleResult();
             }
@@ -3121,7 +3155,7 @@ public class Store
             kq.add(AuditEntity.property("repository").eq(repository));
             kq.add(AuditEntity.property("name").eq(spName));
 
-            SecurityProfile sp = (SecurityProfile) kq.getSingleResult();
+            SecurityProfile sp = (SecurityProfile)kq.getSingleResult();
             return sp;
         }
         catch (NoResultException e)
@@ -3143,7 +3177,7 @@ public class Store
                                     final String newName,
                                     final String password,
                                     final String cipherName)
-        throws ConfigException
+            throws ConfigException
     {
         if (Utils.anyNull(user, repository, profileName, password))
             throw new ConfigException(Error.Code.MISSING_PARAMS);
@@ -3173,7 +3207,7 @@ public class Store
                                              final String currentPassword,
                                              final String newPassword,
                                              final CipherTransformation cipher)
-        throws ConfigException
+            throws ConfigException
     {
         if (sp.encryptionEnabled())
         {
@@ -3193,7 +3227,7 @@ public class Store
         {
             sp.getKeys().parallelStream().forEach(key -> key.getProperties()
                                                             .parallelStream()
-                                                            .forEach(p -> p.encryptValue(newPassword) ));
+                                                            .forEach(p -> p.encryptValue(newPassword)));
 
             sp.getFiles().parallelStream().forEach(file -> {
                 file.encryptFile(newPassword);
@@ -3232,7 +3266,8 @@ public class Store
             {
                 if (!user.isPasswordValid(userPassword) || !repository.isOwner(user))
                     throw new ConfigException(Error.Code.USER_ACCESS_DENIED);
-            } catch (Exception ignore)
+            }
+            catch (Exception ignore)
             {
                 throw new ConfigException(Error.Code.USER_ACCESS_DENIED);
             }
@@ -3248,7 +3283,6 @@ public class Store
 
 
     /**
-     *
      * @param user
      * @param repository
      * @param epName
@@ -3262,7 +3296,7 @@ public class Store
                                                    final String epName,
                                                    final String password,
                                                    final CipherTransformation cipher)
-        throws ConfigException
+            throws ConfigException
     {
         if (Utils.anyNull(repository, epName, password))
             throw new ConfigException(Error.Code.MISSING_PARAMS);
@@ -3349,7 +3383,7 @@ public class Store
 
 
     private void validateWriteAccess(final Repository repository, final UserAccount user, final SecurityProfile sp)
-        throws ConfigException
+            throws ConfigException
     {
         if (repository.isAccessControlEnabled())
         {
@@ -3359,12 +3393,11 @@ public class Store
             if (null == accessRuleWrapper)
                 throw new ConfigException(Error.Code.ACCESS_NOT_DEFINED);
 
-            sp.getKeys()
-              .forEach(k -> k.getProperties().forEach(p -> {
-                  accessRuleWrapper.executeRuleFor(p);
-                  if (!p.isEditable)
-                      throw new ConfigException(Error.Code.KEY_EDITING_ACCESS_DENIED, p.toJson());
-              }));
+            sp.getKeys().forEach(k -> k.getProperties().forEach(p -> {
+                accessRuleWrapper.executeRuleFor(p);
+                if (!p.isEditable)
+                    throw new ConfigException(Error.Code.KEY_EDITING_ACCESS_DENIED, p.toJson());
+            }));
         }
     }
 
@@ -3372,7 +3405,7 @@ public class Store
     private void validateWriteAccess(final Repository repository,
                                      final UserAccount user,
                                      final AContextAwarePersistent contextAwarePersistent)
-        throws ConfigException
+            throws ConfigException
     {
         if (repository.isAccessControlEnabled())
         {
@@ -3392,7 +3425,7 @@ public class Store
     // Store.deleteKeyAndProperties
     // Store.updatePropertyKey
     private void validateWriteAccess(final Repository repository, final UserAccount user, final PropertyKey propertyKey)
-        throws ConfigException
+            throws ConfigException
     {
         if (repository.isAccessControlEnabled())
         {
@@ -3513,10 +3546,10 @@ public class Store
             else
             {
                 hql.append("AND commitGroup IN (");
-                for (int i=0; i<commitGroup.size(); i++)
+                for (int i = 0; i < commitGroup.size(); i++)
                 {
                     hql.append("'").append(commitGroup.get(i).name()).append("'");
-                    if (i+1<commitGroup.size())
+                    if (i + 1 < commitGroup.size())
                         hql.append(",");
                 }
                 hql.append(") ");
@@ -3540,9 +3573,7 @@ public class Store
     }
 
 
-    public List<AuditRecord> getCommit(final Repository repository,
-                                       final UserAccount user,
-                                       final Long revId)
+    public List<AuditRecord> getCommit(final Repository repository, final UserAccount user, final Long revId)
             throws ConfigException
     {
         if (null == repository)
@@ -3556,10 +3587,9 @@ public class Store
 
         try
         {
-            RevisionEntry revisionEntity = (RevisionEntry)em.createNamedQuery("RevisionEntry.get")
-                                                .setParameter("repositoryId", repository.getId())
-                                                .setParameter("id", revId)
-                                                .getSingleResult();
+            RevisionEntry revisionEntity = (RevisionEntry)em.createNamedQuery("RevisionEntry.get").setParameter(
+                    "repositoryId",
+                    repository.getId()).setParameter("id", revId).getSingleResult();
 
             List<RevisionEntry> revs = new ArrayList<>();
             revs.add(revisionEntity);
@@ -3580,7 +3610,7 @@ public class Store
 
 
     private List<RevisionEntry> getRevisions(int max, final long starting, final int direction, String baseHql)
-        throws ConfigException
+            throws ConfigException
     {
         if (max > 100)
             max = 100;
@@ -3593,11 +3623,13 @@ public class Store
         if (0 == starting && 0 == direction)
         {
             hql.append("ORDER BY id DESC");
-        } else if (direction > 0)
+        }
+        else if (direction > 0)
         {
             hql.append("AND id < ").append(starting).append(" ");
             hql.append("ORDER BY id DESC");
-        } else
+        }
+        else
         {
             hql.append("AND id > ").append(starting).append(" ");
             hql.append("ORDER BY id ASC");
@@ -3630,7 +3662,9 @@ public class Store
     }
 
     private static List<RevisionEntry.CommitGroup> defaultCommitGroupList = new ArrayList<>();
-    static {
+
+    static
+    {
         defaultCommitGroupList.add(RevisionEntry.CommitGroup.RepoSettings);
         defaultCommitGroupList.add(RevisionEntry.CommitGroup.Config);
         defaultCommitGroupList.add(RevisionEntry.CommitGroup.Files);
@@ -3665,9 +3699,8 @@ public class Store
     }
 
 
-
     public void updateCommitComment(final UserAccount user, final Repository repository, long commitId, String comment)
-        throws ConfigException
+            throws ConfigException
     {
         if (Utils.anyNull(repository, user))
             throw new ConfigException(Error.Code.MISSING_PARAMS);
@@ -3678,7 +3711,8 @@ public class Store
         try
         {
             RevisionEntry re = (RevisionEntry)em.createNamedQuery("RevisionEntry.get")
-                                                .setParameter("repositoryId", repository.getId())
+                                                .setParameter("repositoryId",
+                                                              repository.getId())
                                                 .setParameter("id", commitId)
                                                 .getSingleResult();
             if (null == re)
@@ -3695,30 +3729,32 @@ public class Store
     }
 
     /**
-     *
      * @param repositoryId
      * @param name
      * @return
      * @throws ConfigException
      */
     public Tag getTag(final Long repositoryId, final String name)
-        throws ConfigException
+            throws ConfigException
     {
         if (Utils.anyNull(repositoryId, name))
             throw new ConfigException(Error.Code.MISSING_PARAMS);
 
         try
         {
-            return (Tag)em.createNamedQuery("Tag.getByName")
-                          .setParameter("repositoryId", repositoryId)
-                          .setParameter("name", name)
-                          .getSingleResult();
+            return (Tag)em.createNamedQuery("Tag.getByName").setParameter("repositoryId", repositoryId).setParameter(
+                    "name",
+                    name).getSingleResult();
         }
         catch (NoResultException e)
         {
             return null;
         }
-        catch (Exception e) { handleException(e); return null; }
+        catch (Exception e)
+        {
+            handleException(e);
+            return null;
+        }
     }
 
     public List<Tag> getTags(final Repository repository)
@@ -3729,15 +3765,17 @@ public class Store
 
         try
         {
-            return em.createNamedQuery("Tag.getAll")
-                          .setParameter("repository", repository)
-                          .getResultList();
+            return em.createNamedQuery("Tag.getAll").setParameter("repository", repository).getResultList();
         }
         catch (NoResultException e)
         {
-            return new ArrayList<>();
+            return Collections.EMPTY_LIST;
         }
-        catch (Exception e) { handleException(e); return new ArrayList<>(); }
+        catch (Exception e)
+        {
+            handleException(e);
+            return Collections.EMPTY_LIST;
+        }
     }
 
     public long getUserCount()
@@ -3747,7 +3785,11 @@ public class Store
         {
             return (long)em.createNamedQuery("User.count").getSingleResult();
         }
-        catch (Exception e) { handleException(e); return 0; }
+        catch (Exception e)
+        {
+            handleException(e);
+            return 0;
+        }
     }
 
     public long getRepositoryCount()
@@ -3757,7 +3799,11 @@ public class Store
         {
             return (long)em.createNamedQuery("Repository.count").getSingleResult();
         }
-        catch (Exception e) { handleException(e); return 0; }
+        catch (Exception e)
+        {
+            handleException(e);
+            return 0;
+        }
     }
 
     public long getFileCount()
@@ -3767,7 +3813,11 @@ public class Store
         {
             return (long)em.createNamedQuery("RepoFile.count").getSingleResult();
         }
-        catch (Exception e) { handleException(e); return 0; }
+        catch (Exception e)
+        {
+            handleException(e);
+            return 0;
+        }
     }
 
     public long getPropertyCount()
@@ -3777,7 +3827,11 @@ public class Store
         {
             return (long)em.createNamedQuery("Property.count").getSingleResult();
         }
-        catch (Exception e) { handleException(e); return 0; }
+        catch (Exception e)
+        {
+            handleException(e);
+            return 0;
+        }
     }
 
 
@@ -3793,15 +3847,17 @@ public class Store
                 throw new ConfigException(Error.Code.USER_ACCESS_DENIED);
 
             AuditReader reader = AuditReaderFactory.get(em);
-            AuditQuery query = reader.createQuery().forRevisionsOfEntity(Property.class, true, true)
-                  .add(AuditEntity.revisionNumber().ge(revId))
-                  .add(AuditEntity.revisionNumber().le(revId))
-                  .add(AuditEntity.property("repository").eq(repository))
-                  .add(AuditEntity.id().eq(propertyId));
+            AuditQuery query = reader.createQuery()
+                                     .forRevisionsOfEntity(Property.class, true, true)
+                                     .add(AuditEntity.revisionNumber().ge(revId))
+                                     .add(AuditEntity.revisionNumber().le(revId))
+                                     .add(AuditEntity.property("repository").eq(repository))
+                                     .add(AuditEntity.id().eq(propertyId));
 
             return (Property)query.getSingleResult();
         }
-        catch (NoResultException e) {
+        catch (NoResultException e)
+        {
             return null;
         }
     }
@@ -3826,7 +3882,11 @@ public class Store
         {
             return null;
         }
-        catch (Exception e) { handleException(e); return null; }
+        catch (Exception e)
+        {
+            handleException(e);
+            return null;
+        }
     }
 
     public RepoFile createRepoFile(final UserAccount user,
@@ -4075,9 +4135,12 @@ public class Store
 
         // If a file is being renamed, there are things to do.
         AbsoluteFilePath originalAbsoluteFilePath = file.getAbsFilePath();
-        if (null == originalAbsoluteFilePath.getPath() ||
-            !originalAbsoluteFilePath.getPath().equalsIgnoreCase(path) ||
-            !originalAbsoluteFilePath.getFilename().equalsIgnoreCase(filename))
+        if (null == originalAbsoluteFilePath.getPath() || !originalAbsoluteFilePath.getPath()
+                                                                                   .equalsIgnoreCase(path) ||
+                    !originalAbsoluteFilePath
+                                                                                                                       .getFilename()
+                                                                                                                       .equalsIgnoreCase(
+                                                                                                                               filename))
         {
             String absPath = Utils.isBlank(path) ? filename : path + "/" + filename;
             AbsoluteFilePath absoluteFilePath = getAbsFilePath(repository, absPath, null);
@@ -4127,8 +4190,7 @@ public class Store
                 }
             }
 
-            if (originalAbsoluteFilePath.getFiles().size() == 0 &&
-                originalAbsoluteFilePath.getProperties().size() == 0)
+            if (originalAbsoluteFilePath.getFiles().size() == 0 && originalAbsoluteFilePath.getProperties().size() == 0)
                 deleteAudited(user, repository, originalAbsoluteFilePath, changeComment);
         }
 
@@ -4147,7 +4209,8 @@ public class Store
 
             sp.sk = newProfilePassword;
             file.setSecurityProfile(sp, currentPassword);
-        } else
+        }
+        else
         {
             file.removeSecurityProfile(currentPassword);
         }
@@ -4166,7 +4229,6 @@ public class Store
     }
 
 
-
     public AbsoluteFilePath getAbsFilePath(final Repository repository, final String absPath, final Date date)
     {
         if (null == repository || Utils.isBlank(absPath))
@@ -4176,7 +4238,8 @@ public class Store
         {
             if (null == date)
                 return (AbsoluteFilePath)em.createNamedQuery("AbsFilePath.getByAbsPath")
-                                           .setParameter("absPath", absPath)
+                                           .setParameter("absPath",
+                                                         absPath)
                                            .setParameter("repository", repository)
                                            .getSingleResult();
 
@@ -4193,7 +4256,11 @@ public class Store
         {
             return null;
         }
-        catch (Exception e) { handleException(e); return null; }
+        catch (Exception e)
+        {
+            handleException(e);
+            return null;
+        }
     }
 
 
@@ -4215,8 +4282,7 @@ public class Store
 
         validateWriteAccess(repository, user, file);
         deleteAudited(user, repository, file);
-        if (absoluteFilePath.getFiles().size() == 0 &&
-            absoluteFilePath.getProperties().size() == 0)
+        if (absoluteFilePath.getFiles().size() == 0 && absoluteFilePath.getProperties().size() == 0)
         {
             deleteAudited(user, repository, absoluteFilePath);
         }
@@ -4227,7 +4293,7 @@ public class Store
                                final Token token,
                                final Long fileId,
                                final String changeComment)
-        throws ConfigException
+            throws ConfigException
     {
         RepoFile file = get(RepoFile.class, fileId);
         if (null == file || !file.getRepository().equals(repository))
@@ -4240,8 +4306,7 @@ public class Store
 
         deleteAuditedViaAPI(appIdentity, repository, file, changeComment);
 
-        if (absoluteFilePath.getFiles().size() == 0 &&
-                absoluteFilePath.getProperties().size() == 0)
+        if (absoluteFilePath.getFiles().size() == 0 && absoluteFilePath.getProperties().size() == 0)
         {
             deleteAuditedViaAPI(appIdentity, repository, absoluteFilePath, changeComment);
         }
@@ -4313,11 +4378,9 @@ public class Store
 
         try
         {
-            List<AbsoluteFilePath> absoluteFilePaths =
-                    em.createNamedQuery("AbsFilePath.searchByPath")
-                      .setParameter("path", oldPath + "%")
-                      .setParameter("repository", repository)
-                      .getResultList();
+            List<AbsoluteFilePath> absoluteFilePaths = em.createNamedQuery("AbsFilePath.searchByPath").setParameter(
+                    "path",
+                    oldPath + "%").setParameter("repository", repository).getResultList();
 
             if (null == absoluteFilePaths || absoluteFilePaths.size() == 0)
                 return;
@@ -4337,9 +4400,7 @@ public class Store
         catch (Exception e) { handleException(e); }
     }
 
-    public void deleteDirectory(final Repository repository,
-                                final UserAccount user,
-                                final String path)
+    public void deleteDirectory(final Repository repository, final UserAccount user, final String path)
             throws ConfigException
     {
         if (Utils.anyBlank(path))
@@ -4351,11 +4412,9 @@ public class Store
         String cleanPath = path.startsWith("/") ? path.substring(1) : path;
         try
         {
-            List<AbsoluteFilePath> absoluteFilePaths =
-                    em.createNamedQuery("AbsFilePath.searchByPath")
-                      .setParameter("path", cleanPath + "%")
-                      .setParameter("repository", repository)
-                      .getResultList();
+            List<AbsoluteFilePath> absoluteFilePaths = em.createNamedQuery("AbsFilePath.searchByPath").setParameter(
+                    "path",
+                    cleanPath + "%").setParameter("repository", repository).getResultList();
 
             if (null == absoluteFilePaths || absoluteFilePaths.size() == 0)
                 return;
@@ -4374,9 +4433,8 @@ public class Store
     }
 
 
-    public Collection<RepoFile> getRepoFilesForAPI(final Repository repository,
-                                                   final Date date)
-        throws ConfigException
+    public Collection<RepoFile> getRepoFilesForAPI(final Repository repository, final Date date)
+            throws ConfigException
     {
         if (null == repository)
             throw new ConfigException(Error.Code.REPOSITORY_NOT_FOUND);
@@ -4389,9 +4447,8 @@ public class Store
             AuditReader reader = AuditReaderFactory.get(em);
             Number rev = reader.getRevisionNumberForDate(date);
 
-            AuditQuery query = reader.createQuery()
-                                     .forEntitiesAtRevision(RepoFile.class, rev)
-                                     .add(AuditEntity.property("repository").eq(repository));
+            AuditQuery query = reader.createQuery().forEntitiesAtRevision(RepoFile.class, rev).add(AuditEntity.property(
+                    "repository").eq(repository));
 
             return query.getResultList();
         }
@@ -4399,7 +4456,11 @@ public class Store
         {
             return null;
         }
-        catch (Exception e) { handleException(e); return null; }
+        catch (Exception e)
+        {
+            handleException(e);
+            return null;
+        }
     }
 
 
@@ -4407,14 +4468,14 @@ public class Store
                                              final UserAccount user,
                                              final String searchTerm,
                                              final Date date)
-        throws ConfigException
+            throws ConfigException
     {
         if (Utils.anyNull(repository))
             throw new ConfigException(Error.Code.MISSING_PARAMS);
 
-//        if (!repository.isDemo() && null == user)
-//            throw new ConfigException(Error.Code.MISSING_PARAMS);
-//
+        //        if (!repository.isDemo() && null == user)
+        //            throw new ConfigException(Error.Code.MISSING_PARAMS);
+        //
         if (!repository.isDemo() && !repository.hasReadAccess(user))
             throw new ConfigException(Error.Code.USER_ACCESS_DENIED);
 
@@ -4426,10 +4487,9 @@ public class Store
             {
                 try
                 {
-                    return em.createNamedQuery("RepoFile.search")
-                             .setParameter("repository", repository)
-                             .setParameter("searchTerm", "%" + searchTerm + "%")
-                             .getResultList();
+                    return em.createNamedQuery("RepoFile.search").setParameter("repository", repository).setParameter(
+                            "searchTerm",
+                            "%" + searchTerm + "%").getResultList();
                 }
                 catch (NoResultException e)
                 {
@@ -4462,7 +4522,11 @@ public class Store
             {
                 return null;
             }
-            catch (Exception e) { handleException(e); return null; }
+            catch (Exception e)
+            {
+                handleException(e);
+                return null;
+            }
 
         }
     }
@@ -4495,12 +4559,12 @@ public class Store
         {
             return null;
         }
-        catch (Exception e) { handleException(e); return null; }
+        catch (Exception e)
+        {
+            handleException(e);
+            return null;
+        }
     }
-
-
-
-
 
 
     public List<PropertyKey> getKeys(final UserAccount user,
@@ -4524,14 +4588,19 @@ public class Store
             {
                 return em.createNamedQuery("Key.getKeys")
                          .setParameter("repository", repository)
-                         .setParameter("keys", upperKeys)
+                         .setParameter("keys",
+                                       upperKeys)
                          .getResultList();
             }
             catch (NoResultException e)
             {
-                return new ArrayList<>();
+                return Collections.EMPTY_LIST;
             }
-            catch (Exception e) { handleException(e); return new ArrayList<>(); }
+            catch (Exception e)
+            {
+                handleException(e);
+                return Collections.EMPTY_LIST;
+            }
         }
 
         AuditReader reader = AuditReaderFactory.get(em);
@@ -4556,7 +4625,184 @@ public class Store
         }
     }
 
+    // ------------------------------------------------------------------------------------
+    // System administrators
+    // ------------------------------------------------------------------------------------
+    public void addSystemAdmin(final UserAccount user)
+            throws ConfigException
+    {
+        if (Utils.anyNull(user))
+            throw new ConfigException(Error.Code.MISSING_PARAMS);
+
+        if (CollectionUtils.isEmpty(getSystemAdmins()))
+        {
+            user.setConfigHubAdmin(true);
+            saveOrUpdateNonAudited(user);
+        }
+    }
+
+    public void addSystemAdmin(final UserAccount user, final UserAccount newSystemAdmin)
+            throws ConfigException
+    {
+        if (Utils.anyNull(user, newSystemAdmin))
+            throw new ConfigException(Error.Code.MISSING_PARAMS);
+
+        if (!user.isConfigHubAdmin())
+            throw new ConfigException(Error.Code.USER_ACCESS_DENIED);
+
+        newSystemAdmin.setConfigHubAdmin(true);
+        saveOrUpdateNonAudited(newSystemAdmin);
+    }
+
+    public void removeSystemAdmin(final UserAccount user, final UserAccount newSystemAdmin)
+            throws ConfigException
+    {
+        if (Utils.anyNull(user, newSystemAdmin))
+            throw new ConfigException(Error.Code.MISSING_PARAMS);
+
+        if (!user.isConfigHubAdmin())
+            throw new ConfigException(Error.Code.USER_ACCESS_DENIED);
+
+        List<UserAccount> admins = getSystemAdmins();
+        if (null == admins || admins.size() < 2)
+            throw new ConfigException(Error.Code.USER_ACCESS_DENIED);
+
+        newSystemAdmin.setConfigHubAdmin(false);
+        saveOrUpdateNonAudited(newSystemAdmin);
+    }
+
+    public List<UserAccount> getSystemAdmins()
+            throws ConfigException
+    {
+        try
+        {
+            return em.createNamedQuery("Users.sysAdmins").getResultList();
+        }
+        catch (NoResultException e)
+        {
+            return Collections.EMPTY_LIST;
+        }
+        catch (Exception e)
+        {
+            handleException(e);
+            return Collections.EMPTY_LIST;
+        }
+    }
 
 
+    // ------------------------------------------------------------------------------------
+    // ConfigHub Configuration
+    // ------------------------------------------------------------------------------------
+    public void save(final UserAccount user,
+                     final LdapConfig ldapConfig)
+    {
+        if (Utils.anyNull(user, ldapConfig))
+            throw new ConfigException(Error.Code.MISSING_PARAMS);
+
+        if (!user.isConfigHubAdmin())
+            throw new ConfigException(Error.Code.USER_ACCESS_DENIED);
+
+        saveOrUpdateNonAudited(getLdapCfg("ldapEnabled", String.valueOf(ldapConfig.isLdapEnabled())));
+        saveOrUpdateNonAudited(getLdapCfg("localAccountsEnabled", String.valueOf(ldapConfig.isLocalAccountsEnabled())));
+        saveOrUpdateNonAudited(getLdapCfg("systemUsername", ldapConfig.getSystemUsername()));
+        saveOrUpdateNonAudited(getLdapCfg("systemPassword", ldapConfig.getSystemPassword()));
+        saveOrUpdateNonAudited(getLdapCfg("ldapUrl", ldapConfig.getLdapUrl()));
+        saveOrUpdateNonAudited(getLdapCfg("trustAllCertificates", String.valueOf(ldapConfig.isTrustAllCertificates())));
+        saveOrUpdateNonAudited(getLdapCfg("activeDirectory", String.valueOf(ldapConfig.isActiveDirectory())));
+        saveOrUpdateNonAudited(getLdapCfg("searchBase", ldapConfig.getSearchBase()));
+        saveOrUpdateNonAudited(getLdapCfg("searchPattern", ldapConfig.getSearchPattern()));
+        saveOrUpdateNonAudited(getLdapCfg("nameAttribute", ldapConfig.getNameAttribute()));
+        saveOrUpdateNonAudited(getLdapCfg("emailAttribute", ldapConfig.getEmailAttribute()));
+        saveOrUpdateNonAudited(getLdapCfg("groupSearchBase", ldapConfig.getGroupSearchBase()));
+        saveOrUpdateNonAudited(getLdapCfg("groupIdAttribute", ldapConfig.getGroupIdAttribute()));
+        saveOrUpdateNonAudited(getLdapCfg("groupSearchPattern", ldapConfig.getGroupSearchPattern()));
+
+        Auth.updateLdap(ldapConfig);
+    }
+
+    private SystemConfig getLdapCfg(final String key, final String value)
+    {
+        SystemConfig config = getSystemConfig(SystemConfig.ConfigGroup.LDAP, key);
+
+        if (null == config)
+            config = new SystemConfig();
+
+        config.setConfigGroup(SystemConfig.ConfigGroup.LDAP);
+        config.setKey(key);
+        config.setValue(value);
+
+        return config;
+    }
+
+
+    public void saveSystemConfig(final UserAccount user,
+                                 final SystemConfig.ConfigGroup group,
+                                 final String key,
+                                 final String value)
+            throws ConfigException
+    {
+        if (Utils.anyNull(user, group, key))
+            throw new ConfigException(Error.Code.MISSING_PARAMS);
+
+        if (!user.isConfigHubAdmin())
+            throw new ConfigException(Error.Code.USER_ACCESS_DENIED);
+
+        SystemConfig config = getSystemConfig(group, key);
+
+        if (null == config)
+            config = new SystemConfig();
+
+        config.setConfigGroup(group);
+        config.setKey(key);
+        config.setValue(value);
+
+        saveOrUpdateNonAudited(config);
+    }
+
+    public Map<String, SystemConfig> getSystemConfig(final SystemConfig.ConfigGroup group)
+            throws ConfigException
+    {
+        try
+        {
+            List<SystemConfig> list = em.createNamedQuery("SysConfig.byGroup")
+                                        .setParameter("groupName", group)
+                                        .getResultList();
+
+            Map<String, SystemConfig> map = new HashMap<>();
+            list.forEach(e -> map.put(e.getKey(), e));
+
+            return map;
+        }
+        catch (NoResultException e)
+        {
+            return Collections.EMPTY_MAP;
+        }
+        catch (Exception e)
+        {
+            handleException(e);
+            return Collections.EMPTY_MAP;
+        }
+    }
+
+    public SystemConfig getSystemConfig(final SystemConfig.ConfigGroup group, final String key)
+            throws ConfigException
+    {
+        try
+        {
+            return (SystemConfig) em.createNamedQuery("SysConfig.byKey")
+                     .setParameter("groupName", group)
+                     .setParameter("key", key)
+                     .getSingleResult();
+        }
+        catch (NoResultException e)
+        {
+            return null;
+        }
+        catch (Exception e)
+        {
+            handleException(e);
+            return null;
+        }
+    }
 }
 
