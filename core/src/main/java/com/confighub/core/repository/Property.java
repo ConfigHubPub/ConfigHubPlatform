@@ -70,7 +70,7 @@ public class Property
     @JoinColumn(name = "absoluteFilePath")
     private AbsoluteFilePath absoluteFilePath;
 
-    @Column(length = 10485760)
+    @Column(columnDefinition = "TEXT")
     private String value;
 
     // --------------------------------------------------------------------------------------------

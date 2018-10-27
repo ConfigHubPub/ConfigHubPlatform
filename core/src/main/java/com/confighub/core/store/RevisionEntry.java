@@ -115,17 +115,16 @@ public class RevisionEntry
     @Column(name = "notify")
     private boolean notify;
 
-    @Column(name = "searchKey")
-    @Lob
+    @Column(name = "searchKey", columnDefinition = "TEXT")
     private String searchKey;
 
-    @Lob
+    @Column(columnDefinition = "TEXT")
     private String revType;
 
     @Enumerated(EnumType.STRING)
     private CommitGroup commitGroup;
 
-    @Lob
+    @Column(columnDefinition = "TEXT")
     private String changeComment;
 
     public enum CommitGroup {
