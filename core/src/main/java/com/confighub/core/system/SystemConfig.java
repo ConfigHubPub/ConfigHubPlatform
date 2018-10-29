@@ -19,7 +19,7 @@ import javax.persistence.*;
 @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
 @Getter
 @Setter
-@Table(
+@Table( name="system_config",
         uniqueConstraints = @UniqueConstraint(columnNames = {"config_group", "config_key"}),
         indexes = {@Index(name = "SYSTEM_CONFIG_INDEX", columnList = "id, config_group, config_key")}
 )
