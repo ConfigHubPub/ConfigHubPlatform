@@ -34,7 +34,7 @@ import java.util.*;
 @Entity
 @Cacheable
 @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
-@Table( name = "Repo_Level",
+@Table( name = "repo_level",
         uniqueConstraints=@UniqueConstraint(columnNames = {"name", "depth", "repositoryId"}),
         indexes = {@Index(name = "LVL_repoIndex", columnList = "id, repositoryId")}
 )

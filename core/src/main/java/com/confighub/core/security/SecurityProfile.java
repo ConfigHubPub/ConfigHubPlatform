@@ -65,8 +65,8 @@ public class SecurityProfile
     @Column(nullable = false)
     private String name;
 
-    @Column(nullable = false, length = 2048)
-    private String password;
+    @Column(nullable = false)
+    private String spPassword;
 
     @ManyToOne(fetch = FetchType.LAZY, cascade = { CascadeType.REFRESH, CascadeType.PERSIST })
     @JoinColumn(nullable = false, name="repositoryId")
@@ -101,13 +101,13 @@ public class SecurityProfile
     public SecurityProfile(final Repository repository,
                            final CipherTransformation cipher,
                            final String name,
-                           final String password)
+                           final String spPassword )
         throws ConfigException
     {
         this.repository = repository;
         this.cipher = cipher;
         this.name = name;
-        setSecret(null, password);
+        setSecret( null, spPassword );
     }
 
     @PreUpdate
@@ -213,15 +213,15 @@ public class SecurityProfile
         this.name = name;
     }
 
-    public String getPassword()
+    public String getSpPassword()
     {
-        return password;
+        return spPassword;
     }
 
     public String getDecodedPassword()
             throws ConfigException
     {
-        return Encryption.decrypt(Auth.internalCipher, this.password, Auth.getSecurityGroupPassword());
+        return Encryption.decrypt( Auth.internalCipher, this.spPassword, Auth.getSecurityGroupPassword());
     }
 
     public Set<RepoFile> getFiles() {
@@ -231,7 +231,7 @@ public class SecurityProfile
     public void setSecret(String oldPass, String secret)
         throws ConfigException
     {
-        if (null != this.password)
+        if (null != this.spPassword )
         {
             if (!isSecretValid(oldPass))
                 throw new ConfigException(Error.Code.INVALID_PASSWORD);
@@ -240,7 +240,7 @@ public class SecurityProfile
         if (!Utils.passwordRequirementsSatisfied(secret))
             throw new ConfigException(Error.Code.PASSWORD_REQUIREMENTS);
 
-        this.password = Encryption.encrypt(Auth.internalCipher, secret, Auth.getSecurityGroupPassword());
+        this.spPassword = Encryption.encrypt( Auth.internalCipher, secret, Auth.getSecurityGroupPassword());
     }
 
     public Repository getRepository()

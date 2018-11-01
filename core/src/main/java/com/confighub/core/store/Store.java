@@ -122,7 +122,7 @@ public class Store
     public UserAccount updateUserPassword(final UserAccount user, final String password)
             throws ConfigException
     {
-        user.setPassword(password);
+        user.setUserPassword( password);
         saveOrUpdateNonAudited(user);
 
         return user;
@@ -233,7 +233,7 @@ public class Store
         UserAccount user = new UserAccount();
         user.setEmail(email);
         user.setUsername(username);
-        user.setPassword(password);
+        user.setUserPassword( password);
         user.setActive(true);
 
         saveOrUpdateNonAudited(user);

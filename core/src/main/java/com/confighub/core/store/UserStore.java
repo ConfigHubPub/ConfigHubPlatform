@@ -70,7 +70,7 @@ public class UserStore
         if (!user.isPasswordValid(oldPassword))
             throw new ConfigException(Error.Code.USER_AUTH);
 
-        user.setPassword(newPassword);
+        user.setUserPassword( newPassword);
         saveOrUpdateNonAudited(user);
 
         return user;
