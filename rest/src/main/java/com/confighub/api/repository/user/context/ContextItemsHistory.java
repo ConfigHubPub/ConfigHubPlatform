@@ -20,7 +20,7 @@ package com.confighub.api.repository.user.context;
 import com.confighub.api.repository.user.AUserAccessValidation;
 import com.confighub.core.error.ConfigException;
 import com.confighub.core.repository.Depth;
-import com.confighub.core.repository.Level;
+import com.confighub.core.repository.ContextLevel;
 import com.confighub.core.repository.Tag;
 import com.confighub.core.store.Store;
 import com.confighub.core.utils.DateTimeUtils;
@@ -63,7 +63,7 @@ public class ContextItemsHistory
             if (0 != status) return Response.status(status).build();
 
             JsonObject depthData = new JsonObject();
-            Map<Depth, Collection<Level>> levels;
+            Map<Depth, Collection<ContextLevel>> levels;
 
             JsonArray tags = new JsonArray();
             List<Tag> tagList = store.getTags(repository);
@@ -100,12 +100,12 @@ public class ContextItemsHistory
             {
                 JsonArray depthLevelsArr = new JsonArray();
 
-                for (Level level : levels.get(depth))
+                for ( ContextLevel contextLevel : levels.get( depth))
                 {
                     JsonObject o = new JsonObject();
-                    o.addProperty("name", level.getName());
-                    if (!Level.LevelType.Standalone.equals(level.getType()))
-                        o.addProperty("type", level.getType().name());
+                    o.addProperty( "name", contextLevel.getName());
+                    if (!ContextLevel.LevelType.Standalone.equals( contextLevel.getType()))
+                        o.addProperty( "type", contextLevel.getType().name());
 
                     depthLevelsArr.add(o);
                 }

@@ -34,27 +34,26 @@ import java.util.*;
 @Entity
 @Cacheable
 @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
-@Table( name = "repo_level",
-        uniqueConstraints=@UniqueConstraint(columnNames = {"name", "depth", "repositoryId"}),
+@Table( uniqueConstraints=@UniqueConstraint(columnNames = {"name", "depth", "repositoryId"}),
         indexes = {@Index(name = "LVL_repoIndex", columnList = "id, repositoryId")}
 )
 @NamedQueries(
 {
     @NamedQuery(name = "Level.getByName",
-        query = "SELECT l FROM Level l WHERE repository=:repository AND UPPER(name)=:name AND depth=:depth"),
+        query = "SELECT l FROM ContextLevel l WHERE repository=:repository AND UPPER(name)=:name AND depth=:depth"),
 
     @NamedQuery(name = "Level.getForDepth",
-        query = "SELECT l FROM Level l WHERE repository=:repository AND depth=:depth"),
+        query = "SELECT l FROM ContextLevel l WHERE repository=:repository AND depth=:depth"),
 
     @NamedQuery(name = "Level.depthCount",
-        query = "SELECT COUNT(l) FROM Level l WHERE repository=:repository AND depth=:depth"),
+        query = "SELECT COUNT(l) FROM ContextLevel l WHERE repository=:repository AND depth=:depth"),
 
 })
 @EntityListeners({ LevelDiffTracker.class })
 @Audited
-public class Level
+public class ContextLevel
         extends APersisted
-        implements Comparable<Level>
+        implements Comparable<ContextLevel>
 {
     public enum LevelType { Standalone, Group, Member}
 
@@ -78,11 +77,11 @@ public class Level
     private Set<RepoFile> files;
 
     @ManyToMany(fetch = FetchType.LAZY, cascade = { CascadeType.REFRESH, CascadeType.PERSIST })
-    private Set<Level> members;
+    private Set<ContextLevel> members;
 
     @AuditMappedBy(mappedBy="members")
     @ManyToMany(fetch = FetchType.LAZY, cascade = { CascadeType.REFRESH }, mappedBy = "members")
-    private Set<Level> groups;
+    private Set<ContextLevel> groups;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -95,9 +94,9 @@ public class Level
     // --------------------------------------------------------------------------------------------
     // Construction
     // --------------------------------------------------------------------------------------------
-    protected Level() {}
+    protected ContextLevel() {}
 
-    public Level(final Repository repository, final Depth depth)
+    public ContextLevel( final Repository repository, final Depth depth)
     {
         this.repository = repository;
         this.depth = depth;
@@ -148,10 +147,10 @@ public class Level
         if (this.isGroup() && null != this.properties)
         {
             // extract related clusters
-            Collection<Level> clusters = new HashSet<>();
+            Collection<ContextLevel> clusters = new HashSet<>();
             clusters.add(this);
 
-            for (Level member : this.members)
+            for ( ContextLevel member : this.members)
             {
                 if (null != member.groups)
                     clusters.addAll(member.groups);
@@ -161,7 +160,7 @@ public class Level
             {
                 // organize keys
                 Map<PropertyKey, List<Property>> keyMap = new HashMap<>();
-                for (Level cluster : clusters)
+                for ( ContextLevel cluster : clusters)
                 {
                     for (Property property : cluster.getProperties())
                     {
@@ -194,8 +193,8 @@ public class Level
                             if (propA.getContextWeight() != propB.getContextWeight())
                                 continue;
 
-                            Map<Depth, Level> aMap = propA.getContextMap();
-                            Map<Depth, Level> bMap = propB.getContextMap();
+                            Map<Depth, ContextLevel> aMap = propA.getContextMap();
+                            Map<Depth, ContextLevel> bMap = propB.getContextMap();
 
                             boolean conflict = true;
                             for (Depth depth : depths)
@@ -250,7 +249,7 @@ public class Level
     }
 
     @Override
-    public int compareTo(Level other)
+    public int compareTo( ContextLevel other)
     {
         if (this.getContextScore() > other.getContextScore()) return 1;
         if (this.getContextScore() < other.getContextScore()) return -1;
@@ -283,7 +282,7 @@ public class Level
         if (null == o)
             return false;
 
-        Level other = (Level)o;
+        ContextLevel other = (ContextLevel)o;
 
         return this.getRepository().getId().equals(other.getRepository().getId()) &&
                this.depth.equals(other.depth) &&
@@ -305,7 +304,7 @@ public class Level
     // Group / Member / Standalone
     // --------------------------------------------------------------------------------------------
 
-    public void addMember(Level member)
+    public void addMember( ContextLevel member)
     {
         if (null == member)
             return;
@@ -322,7 +321,7 @@ public class Level
         this.type = LevelType.Group;
     }
 
-    public void removeMember(Level member)
+    public void removeMember( ContextLevel member)
     {
         if (null == this.members || null == member)
             return;
@@ -380,7 +379,7 @@ public class Level
         return files;
     }
 
-    public void setMembers(Set<Level> members)
+    public void setMembers(Set<ContextLevel> members)
     {
         this.members = members;
         if (null != members)
@@ -402,12 +401,12 @@ public class Level
         return this.type;
     }
 
-    public Set<Level> getMembers()
+    public Set<ContextLevel> getMembers()
     {
         return this.members;
     }
 
-    public Set<Level> getGroups()
+    public Set<ContextLevel> getGroups()
     {
         return this.groups;
     }

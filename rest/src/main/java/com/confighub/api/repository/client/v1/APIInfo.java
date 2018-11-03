@@ -295,7 +295,7 @@ public class APIInfo
 
         if (includeCIs || !Utils.isBlank(contextLabels))
         {
-            Map<Depth, Collection<Level>> levels;
+            Map<Depth, Collection<ContextLevel>> levels;
 
             if (null == this.date)
                 levels = store.getLevelsByDepth(repository);
@@ -320,8 +320,8 @@ public class APIInfo
             {
                 JsonArray jsonDepthLevels = new JsonArray();
 
-                for (Level level : levels.get(depth))
-                    jsonDepthLevels.add(level.getName());
+                for ( ContextLevel contextLevel : levels.get( depth))
+                    jsonDepthLevels.add( contextLevel.getName());
 
                 jsonDepth.add(repository.getLabel(depth), jsonDepthLevels);
             }

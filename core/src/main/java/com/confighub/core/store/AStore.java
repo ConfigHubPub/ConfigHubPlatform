@@ -38,7 +38,7 @@ import javax.persistence.PersistenceException;
 @Slf4j
 public abstract class AStore
 {
-    public static boolean verbose = false;
+    public static boolean verbose = true;
 
     /**
      * <url>http://stackoverflow.com/questions/4543947/when-should-entitymanagerfactory-instance-be-created-opened</url>

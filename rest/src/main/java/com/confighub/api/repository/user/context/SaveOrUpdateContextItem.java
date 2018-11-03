@@ -20,7 +20,7 @@ package com.confighub.api.repository.user.context;
 import com.confighub.api.repository.user.AUserAccessValidation;
 import com.confighub.core.error.ConfigException;
 import com.confighub.core.error.Error;
-import com.confighub.core.repository.Level;
+import com.confighub.core.repository.ContextLevel;
 import com.confighub.core.store.Store;
 import com.confighub.core.utils.Utils;
 import com.google.gson.Gson;
@@ -89,13 +89,13 @@ public class SaveOrUpdateContextItem
             }
 
             store.begin();
-            Level ci = store.updateOrCreateLevel(repository,
-                                                 user,
-                                                 id,
-                                                 name,
-                                                 Level.LevelType.valueOf(type),
-                                                 assignedIds,
-                                                 depthLabel);
+            ContextLevel ci = store.updateOrCreateLevel( repository,
+                                                         user,
+                                                         id,
+                                                         name,
+                                                         ContextLevel.LevelType.valueOf( type),
+                                                         assignedIds,
+                                                         depthLabel);
             store.commit();
 
             json.addProperty("success", true);

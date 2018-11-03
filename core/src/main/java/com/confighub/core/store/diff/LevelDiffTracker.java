@@ -18,7 +18,7 @@
 package com.confighub.core.store.diff;
 
 import com.confighub.core.repository.Depth;
-import com.confighub.core.repository.Level;
+import com.confighub.core.repository.ContextLevel;
 import com.confighub.core.store.APersisted;
 import com.confighub.core.utils.Utils;
 import com.google.gson.JsonArray;
@@ -53,28 +53,28 @@ public class LevelDiffTracker
     @PostLoad
     public void loadOldData(APersisted obj)
     {
-        if (!isTracked() || !(obj instanceof Level))
+        if (!isTracked() || !(obj instanceof ContextLevel ))
             return;
 
         OriginalLevel o = new OriginalLevel();
-        Level level = (Level) obj;
+        ContextLevel contextLevel = (ContextLevel) obj;
 
-        o.name = level.getName();
-        o.levelType = level.getType();
-        o.depth = level.getDepth();
+        o.name = contextLevel.getName();
+        o.levelType = contextLevel.getType();
+        o.depth = contextLevel.getDepth();
 
-        if (level.isGroup())
+        if ( contextLevel.isGroup())
         {
-            Set<Level> kids = level.getMembers();
+            Set<ContextLevel> kids = contextLevel.getMembers();
             if (null != kids && kids.size() > 0)
             {
                 o.assigned = new HashSet<>();
                 kids.forEach(k -> o.assigned.add(k.getName()));
             }
         }
-        else if (level.isMember())
+        else if ( contextLevel.isMember())
         {
-            Set<Level> parents = level.getGroups();
+            Set<ContextLevel> parents = contextLevel.getGroups();
             if (null != parents && parents.size() > 0)
             {
                 o.assigned = new HashSet<>();
@@ -90,26 +90,26 @@ public class LevelDiffTracker
     public void preUpdate(APersisted obj)
     {
         OriginalLevel o = (OriginalLevel)getIfRecorded(obj);
-        if (null == o || !(obj instanceof Level))
+        if (null == o || !(obj instanceof ContextLevel ))
             return;
 
-        Level level = (Level) obj;
+        ContextLevel contextLevel = (ContextLevel) obj;
 
         JsonObject json = new JsonObject();
 
-        if (!Utils.equal(level.getName(), o.name))
+        if (!Utils.equal( contextLevel.getName(), o.name))
             json.addProperty("name", o.name);
 
-        if (level.getDepth() != o.depth)
+        if ( contextLevel.getDepth() != o.depth)
             json.addProperty("o.depth", o.depth.getPlacement());
 
-        if (level.getType() != o.levelType)
+        if ( contextLevel.getType() != o.levelType)
         {
             json.addProperty("type", o.levelType.name());
         }
 
         boolean hadAssignments = null != o.assigned && o.assigned.size() > 0;
-        boolean hasAssignments = null != level.getMembers() && level.getMembers().size() > 0;
+        boolean hasAssignments = null != contextLevel.getMembers() && contextLevel.getMembers().size() > 0;
 
         // did not have assignments, and still does not
         // ---> do nothing
@@ -135,7 +135,7 @@ public class LevelDiffTracker
         else
         {
             Set<String> current = new HashSet<>();
-            level.getMembers().forEach(k -> current.add(k.getName()));
+            contextLevel.getMembers().forEach( k -> current.add( k.getName()));
             current.removeAll(o.assigned);
 
             // different assignments
@@ -152,7 +152,7 @@ public class LevelDiffTracker
                 o.assigned.forEach(ln -> clone.add(new String(ln)));
 
                 current.clear();
-                level.getMembers().forEach(k -> current.add(k.getName()));
+                contextLevel.getMembers().forEach( k -> current.add( k.getName()));
 
                 clone.removeAll(current);
                 if (clone.size() > 0) {
@@ -166,14 +166,14 @@ public class LevelDiffTracker
             }
         }
 
-        level.diffJson = json.toString();
+        contextLevel.diffJson = json.toString();
     }
 
     private static class OriginalLevel
             extends OriginalAPersistent
     {
         String name;
-        Level.LevelType levelType;
+        ContextLevel.LevelType levelType;
         Depth depth;
         Set<String> assigned;
 

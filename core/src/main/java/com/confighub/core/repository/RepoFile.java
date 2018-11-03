@@ -79,7 +79,7 @@ public class RepoFile
     public RepoFile(final Repository repository,
                     final AbsoluteFilePath absFilePath,
                     final String content,
-                    final Set<Level> context)
+                    final Set<ContextLevel> context)
     {
         this.repository = repository;
         this.absFilePath = absFilePath;

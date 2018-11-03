@@ -52,7 +52,7 @@ import java.util.*;
 @NamedQueries(
 {
     @NamedQuery(name = "Level.byId",
-                query = "SELECT l FROM Level l WHERE repository=:repository AND id=:id"),
+                query = "SELECT l FROM ContextLevel l WHERE repository=:repository AND id=:id"),
 
     @NamedQuery(name = "repository.get",
                 query = "SELECT c FROM Repository c WHERE id=:id"),
@@ -138,7 +138,7 @@ public class Repository
 
     @NotAudited
     @OneToMany(fetch = FetchType.LAZY, cascade = { CascadeType.REMOVE }, mappedBy = "repository")
-    private Set<Level> levels;
+    private Set<ContextLevel> contextLevels;
 
     @NotAudited
     @OneToMany(fetch = FetchType.LAZY, cascade = { CascadeType.REMOVE }, mappedBy = "repository")
@@ -806,9 +806,9 @@ public class Repository
         return null;
     }
 
-    public Set<Level> getLevels()
+    public Set<ContextLevel> getContextLevels()
     {
-        return levels;
+        return contextLevels;
     }
 
     public Set<SecurityProfile> getSps()

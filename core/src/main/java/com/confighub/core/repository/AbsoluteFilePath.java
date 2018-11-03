@@ -193,7 +193,7 @@ public class AbsoluteFilePath
         return json;
     }
 
-    public RepoFile getFileForContext(Set<Level> context)
+    public RepoFile getFileForContext(Set<ContextLevel> context)
     {
         if (null == this.files || this.files.size() == 0)
             return null;

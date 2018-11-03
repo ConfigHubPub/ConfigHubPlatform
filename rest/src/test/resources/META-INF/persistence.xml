@@ -11,7 +11,7 @@
         <class>com.confighub.core.organization.Organization</class>
         <class>com.confighub.core.organization.Team</class>
         <class>com.confighub.core.repository.AbsoluteFilePath</class>
-        <class>com.confighub.core.repository.Level</class>
+        <class>com.confighub.core.repository.ContextLevel</class>
         <class>com.confighub.core.repository.Property</class>
         <class>com.confighub.core.repository.PropertyKey</class>
         <class>com.confighub.core.repository.RepoFile</class>

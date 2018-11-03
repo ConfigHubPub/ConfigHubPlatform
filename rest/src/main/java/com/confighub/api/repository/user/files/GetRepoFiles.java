@@ -21,7 +21,7 @@ import com.confighub.api.repository.user.AUserAccessValidation;
 import com.confighub.core.error.ConfigException;
 import com.confighub.core.error.Error;
 import com.confighub.core.repository.AbsoluteFilePath;
-import com.confighub.core.repository.Level;
+import com.confighub.core.repository.ContextLevel;
 import com.confighub.core.repository.RepoFile;
 import com.confighub.core.resolver.Context;
 import com.confighub.core.rules.AccessRuleWrapper;
@@ -78,7 +78,7 @@ public class GetRepoFiles
             if (null != dateObj)
                 repository = store.getRepository(repository.getId(), dateObj);
 
-            Collection<Level> ctx = ContextParser.parseAndCreate(contextString, repository, store, user, dateObj, true);
+            Collection<ContextLevel> ctx = ContextParser.parseAndCreate( contextString, repository, store, user, dateObj, true);
             Context context = new Context(store, repository, ctx, dateObj, all);
 
             Map<AbsoluteFilePath, Collection<RepoFile>> resolved = context.resolveFiles(user, searchTerm, searchResolved);

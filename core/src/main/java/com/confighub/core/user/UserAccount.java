@@ -41,24 +41,25 @@ import java.util.Set;
 @Entity
 @Cacheable
 @Cache( usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE )
-@NamedQueries( {
-                     @NamedQuery( name = "User.count",
-                                  query = "SELECT COUNT(c) FROM UserAccount c WHERE c.active=true" ),
-                     @NamedQuery( name = "User.loginByUsername",
-                                  query = "SELECT u FROM UserAccount u WHERE u.account.name=:username" ),
-                     @NamedQuery( name = "User.loginByEmail",
-                                  query = "SELECT u FROM UserAccount u WHERE email.email=:email " ),
-                     @NamedQuery( name = "User.isRegistered",
-                                  query = "SELECT COUNT(u.email.email) FROM UserAccount u WHERE email.email=:email" ),
-                     @NamedQuery( name = "User.isUsernameTaken",
-                                  query = "SELECT COUNT(u.account.name) FROM UserAccount u WHERE account.name=:username" ),
-                     @NamedQuery( name = "User.getByUsername",
-                                  query = "SELECT u FROM UserAccount u WHERE u.account.name=:username" ),
-                     @NamedQuery( name = "Users.search",
-                                  query = "SELECT u FROM UserAccount u WHERE u.account.name LIKE :searchTerm OR u.name LIKE :searchTerm" ),
-                     @NamedQuery( name = "Users.sysAdmins",
-                                  query = "SELECT u FROM UserAccount u WHERE u.configHubAdmin=true " )
-               } )
+@NamedQueries(
+      {
+            @NamedQuery( name = "User.count",
+                         query = "SELECT COUNT(c) FROM UserAccount c WHERE c.active=true" ),
+            @NamedQuery( name = "User.loginByUsername",
+                         query = "SELECT u FROM UserAccount u WHERE u.account.name=:username" ),
+            @NamedQuery( name = "User.loginByEmail",
+                         query = "SELECT u FROM UserAccount u WHERE email.email=:email " ),
+            @NamedQuery( name = "User.isRegistered",
+                         query = "SELECT COUNT(u.email.email) FROM UserAccount u WHERE email.email=:email" ),
+            @NamedQuery( name = "User.isUsernameTaken",
+                         query = "SELECT COUNT(u.account.name) FROM UserAccount u WHERE account.name=:username" ),
+            @NamedQuery( name = "User.getByUsername",
+                         query = "SELECT u FROM UserAccount u WHERE u.account.name=:username" ),
+            @NamedQuery( name = "Users.search",
+                         query = "SELECT u FROM UserAccount u WHERE u.account.name LIKE :searchTerm OR u.name LIKE :searchTerm" ),
+            @NamedQuery( name = "Users.sysAdmins",
+                         query = "SELECT u FROM UserAccount u WHERE u.configHubAdmin=true " )
+      } )
 @EntityListeners( { UserDiffTracker.class } )
 public class UserAccount
       extends APersisted

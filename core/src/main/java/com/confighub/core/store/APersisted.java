@@ -17,6 +17,7 @@
 
 package com.confighub.core.store;
 
+import com.confighub.core.repository.ContextLevel;
 import com.confighub.core.repository.RepoFile;
 import com.confighub.core.user.UserAccount;
 import org.apache.logging.log4j.LogManager;
@@ -38,7 +39,7 @@ public abstract class APersisted
         Account (com.confighub.core.user.Account.class),
         Repository(com.confighub.core.repository.Repository.class),
         Organization(com.confighub.core.organization.Organization.class),
-        ContextItem(com.confighub.core.repository.Level.class),
+        ContextItem( ContextLevel.class),
         SecurityProfile(com.confighub.core.security.SecurityProfile.class),
         Token(com.confighub.core.security.Token.class),
         Property(com.confighub.core.repository.Property.class),

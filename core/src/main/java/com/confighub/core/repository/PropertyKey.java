@@ -279,7 +279,7 @@ public class PropertyKey
     }
 
 
-    public Property getPropertyForContext( Set<Level> context )
+    public Property getPropertyForContext( Set<ContextLevel> context )
     {
         if ( null == this.properties || this.properties.size() == 0 )
         {

@@ -185,11 +185,11 @@ public class GetRepositoryAudit
                         jsonRecord.addProperty("type", "propertyKey");
                         jsonRecord.addProperty("pr", 100);
                         jsonRecord.add("entry", GsonHelper.keyAuditToGSON((PropertyKey)obj));
-                    } else if (obj instanceof Level)
+                    } else if (obj instanceof ContextLevel )
                     {
                         jsonRecord.addProperty("type", "contextItem");
                         jsonRecord.addProperty("pr", 5);
-                        jsonRecord.add("entry", GsonHelper.levelAuditToGSON((Level)obj));
+                        jsonRecord.add("entry", GsonHelper.levelAuditToGSON((ContextLevel)obj));
                     } else if (obj instanceof SecurityProfile)
                     {
                         jsonRecord.addProperty("type", "securityProfile");

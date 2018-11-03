@@ -21,7 +21,7 @@ import com.confighub.api.repository.user.AUserAccessValidation;
 import com.confighub.api.util.GsonHelper;
 import com.confighub.core.error.ConfigException;
 import com.confighub.core.error.Error;
-import com.confighub.core.repository.Level;
+import com.confighub.core.repository.ContextLevel;
 import com.confighub.core.repository.Property;
 import com.confighub.core.repository.PropertyKey;
 import com.confighub.core.resolver.Context;
@@ -91,7 +91,7 @@ public class GetFileKeys
                                                          repository.getCreateDate());
 
             json.addProperty("canManageContext", repository.canUserManageContext(user));
-            Collection<Level> ctx = ContextParser.parseAndCreate(contextString, repository, store, user, dateObj, true);
+            Collection<ContextLevel> ctx = ContextParser.parseAndCreate( contextString, repository, store, user, dateObj, true);
 
             Context context = new Context(store, repository, ctx, dateObj, false);
 

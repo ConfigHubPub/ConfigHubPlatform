@@ -34,8 +34,8 @@ public class Context
 {
     private static final Logger log = LogManager.getLogger(Context.class);
 
-    protected final Map<Depth, Collection<Level>> elements = new HashMap<>();
-    protected final Map<Depth, Collection<Level>> parents = new HashMap<>();
+    protected final Map<Depth, Collection<ContextLevel>> elements = new HashMap<>();
+    protected final Map<Depth, Collection<ContextLevel>> parents = new HashMap<>();
     protected final Set<Depth> wildcards = new HashSet<>();
     protected final Repository repository;
     protected final Store store;
@@ -77,7 +77,7 @@ public class Context
 
     public Context(final Store store,
                    final Repository repository,
-                   final Collection<Level> contextElements,
+                   final Collection<ContextLevel> contextElements,
                    final Date date)
             throws ConfigException
     {
@@ -92,7 +92,7 @@ public class Context
      */
     public Context(final Store store,
                    final Repository repository,
-                   final Collection<Level> contextElements,
+                   final Collection<ContextLevel> contextElements,
                    final Date date,
                    boolean allKeys)
             throws ConfigException
@@ -100,7 +100,7 @@ public class Context
         this(store, date, repository, allKeys);
         if (null != contextElements)
         {
-            for (Level l : contextElements) add(l);
+            for ( ContextLevel l : contextElements) add( l);
             updateWildcards(this.elements, this.wildcards);
         }
     }
@@ -108,17 +108,17 @@ public class Context
 
     protected boolean containsLevelAtDepth(Depth d, String levelName)
     {
-        Collection<Level> dls = elements.get(d);
-        Collection<Level> pls = parents.get(d);
+        Collection<ContextLevel> dls = elements.get( d);
+        Collection<ContextLevel> pls = parents.get( d);
 
         if ((null == dls || dls.size() == 0) && (null == pls || pls.size() == 0))
             return false;
 
-        for (Level l : dls)
+        for ( ContextLevel l : dls)
             if (l.getName().equalsIgnoreCase(levelName))
                 return true;
 
-        for (Level l : pls)
+        for ( ContextLevel l : pls)
             if (l.getName().equalsIgnoreCase(levelName))
                 return true;
 
@@ -127,23 +127,23 @@ public class Context
 
     public boolean isAudit() { return null != this.date; }
 
-    private void add(final Level level)
+    private void add(final ContextLevel contextLevel )
             throws ConfigException
     {
         // check depth since repository depth might have changed, and the user
         // could be loading stale data
-        if (elements.containsKey(level.getDepth()))
+        if (elements.containsKey( contextLevel.getDepth()))
         {
-            if (level.isMember() && null != level.getGroups())
-                parents.get(level.getDepth()).addAll(level.getGroups());
+            if ( contextLevel.isMember() && null != contextLevel.getGroups())
+                parents.get( contextLevel.getDepth()).addAll( contextLevel.getGroups());
 
-            elements.get(level.getDepth()).add(level);
+            elements.get( contextLevel.getDepth()).add( contextLevel );
         }
         else
             throw new ConfigException(Error.Code.CONTEXT_SCOPE_MISMATCH);
     }
 
-    public static void updateWildcards(Map<Depth, Collection<Level>> e, Set<Depth> w)
+    public static void updateWildcards( Map<Depth, Collection<ContextLevel>> e, Set<Depth> w)
     {
         for (Depth depth : e.keySet())
         {
@@ -154,9 +154,9 @@ public class Context
         }
     }
 
-    public Collection<Level> getContextItems()
+    public Collection<ContextLevel> getContextItems()
     {
-        Collection<Level> contextItems = new ArrayList<>();
+        Collection<ContextLevel> contextItems = new ArrayList<>();
         this.elements.values().forEach(contextItems::addAll);
 
         return contextItems;
@@ -304,22 +304,22 @@ public class Context
 
         for (Depth depth : depths)
         {
-            Collection<Level> levels = elements.get(depth);
+            Collection<ContextLevel> contextLevels = elements.get( depth);
             String toAdd;
 
-            if (null == levels)
+            if ( null == contextLevels )
                 toAdd = "*";
             else
             {
-                List<String> lls = levels.stream().map(Level::getName).collect(Collectors.toList());
+                List<String> lls = contextLevels.stream().map( ContextLevel::getName).collect( Collectors.toList());
                 toAdd = Utils.join(lls, ", ");
             }
 
-            levels = parents.get(depth);
+            contextLevels = parents.get( depth);
 
-            if (null != levels)
+            if ( null != contextLevels )
             {
-                List<String> lls = levels.stream().map(Level::getName).collect(Collectors.toList());
+                List<String> lls = contextLevels.stream().map( ContextLevel::getName).collect( Collectors.toList());
                 if (lls.size() > 0)
                     toAdd += "[" + Utils.join(lls, ", ") + "]";
             }

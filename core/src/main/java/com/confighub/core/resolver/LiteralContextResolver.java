@@ -19,7 +19,7 @@ package com.confighub.core.resolver;
 
 import com.confighub.core.error.ConfigException;
 import com.confighub.core.error.Error;
-import com.confighub.core.repository.Level;
+import com.confighub.core.repository.ContextLevel;
 import com.confighub.core.repository.Property;
 import com.confighub.core.repository.PropertyKey;
 import com.confighub.core.store.Store;
@@ -53,7 +53,7 @@ public class LiteralContextResolver
             properties = context.repository.getProperties();
 
             Set<Long> pids = new HashSet<>();
-            for (Level ci : context.getContextItems())
+            for ( ContextLevel ci : context.getContextItems())
             {
                 if (null != ci.getProperties())
                     ci.getProperties().forEach(p -> pids.add(p.getId()));
@@ -74,7 +74,7 @@ public class LiteralContextResolver
         }
         else
         {
-            for (Level ci : context.getContextItems())
+            for ( ContextLevel ci : context.getContextItems())
                 properties.addAll(ci.getProperties());
 
             properties.stream().forEach(p -> {

@@ -21,7 +21,7 @@ import com.confighub.api.repository.user.AUserAccessValidation;
 import com.confighub.core.error.ConfigException;
 import com.confighub.core.error.Error;
 import com.confighub.core.repository.Depth;
-import com.confighub.core.repository.Level;
+import com.confighub.core.repository.ContextLevel;
 import com.confighub.core.store.Store;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
@@ -59,7 +59,7 @@ public class GetContextItem
             if (null == depth)
                 throw new ConfigException(Error.Code.MISSING_PARAMS);
 
-            Level ci = store.getLevel(contextItemName, depth, repository, null);
+            ContextLevel ci = store.getLevel( contextItemName, depth, repository, null);
             if (null == ci)
             {
                 json.addProperty("message", "Specified context item cannot be found.  Please try again.");
@@ -87,23 +87,23 @@ public class GetContextItem
         }
     }
 
-    public static JsonObject ciToJson(Level level, String label, boolean isContextClustersEnabled)
+    public static JsonObject ciToJson( ContextLevel contextLevel, String label, boolean isContextClustersEnabled)
     {
         JsonObject jsonCi = new JsonObject();
 
         jsonCi.addProperty("contextClustersEnabled", isContextClustersEnabled);
-        jsonCi.addProperty("id", level.getId());
-        jsonCi.addProperty("count", null == level.getProperties() ? 0 : level.getProperties().size());
-        jsonCi.addProperty("name", level.getName());
-        jsonCi.addProperty("placement", level.getContextPlacement());
+        jsonCi.addProperty( "id", contextLevel.getId());
+        jsonCi.addProperty("count", null == contextLevel.getProperties() ? 0 : contextLevel.getProperties().size());
+        jsonCi.addProperty( "name", contextLevel.getName());
+        jsonCi.addProperty( "placement", contextLevel.getContextPlacement());
         jsonCi.addProperty("depthLabel", label);
 
-        jsonCi.addProperty("type", level.getType().name());
+        jsonCi.addProperty( "type", contextLevel.getType().name());
 
         JsonArray assignments = new JsonArray();
-        if (null != level.getGroups())
+        if ( null != contextLevel.getGroups())
         {
-            level.getGroups().forEach(p -> {
+            contextLevel.getGroups().forEach( p -> {
                 JsonObject parent = new JsonObject();
 
                 parent.addProperty("id", p.getId());
@@ -115,9 +115,9 @@ public class GetContextItem
             });
         }
 
-        if (null != level.getMembers())
+        if ( null != contextLevel.getMembers())
         {
-            level.getMembers().forEach(c -> {
+            contextLevel.getMembers().forEach( c -> {
                 JsonObject child = new JsonObject();
 
                 child.addProperty("id", c.getId());

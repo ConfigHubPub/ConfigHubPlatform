@@ -20,9 +20,9 @@ package com.confighub.core.repository;
 public class LevelCtx
 {
     public final String name;
-    public final Level.LevelType type;
+    public final ContextLevel.LevelType type;
 
-    protected LevelCtx(String name, Level.LevelType type)
+    protected LevelCtx(String name, ContextLevel.LevelType type)
     {
         this.name = name;
         this.type = type;
