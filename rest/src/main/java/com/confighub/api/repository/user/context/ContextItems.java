@@ -20,7 +20,7 @@ package com.confighub.api.repository.user.context;
 import com.confighub.api.repository.user.AUserAccessValidation;
 import com.confighub.core.error.ConfigException;
 import com.confighub.core.repository.Depth;
-import com.confighub.core.repository.ContextLevel;
+import com.confighub.core.repository.CtxLevel;
 import com.confighub.core.store.Store;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
@@ -57,17 +57,17 @@ public class ContextItems
 
             JsonObject depthData = new JsonObject();
 
-            Map<Depth, Collection<ContextLevel>> levels = store.getLevelsByDepth( repository);
+            Map<Depth, Collection<CtxLevel>> levels = store.getLevelsByDepth( repository);
             for (Depth depth : levels.keySet())
             {
                 JsonArray jsonLevels = new JsonArray();
-                for ( ContextLevel contextLevel : levels.get( depth))
+                for ( CtxLevel ctxLevel : levels.get( depth))
                 {
                     JsonObject o = new JsonObject();
-                    o.addProperty( "id", contextLevel.getId());
-                    o.addProperty( "name", contextLevel.getName());
-                    if (!ContextLevel.LevelType.Standalone.equals( contextLevel.getType()))
-                        o.addProperty( "type", contextLevel.getType().name());
+                    o.addProperty( "id", ctxLevel.getId());
+                    o.addProperty( "name", ctxLevel.getName());
+                    if (!CtxLevel.LevelType.Standalone.equals( ctxLevel.getType()))
+                        o.addProperty( "type", ctxLevel.getType().name());
 
                     jsonLevels.add(o);
                 }

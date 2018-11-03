@@ -22,7 +22,7 @@ import com.confighub.core.error.Error;
 import com.confighub.core.organization.Team;
 import com.confighub.core.repository.AContextAwarePersistent;
 import com.confighub.core.repository.Depth;
-import com.confighub.core.repository.ContextLevel;
+import com.confighub.core.repository.CtxLevel;
 import com.confighub.core.repository.Property;
 import com.confighub.core.resolver.AResolver;
 import com.confighub.core.store.APersisted;
@@ -107,7 +107,7 @@ public class AccessRule
 
     @ManyToMany(fetch = FetchType.LAZY, cascade = { CascadeType.REFRESH })
     @NotAudited
-    private Set<ContextLevel> context;
+    private Set<CtxLevel> context;
 
     // ENVERS optimization
     @JoinColumn(nullable = false)
@@ -148,7 +148,7 @@ public class AccessRule
     public AccessRule(final Team team,
                       final RuleTarget ruleTarget,
                       final ContextMatchType contextMatchType,
-                      final Set<ContextLevel> context,
+                      final Set<CtxLevel> context,
                       final boolean canEdit,
                       final int priority)
             throws ConfigException
@@ -190,9 +190,9 @@ public class AccessRule
         this.priority = priority;
     }
 
-    private transient TreeMap<Depth, Collection<ContextLevel>> depthMap = null;
+    private transient TreeMap<Depth, Collection<CtxLevel>> depthMap = null;
 
-    public TreeMap<Depth, Collection<ContextLevel>> getDepthMap( boolean includeClusters)
+    public TreeMap<Depth, Collection<CtxLevel>> getDepthMap( boolean includeClusters)
     {
         if (null == this.context)
             return null;
@@ -201,17 +201,17 @@ public class AccessRule
             return depthMap;
 
         depthMap = new TreeMap<>();
-        for ( ContextLevel contextLevel : this.context)
+        for ( CtxLevel ctxLevel : this.context)
         {
-            Depth depth = contextLevel.getDepth();
+            Depth depth = ctxLevel.getDepth();
             if (!depthMap.containsKey(depth))
                 depthMap.put(depth, new HashSet<>());
 
-            depthMap.get(depth).add( contextLevel );
+            depthMap.get(depth).add( ctxLevel );
 
             // Add all node's clusters
-            if ( includeClusters && contextLevel.isMember() && null != contextLevel.getGroups())
-                depthMap.get(depth).addAll( contextLevel.getGroups());
+            if ( includeClusters && ctxLevel.isMember() && null != ctxLevel.getGroups())
+                depthMap.get(depth).addAll( ctxLevel.getGroups());
         }
 
         return depthMap;
@@ -287,15 +287,15 @@ public class AccessRule
         JsonObject contextJ = new JsonObject();
         if (null != this.getContext())
         {
-            TreeMap<Depth, Collection<ContextLevel>> contextMap = this.getDepthMap( false);
+            TreeMap<Depth, Collection<CtxLevel>> contextMap = this.getDepthMap( false);
 
             if (null != contextMap)
             {
                 for (Depth depth : contextMap.keySet())
                 {
                     JsonArray depthLevelsJ = new JsonArray();
-                    for ( ContextLevel contextLevel : contextMap.get( depth))
-                        depthLevelsJ.add( contextLevel.getName());
+                    for ( CtxLevel ctxLevel : contextMap.get( depth))
+                        depthLevelsJ.add( ctxLevel.getName());
 
                     contextJ.add(String.valueOf(depth.getPlacement()), depthLevelsJ);
                 }
@@ -354,12 +354,12 @@ public class AccessRule
         return canEdit;
     }
 
-    public Set<ContextLevel> getContext()
+    public Set<CtxLevel> getContext()
     {
         return context;
     }
 
-    public void setContext(Set<ContextLevel> context)
+    public void setContext(Set<CtxLevel> context)
     {
         if (!Utils.same(this.context, context))
         {

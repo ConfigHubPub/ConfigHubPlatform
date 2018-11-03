@@ -18,7 +18,7 @@
 package com.confighub.core.store.diff;
 
 import com.confighub.core.repository.Depth;
-import com.confighub.core.repository.ContextLevel;
+import com.confighub.core.repository.CtxLevel;
 import com.confighub.core.store.APersisted;
 import com.confighub.core.utils.Utils;
 import com.google.gson.JsonArray;
@@ -53,28 +53,28 @@ public class LevelDiffTracker
     @PostLoad
     public void loadOldData(APersisted obj)
     {
-        if (!isTracked() || !(obj instanceof ContextLevel ))
+        if (!isTracked() || !(obj instanceof CtxLevel ))
             return;
 
         OriginalLevel o = new OriginalLevel();
-        ContextLevel contextLevel = (ContextLevel) obj;
+        CtxLevel ctxLevel = (CtxLevel) obj;
 
-        o.name = contextLevel.getName();
-        o.levelType = contextLevel.getType();
-        o.depth = contextLevel.getDepth();
+        o.name = ctxLevel.getName();
+        o.levelType = ctxLevel.getType();
+        o.depth = ctxLevel.getDepth();
 
-        if ( contextLevel.isGroup())
+        if ( ctxLevel.isGroup())
         {
-            Set<ContextLevel> kids = contextLevel.getMembers();
+            Set<CtxLevel> kids = ctxLevel.getMembers();
             if (null != kids && kids.size() > 0)
             {
                 o.assigned = new HashSet<>();
                 kids.forEach(k -> o.assigned.add(k.getName()));
             }
         }
-        else if ( contextLevel.isMember())
+        else if ( ctxLevel.isMember())
         {
-            Set<ContextLevel> parents = contextLevel.getGroups();
+            Set<CtxLevel> parents = ctxLevel.getGroups();
             if (null != parents && parents.size() > 0)
             {
                 o.assigned = new HashSet<>();
@@ -90,26 +90,26 @@ public class LevelDiffTracker
     public void preUpdate(APersisted obj)
     {
         OriginalLevel o = (OriginalLevel)getIfRecorded(obj);
-        if (null == o || !(obj instanceof ContextLevel ))
+        if (null == o || !(obj instanceof CtxLevel ))
             return;
 
-        ContextLevel contextLevel = (ContextLevel) obj;
+        CtxLevel ctxLevel = (CtxLevel) obj;
 
         JsonObject json = new JsonObject();
 
-        if (!Utils.equal( contextLevel.getName(), o.name))
+        if (!Utils.equal( ctxLevel.getName(), o.name))
             json.addProperty("name", o.name);
 
-        if ( contextLevel.getDepth() != o.depth)
+        if ( ctxLevel.getDepth() != o.depth)
             json.addProperty("o.depth", o.depth.getPlacement());
 
-        if ( contextLevel.getType() != o.levelType)
+        if ( ctxLevel.getType() != o.levelType)
         {
             json.addProperty("type", o.levelType.name());
         }
 
         boolean hadAssignments = null != o.assigned && o.assigned.size() > 0;
-        boolean hasAssignments = null != contextLevel.getMembers() && contextLevel.getMembers().size() > 0;
+        boolean hasAssignments = null != ctxLevel.getMembers() && ctxLevel.getMembers().size() > 0;
 
         // did not have assignments, and still does not
         // ---> do nothing
@@ -135,7 +135,7 @@ public class LevelDiffTracker
         else
         {
             Set<String> current = new HashSet<>();
-            contextLevel.getMembers().forEach( k -> current.add( k.getName()));
+            ctxLevel.getMembers().forEach( k -> current.add( k.getName()));
             current.removeAll(o.assigned);
 
             // different assignments
@@ -152,7 +152,7 @@ public class LevelDiffTracker
                 o.assigned.forEach(ln -> clone.add(new String(ln)));
 
                 current.clear();
-                contextLevel.getMembers().forEach( k -> current.add( k.getName()));
+                ctxLevel.getMembers().forEach( k -> current.add( k.getName()));
 
                 clone.removeAll(current);
                 if (clone.size() > 0) {
@@ -166,14 +166,14 @@ public class LevelDiffTracker
             }
         }
 
-        contextLevel.diffJson = json.toString();
+        ctxLevel.diffJson = json.toString();
     }
 
     private static class OriginalLevel
             extends OriginalAPersistent
     {
         String name;
-        ContextLevel.LevelType levelType;
+        CtxLevel.LevelType levelType;
         Depth depth;
         Set<String> assigned;
 

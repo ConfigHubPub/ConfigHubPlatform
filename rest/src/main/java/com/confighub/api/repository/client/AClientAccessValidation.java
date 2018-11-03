@@ -172,7 +172,7 @@ public abstract class AClientAccessValidation
     {
 
         // ToDo check context size is the same as the repository from the time as requested by the Tag/Label
-        Collection<ContextLevel> ctx = ContextParser.contextFromApi( contextString, repository, store, null);
+        Collection<CtxLevel> ctx = ContextParser.contextFromApi( contextString, repository, store, null);
 
         checkToken(clientToken, store);
 

@@ -19,7 +19,7 @@ package com.confighub.api.repository.user.property;
 
 import com.confighub.api.repository.user.AUserAccessValidation;
 import com.confighub.core.error.ConfigException;
-import com.confighub.core.repository.ContextLevel;
+import com.confighub.core.repository.CtxLevel;
 import com.confighub.core.repository.PropertyKey;
 import com.confighub.core.store.Store;
 import com.confighub.core.utils.ContextParser;
@@ -69,7 +69,7 @@ public class SaveProperty
             if (0 != status)
                 return Response.status(status).build();
 
-            Collection<ContextLevel> context = ContextParser.parseAndCreate( propertyContext, repository, store, user, null);
+            Collection<CtxLevel> context = ContextParser.parseAndCreate( propertyContext, repository, store, user, null);
 
             if (null != propertyId && propertyId >= 0)
             {

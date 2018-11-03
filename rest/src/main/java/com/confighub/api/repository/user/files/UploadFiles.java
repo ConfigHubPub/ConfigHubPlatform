@@ -19,7 +19,7 @@ package com.confighub.api.repository.user.files;
 
 import com.confighub.api.repository.user.AUserAccessValidation;
 import com.confighub.core.error.ConfigException;
-import com.confighub.core.repository.ContextLevel;
+import com.confighub.core.repository.CtxLevel;
 import com.confighub.core.repository.RepoFile;
 import com.confighub.core.store.Store;
 import com.confighub.core.utils.ContextParser;
@@ -86,7 +86,7 @@ public class UploadFiles
 
         try
         {
-            Collection<ContextLevel> context = ContextParser.parseAndCreate( fileContext, repository, store, user, null);
+            Collection<CtxLevel> context = ContextParser.parseAndCreate( fileContext, repository, store, user, null);
 
             store.begin();
             RepoFile newFile = store.createRepoFile(user,

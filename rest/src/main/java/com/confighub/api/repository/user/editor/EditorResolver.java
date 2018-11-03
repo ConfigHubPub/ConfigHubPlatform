@@ -21,7 +21,7 @@ import com.confighub.api.repository.user.AUserAccessValidation;
 import com.confighub.api.util.GsonHelper;
 import com.confighub.core.error.ConfigException;
 import com.confighub.core.error.Error;
-import com.confighub.core.repository.ContextLevel;
+import com.confighub.core.repository.CtxLevel;
 import com.confighub.core.repository.Property;
 import com.confighub.core.repository.PropertyKey;
 import com.confighub.core.resolver.Context;
@@ -76,7 +76,7 @@ public class EditorResolver
                                                          ts,
                                                          repository.getCreateDate());
 
-            Collection<ContextLevel> ctx = ContextParser.parseAndCreate( contextString, repository, store, user, dateObj, true);
+            Collection<CtxLevel> ctx = ContextParser.parseAndCreate( contextString, repository, store, user, dateObj, true);
 
             json.addProperty("canManageContext", repository.canUserManageContext(user));
 

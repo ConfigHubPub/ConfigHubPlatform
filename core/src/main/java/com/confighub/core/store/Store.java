@@ -984,9 +984,9 @@ public class Store
             for ( Depth d : depth.getDepths() )
             {
                 Depth newDepth = Depth.getByIndex( d.getIndex() + 1 );
-                Collection<ContextLevel> contextLevels = getLevelsForDepth( repository, user, d );
+                Collection<CtxLevel> ctxLevels = getLevelsForDepth( repository, user, d );
 
-                contextLevels.stream().forEach( l -> {
+                ctxLevels.stream().forEach( l -> {
                     l.setDepth( newDepth );
                     saveOrUpdateAudited( user, repository, l );
                 } );
@@ -1004,11 +1004,11 @@ public class Store
             for ( Depth d : depth.getDepths() )
             {
                 Depth newDepth = Depth.getByIndex( d.getIndex() + 1 );
-                Collection<ContextLevel> contextLevels = getLevelsForDepth( repository, user, d );
+                Collection<CtxLevel> ctxLevels = getLevelsForDepth( repository, user, d );
 
                 depthLabels.put( newDepth, repository.getLabel( d ) );
 
-                contextLevels.stream().forEach( l -> {
+                ctxLevels.stream().forEach( l -> {
                     l.setDepth( newDepth );
                     saveOrUpdateAudited( user, repository, l );
                 } );
@@ -1064,17 +1064,17 @@ public class Store
             throw new ConfigException( Error.Code.CONTEXT_SCOPE_MISMATCH ); // ToDo:  max scope size
         }
 
-        Collection<ContextLevel> contextLevels = getLevelsForDepth( repository, user, depthToRemove );
-        if ( null != contextLevels && contextLevels.size() > 0 )
+        Collection<CtxLevel> ctxLevels = getLevelsForDepth( repository, user, depthToRemove );
+        if ( null != ctxLevels && ctxLevels.size() > 0 )
         {
-            if ( contextLevels.stream().anyMatch( l -> null != l.getProperties() && l.getProperties().size() > 0 ) )
+            if ( ctxLevels.stream().anyMatch( l -> null != l.getProperties() && l.getProperties().size() > 0 ) )
             {
                 throw new ConfigException( Error.Code.ASSIGNED_PROPERTIES );
             }
         }
 
         // remove all levels for depth that is being removed
-        contextLevels.stream().forEach( l -> deleteAudited( user, repository, l ) );
+        ctxLevels.stream().forEach( l -> deleteAudited( user, repository, l ) );
 
         int removeIndex = depthToRemove.getIndex();
 
@@ -1083,8 +1083,8 @@ public class Store
             Depth oldDepth = Depth.getByIndex( depthIndex );
             Depth newDepth = Depth.getByIndex( depthIndex - 1 );
 
-            contextLevels = getLevelsForDepth( repository, user, oldDepth );
-            contextLevels.stream().forEach( l -> {
+            ctxLevels = getLevelsForDepth( repository, user, oldDepth );
+            ctxLevels.stream().forEach( l -> {
                 l.setDepth( newDepth );
                 saveOrUpdateAudited( user, repository, l );
             } );
@@ -1291,10 +1291,10 @@ public class Store
      * @return Level create
      * @throws ConfigException is thrown if unable to persist
      */
-    public ContextLevel createLevel( final String name,
-                                     final Depth depth,
-                                     final UserAccount user,
-                                     final Repository repository )
+    public CtxLevel createLevel( final String name,
+                                 final Depth depth,
+                                 final UserAccount user,
+                                 final Repository repository )
           throws ConfigException
     {
         if ( !repository.hasWriteAccess( user ) )
@@ -1307,16 +1307,16 @@ public class Store
             throw new ConfigException( Error.Code.CONTEXT_EDIT_DISABLED );
         }
 
-        ContextLevel contextLevel = new ContextLevel( repository, depth );
-        contextLevel.setType( ContextLevel.LevelType.Standalone );
-        contextLevel.setName( name );
+        CtxLevel ctxLevel = new CtxLevel( repository, depth );
+        ctxLevel.setType( CtxLevel.LevelType.Standalone );
+        ctxLevel.setName( name );
 
         if ( null != user )
         {
-            saveOrUpdateAudited( user, repository, contextLevel );
+            saveOrUpdateAudited( user, repository, ctxLevel );
         }
 
-        return contextLevel;
+        return ctxLevel;
     }
 
 
@@ -1329,33 +1329,33 @@ public class Store
      * @return
      * @throws ConfigException
      */
-    public ContextLevel createLevelViaApi( final String name,
-                                           final Depth depth,
-                                           final Repository repository,
-                                           final String appIdentifier,
-                                           final String changeComment )
+    public CtxLevel createLevelViaApi( final String name,
+                                       final Depth depth,
+                                       final Repository repository,
+                                       final String appIdentifier,
+                                       final String changeComment )
           throws ConfigException
     {
-        ContextLevel contextLevel = new ContextLevel( repository, depth );
-        contextLevel.setType( ContextLevel.LevelType.Standalone );
-        contextLevel.setName( name );
+        CtxLevel ctxLevel = new CtxLevel( repository, depth );
+        ctxLevel.setType( CtxLevel.LevelType.Standalone );
+        ctxLevel.setName( name );
 
-        saveOrUpdateAuditedViaAPI( appIdentifier, repository, contextLevel, changeComment );
+        saveOrUpdateAuditedViaAPI( appIdentifier, repository, ctxLevel, changeComment );
 
-        return contextLevel;
+        return ctxLevel;
     }
 
 
-    public ContextLevel createNonPersistedLevel( final String name,
-                                                 final Depth depth,
-                                                 final Repository repository )
+    public CtxLevel createNonPersistedLevel( final String name,
+                                             final Depth depth,
+                                             final Repository repository )
           throws ConfigException
     {
-        ContextLevel contextLevel = new ContextLevel( repository, depth );
-        contextLevel.setName( name );
-        contextLevel.setType( ContextLevel.LevelType.Standalone );
+        CtxLevel ctxLevel = new CtxLevel( repository, depth );
+        ctxLevel.setName( name );
+        ctxLevel.setType( CtxLevel.LevelType.Standalone );
 
-        return contextLevel;
+        return ctxLevel;
     }
 
 
@@ -1367,8 +1367,8 @@ public class Store
      * @return Level, or null if level does not exist.
      * @throws ConfigException is thrown if unable to persist
      */
-    public ContextLevel getLevel( final Long levelId,
-                                  final Repository repository )
+    public CtxLevel getLevel( final Long levelId,
+                              final Repository repository )
           throws ConfigException
     {
         if ( Utils.anyNull( levelId, repository ) )
@@ -1378,11 +1378,11 @@ public class Store
 
         try
         {
-            return (ContextLevel) em.createNamedQuery( "Level.byId" )
-                                    .setLockMode( LockModeType.NONE )
-                                    .setParameter( "id", levelId )
-                                    .setParameter( "repository", repository )
-                                    .getSingleResult();
+            return (CtxLevel) em.createNamedQuery( "Level.byId" )
+                                .setLockMode( LockModeType.NONE )
+                                .setParameter( "id", levelId )
+                                .setParameter( "repository", repository )
+                                .getSingleResult();
         }
         catch ( NoResultException e )
         {
@@ -1406,7 +1406,7 @@ public class Store
      * @return Map<Depth   ,       Collection   <   Level>>
      * @throws ConfigException if unable to fetch from the database
      */
-    public Map<Depth, Collection<ContextLevel>> getLevelsByDepth( final Repository repository )
+    public Map<Depth, Collection<CtxLevel>> getLevelsByDepth( final Repository repository )
           throws ConfigException
     {
         if ( null == repository )
@@ -1414,25 +1414,25 @@ public class Store
             throw new ConfigException( Error.Code.MISSING_PARAMS );
         }
 
-        Map<Depth, Collection<ContextLevel>> levelMap = new HashMap<>();
+        Map<Depth, Collection<CtxLevel>> levelMap = new HashMap<>();
 
         for ( Depth depth : repository.getDepth().getDepths() )
         {
             levelMap.put( depth, new HashSet<>() );
         }
 
-        for ( ContextLevel contextLevel : repository.getContextLevels() )
+        for ( CtxLevel ctxLevel : repository.getCtxLevels() )
         {
-            levelMap.get( contextLevel.getDepth() ).add( contextLevel );
+            levelMap.get( ctxLevel.getDepth() ).add( ctxLevel );
         }
 
         return levelMap;
     }
 
 
-    public Collection<ContextLevel> getLevelsForDepth( final Repository repository,
-                                                       final UserAccount user,
-                                                       final Depth depth )
+    public Collection<CtxLevel> getLevelsForDepth( final Repository repository,
+                                                   final UserAccount user,
+                                                   final Depth depth )
           throws ConfigException
     {
         if ( null == repository )
@@ -1469,32 +1469,32 @@ public class Store
     /**
      * Update level
      *
-     * @param contextLevel  that is to be persisted with changed attributes
+     * @param ctxLevel  that is to be persisted with changed attributes
      * @param author that is making the change
      * @return the same level after it was persisted
      * @throws ConfigException is throw if unable to save
      */
     @Deprecated
     // ToDo: remove
-    public ContextLevel update( final ContextLevel contextLevel,
-                                final UserAccount author )
+    public CtxLevel update( final CtxLevel ctxLevel,
+                            final UserAccount author )
           throws ConfigException
     {
-        if ( Utils.anyNull( contextLevel, author ) )
+        if ( Utils.anyNull( ctxLevel, author ) )
         {
             return null;
         }
 
-        if ( !contextLevel.getRepository().hasWriteAccess( author ) )
+        if ( !ctxLevel.getRepository().hasWriteAccess( author ) )
         {
             throw new ConfigException( Error.Code.USER_ACCESS_DENIED );
         }
 
-        contextLevel.getProperties().forEach( Property::updateContextString );
-        contextLevel.getFiles().forEach( RepoFile::updateContextString );
+        ctxLevel.getProperties().forEach( Property::updateContextString );
+        ctxLevel.getFiles().forEach( RepoFile::updateContextString );
 
-        saveOrUpdateAudited( author, contextLevel.getRepository(), contextLevel );
-        return contextLevel;
+        saveOrUpdateAudited( author, ctxLevel.getRepository(), ctxLevel );
+        return ctxLevel;
     }
 
 
@@ -1509,13 +1509,13 @@ public class Store
      * @return
      * @throws ConfigException
      */
-    public ContextLevel updateOrCreateLevel( final Repository repository,
-                                             final UserAccount user,
-                                             final Long id,
-                                             final String name,
-                                             final ContextLevel.LevelType type,
-                                             final Collection<Long> assignmentIds,
-                                             final String depthLabel )
+    public CtxLevel updateOrCreateLevel( final Repository repository,
+                                         final UserAccount user,
+                                         final Long id,
+                                         final String name,
+                                         final CtxLevel.LevelType type,
+                                         final Collection<Long> assignmentIds,
+                                         final String depthLabel )
           throws ConfigException
     {
         if ( Utils.anyNull( repository, name ) )
@@ -1535,7 +1535,7 @@ public class Store
 
 
         Depth depth = repository.getDepthFromLabel( depthLabel );
-        ContextLevel contextLevel;
+        CtxLevel ctxLevel;
 
         boolean updatePropertyContextStrings = false;
         boolean isNew = id == null;
@@ -1543,21 +1543,21 @@ public class Store
 
         if ( !isNew )
         {
-            contextLevel = getLevel( id, repository );
+            ctxLevel = getLevel( id, repository );
 
-            if ( null == contextLevel )
+            if ( null == ctxLevel )
             {
                 throw new ConfigException( Error.Code.NOT_FOUND );
             }
 
-            updatePropertyContextStrings = !contextLevel.getName().equals( name );
-            contextLevel.setName( name );
-            levelTypeChanged = !contextLevel.getType().equals( type );
+            updatePropertyContextStrings = !ctxLevel.getName().equals( name );
+            ctxLevel.setName( name );
+            levelTypeChanged = !ctxLevel.getType().equals( type );
         }
         else
         {
-            contextLevel = new ContextLevel( repository, depth );
-            contextLevel.setName( name );
+            ctxLevel = new CtxLevel( repository, depth );
+            ctxLevel.setName( name );
         }
 
         // when do the property contexts need to be re-written ?
@@ -1565,9 +1565,9 @@ public class Store
         // - if a Level type changes from Group
         // - if level name has changed
 
-        updatePropertyContextStrings |= levelTypeChanged && ( ContextLevel.LevelType.Group.equals( type ) || ContextLevel.LevelType.Group
+        updatePropertyContextStrings |= levelTypeChanged && ( CtxLevel.LevelType.Group.equals( type ) || CtxLevel.LevelType.Group
               .equals
-                    ( contextLevel
+                    ( ctxLevel
                             .getType() ) );
 
 
@@ -1578,9 +1578,9 @@ public class Store
         {
             accessRuleWrapper = repository.getRulesWrapper( user );
 
-            if ( !isLevelModificationAllowed( accessRuleWrapper, accessControlled, contextLevel ) )
+            if ( !isLevelModificationAllowed( accessRuleWrapper, accessControlled, ctxLevel ) )
             {
-                throw new ConfigException( Error.Code.LEVEL_EDITING_ACCESS_DENIED, contextLevel.toJson() );
+                throw new ConfigException( Error.Code.LEVEL_EDITING_ACCESS_DENIED, ctxLevel.toJson() );
             }
         }
 
@@ -1588,12 +1588,12 @@ public class Store
         // Collect all level assignments;
         // Check write access to them
         // Make sure they are assignable to this level
-        Set<ContextLevel> assignments = new HashSet<>();
+        Set<CtxLevel> assignments = new HashSet<>();
         if ( null != assignmentIds )
         {
             for ( Long lid : assignmentIds )
             {
-                ContextLevel l = getLevel( lid, repository );
+                CtxLevel l = getLevel( lid, repository );
                 if ( null == l )
                 {
                     throw new ConfigException( Error.Code.NOT_FOUND );
@@ -1617,20 +1617,20 @@ public class Store
         // If this is a new level, just save and return
         if ( isNew )
         {
-            contextLevel.setType( type );
-            if ( ContextLevel.LevelType.Group == type )
+            ctxLevel.setType( type );
+            if ( CtxLevel.LevelType.Group == type )
             {
-                contextLevel.setMembers( assignments );
+                ctxLevel.setMembers( assignments );
             }
-            else if ( ContextLevel.LevelType.Member == type )
+            else if ( CtxLevel.LevelType.Member == type )
             {
-                assignments.forEach( group -> group.addMember( contextLevel ) );
+                assignments.forEach( group -> group.addMember( ctxLevel ) );
             }
 
             // ToDo: should we save assignments
 
-            saveOrUpdateAudited( user, repository, contextLevel );
-            return contextLevel;
+            saveOrUpdateAudited( user, repository, ctxLevel );
+            return ctxLevel;
         }
 
 
@@ -1640,59 +1640,59 @@ public class Store
         if ( !levelTypeChanged )
         {
 
-            if ( ContextLevel.LevelType.Group == type )
+            if ( CtxLevel.LevelType.Group == type )
             {
-                contextLevel.setMembers( assignments );
+                ctxLevel.setMembers( assignments );
             }
-            else if ( ContextLevel.LevelType.Member == type )
+            else if ( CtxLevel.LevelType.Member == type )
             {
-                Set<ContextLevel> currentGroups = contextLevel.getGroups();
+                Set<CtxLevel> currentGroups = ctxLevel.getGroups();
 
                 if ( null != currentGroups )
                 {
                     // get groups that should not longer have level as a member
                     currentGroups.removeAll( assignments );
-                    currentGroups.forEach( group -> group.removeMember( contextLevel ) );
+                    currentGroups.forEach( group -> group.removeMember( ctxLevel ) );
                 }
 
                 // refresh assignments
-                assignments.forEach( group -> group.addMember( contextLevel ) );
+                assignments.forEach( group -> group.addMember( ctxLevel ) );
             }
-            else if ( ContextLevel.LevelType.Standalone == type )
+            else if ( CtxLevel.LevelType.Standalone == type )
             {
-                contextLevel.setMembers( null );
+                ctxLevel.setMembers( null );
             }
 
             // ToDo: should we save assignments
 
-            saveOrUpdateAudited( user, repository, contextLevel );
+            saveOrUpdateAudited( user, repository, ctxLevel );
 
             if ( updatePropertyContextStrings )
             {
-                if ( null != contextLevel.getProperties() )
+                if ( null != ctxLevel.getProperties() )
                 {
-                    contextLevel.getProperties().forEach( Property::updateContextString );
+                    ctxLevel.getProperties().forEach( Property::updateContextString );
                 }
 
-                if ( null != contextLevel.getFiles() )
+                if ( null != ctxLevel.getFiles() )
                 {
-                    contextLevel.getFiles().forEach( RepoFile::updateContextString );
+                    ctxLevel.getFiles().forEach( RepoFile::updateContextString );
                 }
             }
 
-            return contextLevel;
+            return ctxLevel;
         }
 
 
         // Level type has changed
-        switch ( contextLevel.getType() )
+        switch ( ctxLevel.getType() )
         {
             case Group:
             {
-                contextLevel.setMembers( null );
-                if ( ContextLevel.LevelType.Member == type )
+                ctxLevel.setMembers( null );
+                if ( CtxLevel.LevelType.Member == type )
                 {
-                    assignments.forEach( group -> group.addMember( contextLevel ) );
+                    assignments.forEach( group -> group.addMember( ctxLevel ) );
                 }
 
                 break;
@@ -1700,15 +1700,15 @@ public class Store
 
             case Member:
             {
-                Set<ContextLevel> currentGroups = contextLevel.getGroups();
+                Set<CtxLevel> currentGroups = ctxLevel.getGroups();
                 if ( null != currentGroups )
                 {
-                    currentGroups.forEach( group -> group.removeMember( contextLevel ) );
+                    currentGroups.forEach( group -> group.removeMember( ctxLevel ) );
                 }
 
-                if ( ContextLevel.LevelType.Group == type )
+                if ( CtxLevel.LevelType.Group == type )
                 {
-                    contextLevel.setMembers( assignments );
+                    ctxLevel.setMembers( assignments );
                 }
 
                 break;
@@ -1716,42 +1716,42 @@ public class Store
 
             case Standalone:
             {
-                if ( ContextLevel.LevelType.Group == type )
+                if ( CtxLevel.LevelType.Group == type )
                 {
-                    contextLevel.setMembers( assignments );
+                    ctxLevel.setMembers( assignments );
                 }
 
-                else if ( ContextLevel.LevelType.Member == type )
+                else if ( CtxLevel.LevelType.Member == type )
                 {
-                    assignments.forEach( group -> group.addMember( contextLevel ) );
+                    assignments.forEach( group -> group.addMember( ctxLevel ) );
                 }
 
                 break;
             }
         }
 
-        contextLevel.setType( type );
+        ctxLevel.setType( type );
         if ( updatePropertyContextStrings )
         {
-            if ( null != contextLevel.getProperties() )
+            if ( null != ctxLevel.getProperties() )
             {
-                contextLevel.getProperties().forEach( Property::updateContextString );
+                ctxLevel.getProperties().forEach( Property::updateContextString );
             }
-            if ( null != contextLevel.getFiles() )
+            if ( null != ctxLevel.getFiles() )
             {
-                contextLevel.getFiles().forEach( RepoFile::updateContextString );
+                ctxLevel.getFiles().forEach( RepoFile::updateContextString );
             }
         }
 
-        saveOrUpdateAudited( user, repository, contextLevel );
+        saveOrUpdateAudited( user, repository, ctxLevel );
 
-        return contextLevel;
+        return ctxLevel;
     }
 
 
     private boolean isLevelModificationAllowed( final AccessRuleWrapper accessRuleWrapper,
                                                 boolean accessControlled,
-                                                final ContextLevel contextLevel )
+                                                final CtxLevel ctxLevel )
           throws ConfigException
     {
         if ( accessControlled )
@@ -1761,9 +1761,9 @@ public class Store
                 throw new ConfigException( Error.Code.LEVEL_EDITING_ACCESS_DENIED );
             }
 
-            if ( null != contextLevel.getProperties() )
+            if ( null != ctxLevel.getProperties() )
             {
-                contextLevel.getProperties().stream().forEach( p -> {
+                ctxLevel.getProperties().stream().forEach( p -> {
                     accessRuleWrapper.executeRuleFor( p );
                     if ( !p.isEditable )
                     {
@@ -1782,13 +1782,13 @@ public class Store
      *
      * @param user       that is deleting the level
      * @param repository to which level belongs
-     * @param contextLevel      to be deleted
+     * @param ctxLevel      to be deleted
      * @return true if deleted
      * @throws ConfigException is throw if unable to delete
      */
     public boolean deleteLevel( final UserAccount user,
                                 final Repository repository,
-                                final ContextLevel contextLevel )
+                                final CtxLevel ctxLevel )
           throws ConfigException
     {
         if ( !repository.hasWriteAccess( user ) )
@@ -1796,12 +1796,12 @@ public class Store
             throw new ConfigException( Error.Code.USER_ACCESS_DENIED );
         }
 
-        if ( null != contextLevel.getProperties() && contextLevel.getProperties().size() > 0 )
+        if ( null != ctxLevel.getProperties() && ctxLevel.getProperties().size() > 0 )
         {
             throw new ConfigException( Error.Code.ASSIGNED_PROPERTIES );
         }
 
-        return deleteAudited( user, repository, contextLevel );
+        return deleteAudited( user, repository, ctxLevel );
     }
 
     // --------------------------------------------------------------------------------------------
@@ -1817,24 +1817,24 @@ public class Store
      * @return Collection of Levels from that time
      * @throws ConfigException Is thrown if there were problems fetching records
      */
-    public Collection<ContextLevel> getLevels( final Repository repository,
-                                               final Date time )
+    public Collection<CtxLevel> getLevels( final Repository repository,
+                                           final Date time )
           throws ConfigException
     {
         AuditReader reader = AuditReaderFactory.get( em );
         Number rev = reader.getRevisionNumberForDate( time );
 
-        AuditQuery query = reader.createQuery().forEntitiesAtRevision( ContextLevel.class, rev );
+        AuditQuery query = reader.createQuery().forEntitiesAtRevision( CtxLevel.class, rev );
         query.add( AuditEntity.property( "repository" ).eq( repository ) );
 
         return query.getResultList();
     }
 
 
-    public ContextLevel getLevel( final String levelName,
-                                  final Depth depth,
-                                  final Repository repository,
-                                  final Date time )
+    public CtxLevel getLevel( final String levelName,
+                              final Depth depth,
+                              final Repository repository,
+                              final Date time )
           throws ConfigException
     {
         if ( Utils.anyNull( levelName, repository ) )
@@ -1848,12 +1848,12 @@ public class Store
             {
                 String levelUpper = levelName.toUpperCase();
 
-                return (ContextLevel) em.createNamedQuery( "Level.getByName" )
-                                        .setLockMode( LockModeType.NONE )
-                                        .setParameter( "repository", repository )
-                                        .setParameter( "name", levelUpper )
-                                        .setParameter( "depth", depth )
-                                        .getSingleResult();
+                return (CtxLevel) em.createNamedQuery( "Level.getByName" )
+                                    .setLockMode( LockModeType.NONE )
+                                    .setParameter( "repository", repository )
+                                    .setParameter( "name", levelUpper )
+                                    .setParameter( "depth", depth )
+                                    .getSingleResult();
             }
             catch ( NoResultException e )
             {
@@ -1872,14 +1872,14 @@ public class Store
         Number rev = reader.getRevisionNumberForDate( time );
 
         // ToDo will not return deleted level
-        AuditQuery query = reader.createQuery().forEntitiesAtRevision( ContextLevel.class, rev );
+        AuditQuery query = reader.createQuery().forEntitiesAtRevision( CtxLevel.class, rev );
         query.add( AuditEntity.property( "repository" ).eq( repository ) );
         query.add( AuditEntity.property( "name" ).eq( levelName ) );
         query.add( AuditEntity.property( "depth" ).eq( depth ) );
 
         try
         {
-            return (ContextLevel) query.getSingleResult();
+            return (CtxLevel) query.getSingleResult();
         }
         catch ( NoResultException e )
         {
@@ -1901,20 +1901,20 @@ public class Store
      * @return
      * @throws ConfigException
      */
-    public Map<Depth, Collection<ContextLevel>> getLevelsByDepth( final Repository repository,
-                                                                  final Date time )
+    public Map<Depth, Collection<CtxLevel>> getLevelsByDepth( final Repository repository,
+                                                              final Date time )
           throws ConfigException
     {
-        Map<Depth, Collection<ContextLevel>> levelMap = new HashMap<>();
+        Map<Depth, Collection<CtxLevel>> levelMap = new HashMap<>();
 
         for ( Depth depth : repository.getDepth().getDepths() )
         {
             levelMap.put( depth, new HashSet<>() );
         }
 
-        for ( ContextLevel contextLevel : getLevels( repository, time ) )
+        for ( CtxLevel ctxLevel : getLevels( repository, time ) )
         {
-            levelMap.get( contextLevel.getDepth() ).add( contextLevel );
+            levelMap.get( ctxLevel.getDepth() ).add( ctxLevel );
         }
 
         return levelMap;
@@ -2008,7 +2008,7 @@ public class Store
                                     final boolean deprecated,
                                     final boolean push,
                                     final PropertyKey.ValueDataType valueDataType,
-                                    final Collection<ContextLevel> context,
+                                    final Collection<CtxLevel> context,
                                     final String changeComment,
                                     final String spPassword,
                                     final String spName,
@@ -2157,7 +2157,7 @@ public class Store
      */
     public Property updateProperty( final Long propertyId,
                                     final String value,
-                                    final Collection<ContextLevel> context,
+                                    final Collection<CtxLevel> context,
                                     final String changeComment,
                                     final boolean active,
                                     final String secretKey,
@@ -4590,7 +4590,7 @@ public class Store
                                     final String path,
                                     final String fileName,
                                     final String content,
-                                    final Collection<ContextLevel> context,
+                                    final Collection<CtxLevel> context,
                                     final boolean active,
                                     final String spName,
                                     final String spPassword,
@@ -4617,7 +4617,7 @@ public class Store
             saveOrUpdateAudited( user, repository, absoluteFilePath, changeComment );
         }
 
-        RepoFile file = new RepoFile( repository, absoluteFilePath, content, (Set<ContextLevel>) context );
+        RepoFile file = new RepoFile( repository, absoluteFilePath, content, (Set<CtxLevel>) context );
         file.setActive( active );
 
         if ( !Utils.isBlank( spName ) )
@@ -4651,7 +4651,7 @@ public class Store
                                     final String path,
                                     final String fileName,
                                     final String content,
-                                    final Collection<ContextLevel> context,
+                                    final Collection<CtxLevel> context,
                                     final boolean active,
                                     final String spName,
                                     final String spPassword,
@@ -4673,7 +4673,7 @@ public class Store
             saveOrUpdateAuditedViaAPI( apiIdentifier, repository, absoluteFilePath, changeComment );
         }
 
-        RepoFile file = new RepoFile( repository, absoluteFilePath, content, (Set<ContextLevel>) context );
+        RepoFile file = new RepoFile( repository, absoluteFilePath, content, (Set<CtxLevel>) context );
         file.setActive( active );
 
         if ( !Utils.isBlank( spName ) )
@@ -4760,7 +4760,7 @@ public class Store
                                     final boolean renameAll,
                                     final boolean updateRefs,
                                     final String content,
-                                    final Collection<ContextLevel> context,
+                                    final Collection<CtxLevel> context,
                                     final boolean active,
                                     final String spName,
                                     final String spPassword,
@@ -4803,7 +4803,7 @@ public class Store
                                     final String path,
                                     final String filename,
                                     final String content,
-                                    final Collection<ContextLevel> context,
+                                    final Collection<CtxLevel> context,
                                     final boolean active,
                                     final String spName,
                                     final String newProfilePassword,
@@ -4844,7 +4844,7 @@ public class Store
                                      final boolean renameAll,
                                      final boolean updateRefs,
                                      final String content,
-                                     final Collection<ContextLevel> context,
+                                     final Collection<CtxLevel> context,
                                      final boolean active,
                                      final String spName,
                                      final String newProfilePassword,
@@ -5129,7 +5129,7 @@ public class Store
 
     public RepoFile getRepoFile( final Repository repository,
                                  final String absPath,
-                                 final Set<ContextLevel> context,
+                                 final Set<CtxLevel> context,
                                  final Date date )
           throws ConfigException
     {

@@ -20,7 +20,7 @@ package com.confighub.api.repository.user.context;
 import com.confighub.api.repository.user.AUserAccessValidation;
 import com.confighub.core.error.ConfigException;
 import com.confighub.core.repository.Depth;
-import com.confighub.core.repository.ContextLevel;
+import com.confighub.core.repository.CtxLevel;
 import com.confighub.core.repository.Repository;
 import com.confighub.core.store.Store;
 import com.confighub.core.user.UserAccount;
@@ -59,7 +59,7 @@ public class AllDepthLevels
             if (0 != status)
                 return Response.status(status).build();
 
-            ContextLevel ci = null;
+            CtxLevel ci = null;
             if (null != id)
             {
                 ci = store.getLevel(id, repository);
@@ -73,7 +73,7 @@ public class AllDepthLevels
             }
 
             Depth depth = repository.getDepthFromLabel(depthLabel);
-            ContextLevel.LevelType t = ContextLevel.LevelType.valueOf( type);
+            CtxLevel.LevelType t = CtxLevel.LevelType.valueOf( type);
             JsonArray cis = getAssignments(ci, depth, t, all, store, repository, user, id);
             if (null == cis)
                 return Response.ok(gson.toJson(json), MediaType.APPLICATION_JSON).build();
@@ -97,19 +97,19 @@ public class AllDepthLevels
 
     }
 
-    protected static JsonArray getAssignments( ContextLevel ci,
+    protected static JsonArray getAssignments( CtxLevel ci,
                                                Depth depth,
-                                               ContextLevel.LevelType t,
+                                               CtxLevel.LevelType t,
                                                boolean all,
                                                Store store,
                                                Repository repository,
                                                UserAccount user,
                                                Long id)
     {
-        boolean isCluster = t.equals( ContextLevel.LevelType.Group);
-        boolean isNode = t.equals( ContextLevel.LevelType.Member);
+        boolean isCluster = t.equals( CtxLevel.LevelType.Group);
+        boolean isNode = t.equals( CtxLevel.LevelType.Member);
 
-        Set<ContextLevel> assigned = null;
+        Set<CtxLevel> assigned = null;
         if (null != ci)
             assigned = isCluster ? ci.getMembers() : ci.getGroups();
 
@@ -117,11 +117,11 @@ public class AllDepthLevels
 
         if (all)
         {
-            Collection<ContextLevel> contextLevels = store.getLevelsForDepth( repository, user, depth);
-            if ( null == contextLevels )
+            Collection<CtxLevel> ctxLevels = store.getLevelsForDepth( repository, user, depth);
+            if ( null == ctxLevels )
                 return null;
 
-            for ( ContextLevel l : contextLevels )
+            for ( CtxLevel l : ctxLevels )
             {
                 if (!l.getId().equals(id))
                 {

@@ -45,7 +45,7 @@ public abstract class AContextAwarePersistent
     protected Repository repository;
 
     @ManyToMany(fetch = FetchType.LAZY, cascade = { CascadeType.REFRESH })
-    protected Set<ContextLevel> context;
+    protected Set<CtxLevel> context;
 
     // ENVERS optimization
     @JoinColumn(nullable = false)
@@ -90,17 +90,17 @@ public abstract class AContextAwarePersistent
                 JsonObject vo = json.get(i).getAsJsonObject();
                 if (vo.has("w"))
                 {
-                    ContextLevel.LevelType type;
+                    CtxLevel.LevelType type;
                     switch (vo.get("t").getAsInt())
                     {
                         case 1:
-                            type = ContextLevel.LevelType.Member;
+                            type = CtxLevel.LevelType.Member;
                             break;
                         case 2:
-                            type = ContextLevel.LevelType.Group;
+                            type = CtxLevel.LevelType.Group;
                             break;
                         default:
-                            type = ContextLevel.LevelType.Standalone;
+                            type = CtxLevel.LevelType.Standalone;
                             break;
                     }
 
@@ -121,15 +121,15 @@ public abstract class AContextAwarePersistent
     {
         if (null != this.context && context.size() > 1)
         {
-            Map<Depth, ContextLevel> depthMap = new HashMap<>();
-            for ( ContextLevel contextLevel : this.context)
+            Map<Depth, CtxLevel> depthMap = new HashMap<>();
+            for ( CtxLevel ctxLevel : this.context)
             {
-                if (depthMap.containsKey( contextLevel.getDepth()))
+                if (depthMap.containsKey( ctxLevel.getDepth()))
                 {
                     throw new ConfigException(Error.Code.PROP_CONTEXT_DUPLICATE_DEPTH);
                 }
 
-                depthMap.put( contextLevel.getDepth(), contextLevel );
+                depthMap.put( ctxLevel.getDepth(), ctxLevel );
             }
         }
     }
@@ -142,8 +142,8 @@ public abstract class AContextAwarePersistent
             // Now that there are conflict candidates, find all proxy clusters and organize
             // them into a single map "mask"
 
-            Map<Depth, Collection<ContextLevel>> mask = null;
-            for ( ContextLevel ci : this.context)
+            Map<Depth, Collection<CtxLevel>> mask = null;
+            for ( CtxLevel ci : this.context)
             {
                 if (!ci.isGroup())
                     continue;
@@ -152,12 +152,12 @@ public abstract class AContextAwarePersistent
                 // this would be caught by rule #3.
 
                 // ci is a cluster.  find other proxy clusters, if any
-                for ( ContextLevel ciNode : ci.getMembers())
+                for ( CtxLevel ciNode : ci.getMembers())
                 {
                     if (null == ciNode.getGroups() || ciNode.getGroups().size() == 1)
                         continue;
 
-                    for ( ContextLevel proxyCluster : ciNode.getGroups())
+                    for ( CtxLevel proxyCluster : ciNode.getGroups())
                     {
                         if (proxyCluster.equals(ci) || null == proxyCluster.getFiles())
                             continue;
@@ -165,7 +165,7 @@ public abstract class AContextAwarePersistent
                         if (null == mask)
                             mask = new HashMap<>();
 
-                        Collection<ContextLevel> depthClusters = mask.get( ci.getDepth());
+                        Collection<CtxLevel> depthClusters = mask.get( ci.getDepth());
                         if (null == depthClusters)
                         {
                             depthClusters = new HashSet<>();
@@ -181,12 +181,12 @@ public abstract class AContextAwarePersistent
             if (null != mask)
             {
                 EnumSet<Depth> depths = repository.getDepth().getDepths();
-                Map<Depth, ContextLevel> thisContextMap = this.getContextMap();
+                Map<Depth, CtxLevel> thisContextMap = this.getContextMap();
 
                 boolean conflict = true;
                 for (AContextAwarePersistent file : conflictCandidates)
                 {
-                    Map<Depth, ContextLevel> otherContextMap = file.getContextMap();
+                    Map<Depth, CtxLevel> otherContextMap = file.getContextMap();
 
                     for (Depth depth : depths)
                     {
@@ -285,11 +285,11 @@ public abstract class AContextAwarePersistent
 
     public abstract JsonObject toJson();
 
-    private static ContextLevel getLevelAt( Depth d, Set<ContextLevel> context)
+    private static CtxLevel getLevelAt( Depth d, Set<CtxLevel> context)
     {
         if (null == context)
             return null;
-        for ( ContextLevel l : context)
+        for ( CtxLevel l : context)
             if (l.getDepth() == d)
                 return l;
         return null;
@@ -301,7 +301,7 @@ public abstract class AContextAwarePersistent
         JsonArray json = new JsonArray();
         for (Depth depth : this.repository.getDepth().getDepths())
         {
-            ContextLevel l;
+            CtxLevel l;
             JsonObject ljson = new JsonObject();
             ljson.addProperty("p", depth.getPlacement());
 
@@ -321,16 +321,16 @@ public abstract class AContextAwarePersistent
     }
 
 
-    public transient Map<Depth, ContextLevel> contextMap;
+    public transient Map<Depth, CtxLevel> contextMap;
 
-    public Map<Depth, ContextLevel> getContextMap()
+    public Map<Depth, CtxLevel> getContextMap()
     {
         if (null == contextMap)
         {
             contextMap = new HashMap<>();
             if (null != context)
             {
-                for ( ContextLevel l : this.context)
+                for ( CtxLevel l : this.context)
                     contextMap.put(l.getDepth(), l);
             }
         }
@@ -342,12 +342,12 @@ public abstract class AContextAwarePersistent
     // Getters & Setters
     // --------------------------------------------------------------------------------------------
 
-    public Set<ContextLevel> getContext()
+    public Set<CtxLevel> getContext()
     {
         return context;
     }
 
-    public void setContext(Collection<ContextLevel> context)
+    public void setContext(Collection<CtxLevel> context)
     {
         if (null == context)
             context = new HashSet<>();
@@ -361,8 +361,8 @@ public abstract class AContextAwarePersistent
         {
             this.context = new HashSet<>();
 
-            for ( ContextLevel contextLevel : context)
-                this.context.add( contextLevel );
+            for ( CtxLevel ctxLevel : context)
+                this.context.add( ctxLevel );
         }
 
         updateContextString();

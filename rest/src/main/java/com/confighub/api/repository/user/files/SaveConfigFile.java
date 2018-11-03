@@ -19,7 +19,7 @@ package com.confighub.api.repository.user.files;
 
 import com.confighub.api.repository.user.AUserAccessValidation;
 import com.confighub.core.error.ConfigException;
-import com.confighub.core.repository.ContextLevel;
+import com.confighub.core.repository.CtxLevel;
 import com.confighub.core.repository.RepoFile;
 import com.confighub.core.store.Store;
 import com.confighub.core.utils.ContextParser;
@@ -68,7 +68,7 @@ public class SaveConfigFile
             if (0 != status)
                 return Response.status(status).build();
 
-            Collection<ContextLevel> context = ContextParser.parseAndCreate( fileContext, repository, store, user, null);
+            Collection<CtxLevel> context = ContextParser.parseAndCreate( fileContext, repository, store, user, null);
             RepoFile file;
             store.begin();
             if (null != id && id > 0)

@@ -21,7 +21,7 @@ import com.confighub.api.repository.client.AClientAccessValidation;
 import com.confighub.core.error.ConfigException;
 import com.confighub.core.error.Error;
 import com.confighub.core.repository.AbsoluteFilePath;
-import com.confighub.core.repository.ContextLevel;
+import com.confighub.core.repository.CtxLevel;
 import com.confighub.core.repository.Property;
 import com.confighub.core.repository.PropertyKey;
 import com.confighub.core.repository.RepoFile;
@@ -187,11 +187,11 @@ public class APIPush
                     String fileName = li > 0 ? absPath.substring( li + 1, absPath.length() ) : absPath;
 
                     String contextString = entry.get( "context" ).getAsString();
-                    Set<ContextLevel> context = ContextParser.parseAndCreateViaApi( contextString,
-                                                                                    repository,
-                                                                                    store,
-                                                                                    appName,
-                                                                                    changeComment );
+                    Set<CtxLevel> context = ContextParser.parseAndCreateViaApi( contextString,
+                                                                                repository,
+                                                                                store,
+                                                                                appName,
+                                                                                changeComment );
 
                     RepoFile file = store.getRepoFile( repository, absPath, context, null );
 
@@ -367,13 +367,13 @@ public class APIPush
                         try
                         {
                             String context = valueJson.get( "context" ).getAsString();
-                            Set<ContextLevel> contextLevels = ContextParser.parseAndCreateViaApi( context,
-                                                                                                  repository,
-                                                                                                  store,
-                                                                                                  appName,
-                                                                                                  changeComment );
+                            Set<CtxLevel> ctxLevels = ContextParser.parseAndCreateViaApi( context,
+                                                                                          repository,
+                                                                                          store,
+                                                                                          appName,
+                                                                                          changeComment );
 
-                            Property property = propertyKey.getPropertyForContext( contextLevels );
+                            Property property = propertyKey.getPropertyForContext( ctxLevels );
 
                             boolean isDelete = valueJson.has( "opp" )
                                                ? "delete".equalsIgnoreCase( valueJson.get( "opp" ).getAsString() )
@@ -456,7 +456,7 @@ public class APIPush
                                 property.setActive( valueJson.get( "active" ).getAsBoolean() );
                             }
 
-                            property.setContext( contextLevels );
+                            property.setContext( ctxLevels );
                             store.saveProperty( appName, repository, token, property, changeComment );
                         }
                         catch ( ConfigException e )

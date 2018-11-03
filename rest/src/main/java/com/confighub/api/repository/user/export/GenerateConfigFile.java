@@ -21,7 +21,7 @@ import com.confighub.api.repository.user.AUserAccessValidation;
 import com.confighub.api.util.FileHelper;
 import com.confighub.core.error.ConfigException;
 import com.confighub.core.error.Error;
-import com.confighub.core.repository.ContextLevel;
+import com.confighub.core.repository.CtxLevel;
 import com.confighub.core.repository.Property;
 import com.confighub.core.repository.PropertyKey;
 import com.confighub.core.resolver.Context;
@@ -61,8 +61,8 @@ public class GenerateConfigFile
             int status = validate(account, repositoryName, token, store);
             if (0 != status) return Response.status(status).build();
 
-            Collection<ContextLevel> contextLevels = ContextParser.parseAndCreate( ctx, repository, store, user, null);
-            Context context = new Context( store, repository, contextLevels, null);
+            Collection<CtxLevel> ctxLevels = ContextParser.parseAndCreate( ctx, repository, store, user, null);
+            Context context = new Context( store, repository, ctxLevels, null);
 
             if (!context.isFullContext())
                 throw new ConfigException(Error.Code.PARTIAL_CONTEXT);

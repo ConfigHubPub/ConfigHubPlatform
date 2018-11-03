@@ -20,7 +20,7 @@ package com.confighub.api.repository.admin.settings;
 import com.confighub.api.repository.admin.AAdminAccessValidation;
 import com.confighub.api.util.GsonHelper;
 import com.confighub.core.error.ConfigException;
-import com.confighub.core.repository.ContextLevel;
+import com.confighub.core.repository.CtxLevel;
 import com.confighub.core.repository.PropertyKey;
 import com.confighub.core.store.Store;
 import com.google.gson.Gson;
@@ -95,10 +95,10 @@ public class UpdateRepositoryFeatures
 
             if (!contextClusters)
             {
-                Collection<ContextLevel> contextLevels = repository.getContextLevels();
-                for ( ContextLevel contextLevel : contextLevels )
+                Collection<CtxLevel> ctxLevels = repository.getCtxLevels();
+                for ( CtxLevel ctxLevel : ctxLevels )
                 {
-                    if (!contextLevel.isStandalone())
+                    if (!ctxLevel.isStandalone())
                     {
                         JsonObject err = new JsonObject();
                         err.addProperty("type", "contextClusters");

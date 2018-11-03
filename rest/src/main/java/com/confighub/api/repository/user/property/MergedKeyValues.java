@@ -20,7 +20,7 @@ package com.confighub.api.repository.user.property;
 import com.confighub.api.repository.user.AUserAccessValidation;
 import com.confighub.api.repository.user.editor.KeyProperties;
 import com.confighub.core.error.ConfigException;
-import com.confighub.core.repository.ContextLevel;
+import com.confighub.core.repository.CtxLevel;
 import com.confighub.core.repository.PropertyKey;
 import com.confighub.core.resolver.Context;
 import com.confighub.core.security.SecurityProfile;
@@ -74,7 +74,7 @@ public class MergedKeyValues
                 }
             }
 
-            Collection<ContextLevel> ctx = ContextParser.parseAndCreate( contextString, repository, store, user, dateObj);
+            Collection<CtxLevel> ctx = ContextParser.parseAndCreate( contextString, repository, store, user, dateObj);
             Context context = new Context(store, repository, ctx, dateObj);
             SecurityProfile ep = null;
 

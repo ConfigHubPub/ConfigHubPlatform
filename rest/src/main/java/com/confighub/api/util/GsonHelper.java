@@ -320,7 +320,7 @@ public abstract class GsonHelper
         return json;
     }
 
-    public static JsonObject levelAuditToGSON( ContextLevel l)
+    public static JsonObject levelAuditToGSON( CtxLevel l)
     {
         JsonObject json = levelToGSON(l);
 
@@ -350,7 +350,7 @@ public abstract class GsonHelper
         return json;
     }
 
-    public static JsonObject levelToGSON( ContextLevel l)
+    public static JsonObject levelToGSON( CtxLevel l)
     {
         JsonObject json = new JsonObject();
 
