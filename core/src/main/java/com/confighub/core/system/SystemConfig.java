@@ -16,6 +16,7 @@ import javax.persistence.*;
  * Entity for persisting configuration data for ConfigHub instances.
  */
 @Entity
+@Table(name="systemconfig")
 @Cacheable
 @Cache( usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE )
 @Getter

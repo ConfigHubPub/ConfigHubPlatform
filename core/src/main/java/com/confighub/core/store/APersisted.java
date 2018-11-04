@@ -25,6 +25,7 @@ import org.apache.logging.log4j.Logger;
 import org.hibernate.envers.Audited;
 
 import javax.persistence.Column;
+import javax.persistence.Lob;
 import javax.persistence.MappedSuperclass;
 
 @Audited
@@ -72,6 +73,7 @@ public abstract class APersisted
     public abstract Long getId();
     public abstract ClassName getClassName();
 
+    @Lob
     @Column(name = "diffJson", columnDefinition = "TEXT")
     public String diffJson;
 

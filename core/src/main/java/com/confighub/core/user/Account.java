@@ -32,79 +32,100 @@ import javax.persistence.*;
 import java.util.HashSet;
 import java.util.Set;
 
+
 @Entity
+@Table( name = "account" )
 @Cacheable
-@Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
-@NamedQueries({
-        @NamedQuery(name = "AccountName.get", query = "SELECT p from Account p WHERE name=:name"),
-        @NamedQuery(name = "AccountName.count", query = "SELECT COUNT(p.name) from Account p WHERE name=:name")
-})
+@Cache( usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE )
+@NamedQueries(
+      {
+            @NamedQuery( name = "AccountName.get",
+                         query = "SELECT p from Account p WHERE name=:name" ),
+            @NamedQuery( name = "AccountName.count",
+                         query = "SELECT COUNT(p.name) from Account p WHERE name=:name" )
+      } )
 public class Account
-        extends APersisted
+      extends APersisted
 {
-    private static final Logger log = LogManager.getLogger(Account.class);
+    private static final Logger log = LogManager.getLogger( Account.class );
 
     @Id
     @GeneratedValue
     private Long id;
 
-    @Column(nullable = false, unique = true)
+    @Column( nullable = false,
+             unique = true )
     private String name;
 
-    @OneToOne(fetch = FetchType.LAZY, cascade = { CascadeType.REFRESH })
+    @OneToOne( fetch = FetchType.LAZY,
+               cascade = { CascadeType.REFRESH } )
     private UserAccount user;
 
-    @OneToOne(fetch = FetchType.LAZY, cascade = { CascadeType.REFRESH })
+    @OneToOne( fetch = FetchType.LAZY,
+               cascade = { CascadeType.REFRESH } )
     private Organization organization;
 
-    @Column(name = "company")
+    @Column( name = "company" )
     private String company;
 
-    @Column(name = "website")
+    @Column( name = "website" )
     private String website;
 
-    @Column(name = "city")
+    @Column( name = "city" )
     private String city;
 
-    @Column(name = "country")
+    @Column( name = "country" )
     private String country;
 
-    @ManyToMany(fetch = FetchType.LAZY, cascade = { CascadeType.REFRESH, CascadeType.PERSIST })
+    @ManyToMany( fetch = FetchType.LAZY,
+                 cascade = { CascadeType.REFRESH,
+                             CascadeType.PERSIST } )
     private Set<Repository> repositories;
 
     // -------------------------------------------------------------------------------------------- //
     // POJO Operations
     // -------------------------------------------------------------------------------------------- //
 
-    public boolean isPersonal() {
+
+    public boolean isPersonal()
+    {
         return null != this.user;
     }
+
 
     @PostUpdate
     @PostPersist
     public void validateName()
-            throws ConfigException
+          throws ConfigException
     {
-        if (!Utils.isNameValid(this.name))
-            throw new ConfigException(Error.Code.ILLEGAL_CHARACTERS);
+        if ( !Utils.isNameValid( this.name ) )
+        {
+            throw new ConfigException( Error.Code.ILLEGAL_CHARACTERS );
+        }
     }
 
-    @Override
-    public boolean equals(Object other)
-    {
-        if (null == other)
-            return false;
 
-        if (!(other instanceof Account))
+    @Override
+    public boolean equals( Object other )
+    {
+        if ( null == other )
+        {
             return false;
+        }
+
+        if ( !( other instanceof Account ) )
+        {
+            return false;
+        }
 
         Account o = (Account) other;
-        return this.name.equals(o.getName());
+        return this.name.equals( o.getName() );
     }
 
     // --------------------------------------------------------------------------------------------
     // Setters and getters
     // --------------------------------------------------------------------------------------------
+
 
     @Override
     public Long getId()
@@ -112,113 +133,139 @@ public class Account
         return id;
     }
 
+
     public String getName()
     {
         return name;
     }
 
-    public void setName(String name)
+
+    public void setName( String name )
     {
         this.name = name;
     }
+
 
     public UserAccount getUser()
     {
         return user;
     }
 
-    public void setUser(UserAccount user)
+
+    public void setUser( UserAccount user )
     {
         this.user = user;
     }
+
 
     public Organization getOrganization()
     {
         return organization;
     }
 
-    public void setOrganization(Organization organization)
+
+    public void setOrganization( Organization organization )
     {
         this.organization = organization;
     }
+
 
     public String getCompany()
     {
         return company;
     }
 
-    public void setCompany(String company)
+
+    public void setCompany( String company )
     {
         this.company = company;
     }
+
 
     public String getWebsite()
     {
         return website;
     }
 
-    public void setWebsite(String website)
+
+    public void setWebsite( String website )
     {
         this.website = website;
     }
+
 
     public String getCity()
     {
         return city;
     }
 
-    public void setCity(String city)
+
+    public void setCity( String city )
     {
         this.city = city;
     }
+
 
     public String getCountry()
     {
         return country;
     }
 
-    public void setCountry(String country)
+
+    public void setCountry( String country )
     {
         this.country = country;
     }
 
+
     @Override
-    public String toString() {
-        return String.format("Account [%d] %s", this.id, this.name);
+    public String toString()
+    {
+        return String.format( "Account [%d] %s", this.id, this.name );
     }
 
     // --------------------------------------------------------------------------------------------
     // Repository management
     // --------------------------------------------------------------------------------------------
 
-    public void joinRepository(final Repository repository)
+
+    public void joinRepository( final Repository repository )
     {
-        if (null == this.repositories)
+        if ( null == this.repositories )
+        {
             this.repositories = new HashSet<>();
+        }
 
-        this.repositories.add(repository);
+        this.repositories.add( repository );
     }
 
-    public boolean removeRepository(final Repository repository)
+
+    public boolean removeRepository( final Repository repository )
     {
-        return null != this.repositories && this.repositories.remove(repository);
+        return null != this.repositories && this.repositories.remove( repository );
     }
+
 
     public int getRepositoryCount()
     {
-        if (null == this.repositories)
+        if ( null == this.repositories )
+        {
             return 0;
+        }
 
         return this.repositories.size();
     }
+
 
     public Set<Repository> getRepositories()
     {
         return repositories;
     }
 
+
     @Override
-    public ClassName getClassName() {
+    public ClassName getClassName()
+    {
         return ClassName.Account;
     }
 }

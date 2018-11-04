@@ -24,23 +24,32 @@ import com.confighub.core.utils.Validator;
 
 import javax.persistence.*;
 
+
 @Entity
+@Table( name = "email" )
 public class Email
-        extends APersisted
+      extends APersisted
 {
     @Id
     @GeneratedValue
     private Long id;
 
-    @Column(nullable = false, unique = true)
+    @Column( nullable = false,
+             unique = true )
     private String email;
 
-    @OneToOne(fetch = FetchType.LAZY, cascade = { CascadeType.REFRESH })
+    @OneToOne( fetch = FetchType.LAZY,
+               cascade = { CascadeType.REFRESH } )
     private UserAccount user;
 
-    protected Email() {}
 
-    public Email(String email, UserAccount user)
+    protected Email()
+    {
+    }
+
+
+    public Email( String email,
+                  UserAccount user )
     {
         this.email = email;
         this.user = user;
@@ -50,14 +59,18 @@ public class Email
     // Setters and getters
     // --------------------------------------------------------------------------------------------
 
+
     @PostUpdate
     @PostPersist
     public void enforce()
-            throws ConfigException
+          throws ConfigException
     {
-        if (!Validator.validEmail(email))
-            throw new ConfigException(Error.Code.USER_BAD_EMAIL);
+        if ( !Validator.validEmail( email ) )
+        {
+            throw new ConfigException( Error.Code.USER_BAD_EMAIL );
+        }
     }
+
 
     @Override
     public Long getId()
@@ -65,31 +78,39 @@ public class Email
         return id;
     }
 
+
     public String getEmail()
     {
         return email;
     }
 
-    public void setEmail(String email)
+
+    public void setEmail( String email )
     {
-        if (this.email.equals(email))
+        if ( this.email.equals( email ) )
+        {
             return;
+        }
 
         this.email = email;
     }
+
 
     public UserAccount getUser()
     {
         return user;
     }
 
-    public void setUser(UserAccount user)
+
+    public void setUser( UserAccount user )
     {
         this.user = user;
     }
 
+
     @Override
-    public ClassName getClassName() {
+    public ClassName getClassName()
+    {
         return ClassName.Email;
     }
 }

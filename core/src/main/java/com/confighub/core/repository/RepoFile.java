@@ -31,42 +31,56 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.envers.AuditTable;
 import org.hibernate.envers.Audited;
 
 import javax.persistence.*;
 import java.util.*;
 
+
 @Entity
+@Table( name = "repofile" )
 @Cacheable
-@org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
-@NamedQueries({
-        @NamedQuery(name = "RepoFile.count", query = "SELECT COUNT(c) FROM RepoFile c"),
-        @NamedQuery(name = "RepoFile.search",
-            query = "SELECT f FROM RepoFile f WHERE repository=:repository AND " +
-                    "(absFilePath.absPath LIKE :searchTerm OR content LIKE :searchTerm)")
-})
+@org.hibernate.annotations.Cache( usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE )
+@NamedQueries(
+      {
+            @NamedQuery( name = "RepoFile.count",
+                         query = "SELECT COUNT(c) FROM RepoFile c" ),
+            @NamedQuery( name = "RepoFile.search",
+                         query = "SELECT f FROM RepoFile f WHERE repository=:repository AND " +
+                                 "(absFilePath.absPath LIKE :searchTerm OR content LIKE :searchTerm)" )
+      } )
 @Audited
-@EntityListeners({RepoFileDiffTracker.class})
+@AuditTable( "repofile_audit" )
+@EntityListeners( { RepoFileDiffTracker.class } )
 public class RepoFile
-    extends AContextAwarePersistent
+      extends AContextAwarePersistent
 {
-    private static final Logger log = LogManager.getLogger(RepoFile.class);
+    private static final Logger log = LogManager.getLogger( RepoFile.class );
 
     @Id
     @GeneratedValue
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY, cascade = { CascadeType.PERSIST, CascadeType.REFRESH })
-    @JoinColumn(nullable = false)
+    @ManyToOne( fetch = FetchType.LAZY,
+                cascade = { CascadeType.PERSIST,
+                            CascadeType.REFRESH } )
+    @JoinColumn( nullable = false )
     private AbsoluteFilePath absFilePath;
 
-    @Column(nullable = false, length = 2097152) // 2MB
+    @Lob
+    @Column( nullable = false,
+             columnDefinition = "TEXT" )
     private String content;
 
-    @ManyToOne(fetch = FetchType.LAZY, cascade = { CascadeType.REFRESH, CascadeType.PERSIST })
+    @ManyToOne( fetch = FetchType.LAZY,
+                cascade = { CascadeType.REFRESH,
+                            CascadeType.PERSIST } )
     private SecurityProfile securityProfile;
 
-    @ManyToMany(fetch = FetchType.LAZY, cascade = { CascadeType.REFRESH, CascadeType.PERSIST })
+    @ManyToMany( fetch = FetchType.LAZY,
+                 cascade = { CascadeType.REFRESH,
+                             CascadeType.PERSIST } )
     private Set<PropertyKey> keys;
 
 
@@ -74,21 +88,26 @@ public class RepoFile
     // Construction
     // --------------------------------------------------------------------------------------------
 
-    protected RepoFile() {}
 
-    public RepoFile(final Repository repository,
-                    final AbsoluteFilePath absFilePath,
-                    final String content,
-                    final Set<CtxLevel> context)
+    protected RepoFile()
+    {
+    }
+
+
+    public RepoFile( final Repository repository,
+                     final AbsoluteFilePath absFilePath,
+                     final String content,
+                     final Set<CtxLevel> context )
     {
         this.repository = repository;
         this.absFilePath = absFilePath;
         this.content = content;
         this.context = context;
-        this.absFilePath.addFile(this);
+        this.absFilePath.addFile( this );
 
         updateContextString();
     }
+
 
     // --------------------------------------------------------------------------------------------
     // Validation before saving
@@ -96,90 +115,103 @@ public class RepoFile
     @PreRemove
     public void preRemove()
     {
-        this.absFilePath.removeFile(this);
+        this.absFilePath.removeFile( this );
     }
+
 
     @PreUpdate
     @PrePersist
     public void enforce()
-            throws ConfigException
+          throws ConfigException
     {
 
         // Inactive properties can exist without any restrictions
-        if (!this.active)
+        if ( !this.active )
+        {
             return;
+        }
 
         // 1. Path cannot be blank
-        if (null == this.absFilePath)
-            throw new ConfigException(Error.Code.BLANK_NAME);
+        if ( null == this.absFilePath )
+        {
+            throw new ConfigException( Error.Code.BLANK_NAME );
+        }
 
         // 2. Context cannot contain more than one level with the same depth
         validateContext();
 
         // 3. AbsolutePath with the same context signature cannot exist
-        for (RepoFile file : absFilePath.getFiles())
+        for ( RepoFile file : absFilePath.getFiles() )
         {
-            if (file.equals(this) || !file.isActive())
-                continue;
-
-            if (file.getContextWeight() == this.getContextWeight())
+            if ( file.equals( this ) || !file.isActive() )
             {
-                if (CollectionUtils.isEqualCollection(this.context, file.getContext()))
+                continue;
+            }
+
+            if ( file.getContextWeight() == this.getContextWeight() )
+            {
+                if ( CollectionUtils.isEqualCollection( this.context, file.getContext() ) )
                 {
-                    throw new ConfigException(Error.Code.FILE_DUPLICATION_CONTEXT);
+                    throw new ConfigException( Error.Code.FILE_DUPLICATION_CONTEXT );
                 }
             }
         }
 
         // 4. Cross-cluster conflict detection
-        if (this.repository.isContextClustersEnabled() &&
-                null != this.context &&
-                this.absFilePath.getFiles().size() > 1)
+        if ( this.repository.isContextClustersEnabled() &&
+             null != this.context &&
+             this.absFilePath.getFiles().size() > 1 )
         {
 
             // Check if the key for this property has values with the same context weight, as this is
             // the first indicator of a potential cross-cluster conflict.
             List<AContextAwarePersistent> conflictCandidates = null;
-            for (RepoFile file : this.absFilePath.getFiles())
+            for ( RepoFile file : this.absFilePath.getFiles() )
             {
-                if (file.equals(this))
-                    continue;
-
-                if (this.contextWeight == file.getContextWeight())
+                if ( file.equals( this ) )
                 {
-                    if (null == conflictCandidates)
+                    continue;
+                }
+
+                if ( this.contextWeight == file.getContextWeight() )
+                {
+                    if ( null == conflictCandidates )
+                    {
                         conflictCandidates = new ArrayList<>();
-                    conflictCandidates.add(file);
+                    }
+                    conflictCandidates.add( file );
                 }
             }
 
-            crossClusterValidation(conflictCandidates);
+            crossClusterValidation( conflictCandidates );
         }
 
-        if (this.active && null != this.keys && this.keys.size() > 0)
+        if ( this.active && null != this.keys && this.keys.size() > 0 )
         {
-            Context context = new Context(null, this.repository, this.getContext(), null);
-            checkFileForCircularReference(context, this);
+            Context context = new Context( null, this.repository, this.getContext(), null );
+            checkFileForCircularReference( context, this );
         }
-
     }
 
-    private void checkFileForCircularReference(final Context context,
-                                               final RepoFile file)
-            throws ConfigException
+
+    private void checkFileForCircularReference( final Context context,
+                                                final RepoFile file )
+          throws ConfigException
     {
-        Map<PropertyKey, Collection<Property>> keyListMap = context.resolveFile(file.getKeys(), false);
+        Map<PropertyKey, Collection<Property>> keyListMap = context.resolveFile( file.getKeys(), false );
         HashMap<RepoFile, Property> breadcrumbs = new LinkedHashMap<>();
 
-        for (PropertyKey key : keyListMap.keySet())
+        for ( PropertyKey key : keyListMap.keySet() )
         {
-            if (!PropertyKey.ValueDataType.FileEmbed.equals(key.getValueDataType()))
+            if ( !PropertyKey.ValueDataType.FileEmbed.equals( key.getValueDataType() ) )
+            {
                 continue;
+            }
 
-            for (Property property : keyListMap.get(key))
+            for ( Property property : keyListMap.get( key ) )
             {
                 breadcrumbs.clear();
-                checkPropertyCircularReference(context, property, breadcrumbs);
+                checkPropertyCircularReference( context, property, breadcrumbs );
             }
         }
     }
@@ -189,15 +221,18 @@ public class RepoFile
     // AbsoluteFilePath management
     // --------------------------------------------------------------------------------------------
 
+
     public String getAbsPath()
     {
         return this.absFilePath.getAbsPath();
     }
 
+
     public Set<RepoFile> getFiles()
     {
         return this.absFilePath.getFiles();
     }
+
 
     public Long getAbsPathId()
     {
@@ -208,54 +243,65 @@ public class RepoFile
     // POJO Ops
     // --------------------------------------------------------------------------------------------
 
+
     @Override
     public String toString()
     {
-        return String.format("[%s] RepoFile[%5d]: %s | context[%3d]: %s",
-                             this.revType,
-                             this.id,
-                             this.getAbsPath(),
-                             this.getContextWeight(),
-                             getContextJson());
+        return String.format( "[%s] RepoFile[%5d]: %s | context[%3d]: %s",
+                              this.revType,
+                              this.id,
+                              this.getAbsPath(),
+                              this.getContextWeight(),
+                              getContextJson() );
     }
+
 
     @Override
     public int hashCode()
     {
         // Because envers will store deleted item without any data, we have to be ready for this.
-        if (Utils.anyNull(repository, this.absFilePath))
+        if ( Utils.anyNull( repository, this.absFilePath ) )
+        {
             return this.id.intValue();
+        }
 
-        return Objects.hash(this.repository.getName(),
-                            this.absFilePath.getAbsPath(),
-                            this.contextWeight,
-                            this.contextJson);
+        return Objects.hash( this.repository.getName(),
+                             this.absFilePath.getAbsPath(),
+                             this.contextWeight,
+                             this.contextJson );
     }
+
 
     @Override
-    public boolean equals(Object o)
+    public boolean equals( Object o )
     {
-        if (null == o || !(o instanceof RepoFile)) return false;
-        RepoFile other = (RepoFile)o;
+        if ( null == o || !( o instanceof RepoFile ) )
+        {
+            return false;
+        }
+        RepoFile other = (RepoFile) o;
 
-        return Utils.same(this.getContextJson(), other.getContextJson()) &&
-                this.isActive() == other.isActive() &&
-                this.absFilePath.equals(other.absFilePath) &&
-                Utils.equal(this.id, other.id);
+        return Utils.same( this.getContextJson(), other.getContextJson() ) &&
+               this.isActive() == other.isActive() &&
+               this.absFilePath.equals( other.absFilePath ) &&
+               Utils.equal( this.id, other.id );
     }
+
 
     @Override
     public JsonObject toJson()
     {
         JsonObject json = new JsonObject();
-        json.addProperty("id", this.id);
-        if (null != this.securityProfile)
-            json.addProperty("spName", this.securityProfile.getName());
+        json.addProperty( "id", this.id );
+        if ( null != this.securityProfile )
+        {
+            json.addProperty( "spName", this.securityProfile.getName() );
+        }
 
         Gson gson = new Gson();
-        json.add("levels", gson.fromJson(this.contextJson, JsonArray.class));
-        json.addProperty("active", this.isActive());
-        json.addProperty("score", this.getContextWeight());
+        json.add( "levels", gson.fromJson( this.contextJson, JsonArray.class ) );
+        json.addProperty( "active", this.isActive() );
+        json.addProperty( "score", this.getContextWeight() );
 
         return json;
     }
@@ -264,143 +310,185 @@ public class RepoFile
     // Security
     // --------------------------------------------------------------------------------------------
 
-    public void decryptFile(final String encryptionSecret)
-            throws ConfigException
+
+    public void decryptFile( final String encryptionSecret )
+          throws ConfigException
     {
-        if (!this.isEncrypted() || decrypted)
+        if ( !this.isEncrypted() || decrypted )
+        {
             return;
-        this.content = this.securityProfile.decrypt(this.content, encryptionSecret);
+        }
+        this.content = this.securityProfile.decrypt( this.content, encryptionSecret );
         this.decrypted = true;
     }
 
 
-    public void encryptFile(final String encryptionSecret)
-            throws ConfigException
+    public void encryptFile( final String encryptionSecret )
+          throws ConfigException
     {
-        if (!this.isEncrypted())
+        if ( !this.isEncrypted() )
+        {
             return;
-        this.content = this.securityProfile.encrypt(this.content, encryptionSecret);
+        }
+        this.content = this.securityProfile.encrypt( this.content, encryptionSecret );
         this.decrypted = false;
     }
 
-    public void updateKey(final PropertyKey oldKey, final String newKeyString, final PropertyKey newKey)
-            throws ConfigException
+
+    public void updateKey( final PropertyKey oldKey,
+                           final String newKeyString,
+                           final PropertyKey newKey )
+          throws ConfigException
     {
-        if (this.isEncrypted())
+        if ( this.isEncrypted() )
         {
             String pass = this.securityProfile.getDecodedPassword();
-            decryptFile(pass);
-            this.content = FileUtils.replaceKey(this.content, oldKey.getKey(), newKeyString);
-            encryptFile(pass);
-        } else
-            this.content = FileUtils.replaceKey(this.content, oldKey.getKey(), newKeyString);
-
-        if (null != newKey)
+            decryptFile( pass );
+            this.content = FileUtils.replaceKey( this.content, oldKey.getKey(), newKeyString );
+            encryptFile( pass );
+        }
+        else
         {
-            this.keys.remove(oldKey);
-            this.keys.add(newKey);
+            this.content = FileUtils.replaceKey( this.content, oldKey.getKey(), newKeyString );
+        }
+
+        if ( null != newKey )
+        {
+            this.keys.remove( oldKey );
+            this.keys.add( newKey );
         }
     }
+
 
     public String getContent()
     {
         return content;
     }
 
-    public void setContent(String content)
-            throws ConfigException
+
+    public void setContent( String content )
+          throws ConfigException
     {
-        setContent(content, null);
+        setContent( content, null );
     }
+
 
     public Set<PropertyKey> getKeys()
     {
         return keys;
     }
 
-    public void setKeys(Set<PropertyKey> keys)
+
+    public void setKeys( Set<PropertyKey> keys )
     {
         this.keys = keys;
     }
+
 
     public SecurityProfile getSecurityProfile()
     {
         return securityProfile;
     }
 
+
     private transient boolean decrypted = false;
 
-    public void setContent(final String content, final String encryptionSecret)
-            throws ConfigException
+
+    public void setContent( final String content,
+                            final String encryptionSecret )
+          throws ConfigException
     {
-        if (!this.isSecure())
+        if ( !this.isSecure() )
         {
             this.content = content;
             return;
         }
 
-        if (this.repository.isSecurityProfilesEnabled())
+        if ( this.repository.isSecurityProfilesEnabled() )
         {
-            if (!this.securityProfile.isSecretValid(encryptionSecret))
-                throw new ConfigException(Error.Code.INVALID_PASSWORD);
+            if ( !this.securityProfile.isSecretValid( encryptionSecret ) )
+            {
+                throw new ConfigException( Error.Code.INVALID_PASSWORD );
+            }
 
-            if (this.isEncrypted())
-                this.content = this.securityProfile.encrypt(content, encryptionSecret);
+            if ( this.isEncrypted() )
+            {
+                this.content = this.securityProfile.encrypt( content, encryptionSecret );
+            }
             else
+            {
                 this.content = content;
-        } else
+            }
+        }
+        else
+        {
             this.content = content;
+        }
     }
 
-    public void setAbsFilePath(AbsoluteFilePath absFilePath)
+
+    public void setAbsFilePath( AbsoluteFilePath absFilePath )
     {
-        if (null == absFilePath)
-            return;
-
-        if (null != this.absFilePath)
+        if ( null == absFilePath )
         {
-            if (absFilePath.equals(this.absFilePath))
-                return;
+            return;
+        }
 
-            this.absFilePath.removeFile(this);
+        if ( null != this.absFilePath )
+        {
+            if ( absFilePath.equals( this.absFilePath ) )
+            {
+                return;
+            }
+
+            this.absFilePath.removeFile( this );
         }
 
         this.absFilePath = absFilePath;
-        this.absFilePath.addFile(this);
+        this.absFilePath.addFile( this );
     }
+
 
     /**
      * @param securityProfile
      * @param password
      * @throws ConfigException
      */
-    public void setSecurityProfile(final SecurityProfile securityProfile, final String password)
-            throws ConfigException
+    public void setSecurityProfile( final SecurityProfile securityProfile,
+                                    final String password )
+          throws ConfigException
     {
-        if (null != this.securityProfile)
-            decryptFile(password);
+        if ( null != this.securityProfile )
+        {
+            decryptFile( password );
+        }
 
         this.securityProfile = securityProfile;
-        setContent(this.content, securityProfile.sk);
+        setContent( this.content, securityProfile.sk );
     }
+
 
     /**
      * @param existingSecretKey
      * @throws ConfigException
      */
-    public void removeSecurityProfile(final String existingSecretKey)
-            throws ConfigException
+    public void removeSecurityProfile( final String existingSecretKey )
+          throws ConfigException
     {
-        if (null != this.securityProfile)
-            decryptFile(existingSecretKey);
+        if ( null != this.securityProfile )
+        {
+            decryptFile( existingSecretKey );
+        }
 
         this.securityProfile = null;
     }
+
 
     public boolean isSecure()
     {
         return null != this.securityProfile;
     }
+
 
     public boolean isEncrypted()
     {
@@ -413,11 +501,13 @@ public class RepoFile
         return absFilePath;
     }
 
+
     @Override
     public Long getId()
     {
         return this.id;
     }
+
 
     @Override
     public ClassName getClassName()

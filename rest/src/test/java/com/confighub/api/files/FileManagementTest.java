@@ -27,7 +27,6 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Test;
 
 import javax.ws.rs.core.Response;
 import java.util.HashSet;
@@ -35,7 +34,10 @@ import java.util.Set;
 
 import static com.confighub.api.common.Common.gson;
 import static com.confighub.api.common.Common.log;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 /**
  * Test file creation, editing, deletion operations
@@ -47,7 +49,7 @@ public class FileManagementTest
     String repoName = "FileManagementTest";
     String userToken = null;
 
-    @Test
+//    @Test
     public void sunnyDay()
     {
         // Create a file

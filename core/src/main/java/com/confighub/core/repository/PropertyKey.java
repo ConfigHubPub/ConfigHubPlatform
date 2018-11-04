@@ -30,6 +30,7 @@ import org.apache.logging.log4j.Logger;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.envers.AuditMappedBy;
+import org.hibernate.envers.AuditTable;
 import org.hibernate.envers.Audited;
 
 import javax.persistence.*;
@@ -41,33 +42,35 @@ import java.util.Set;
 @Entity
 @Cacheable
 @Cache( usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE )
-@Table(
-      uniqueConstraints = @UniqueConstraint( columnNames = { "propertyKey",
-                                                             "repositoryId" } ),
-      indexes = { @Index( name = "PROP_KEY_repoIndex",
-                          columnList = "id, repositoryId" ) }
+@Table( name = "propertykey",
+        uniqueConstraints = @UniqueConstraint( columnNames = { "propertyKey",
+                                                               "repositoryId" } ),
+        indexes = { @Index( name = "PROP_KEY_repoIndex",
+                            columnList = "id, repositoryId" ) }
 )
-@NamedQueries( {
-                     @NamedQuery( name = "Key.getByKey",
-                                  query = "SELECT k FROM PropertyKey k WHERE repository=:repository AND UPPER(key)=:key" ),
+@NamedQueries(
+      {
+            @NamedQuery( name = "Key.getByKey",
+                         query = "SELECT k FROM PropertyKey k WHERE repository=:repository AND UPPER(key)=:key" ),
 
-                     @NamedQuery( name = "Key.getById",
-                                  query = "SELECT k FROM PropertyKey k WHERE repository=:repository AND id=:keyId" ),
+            @NamedQuery( name = "Key.getById",
+                         query = "SELECT k FROM PropertyKey k WHERE repository=:repository AND id=:keyId" ),
 
-                     @NamedQuery( name = "Key.search",
-                                  query = "SELECT k FROM PropertyKey k WHERE repository=:repository AND UPPER(k.key) LIKE :searchTerm" ),
+            @NamedQuery( name = "Key.search",
+                         query = "SELECT k FROM PropertyKey k WHERE repository=:repository AND UPPER(k.key) LIKE :searchTerm" ),
 
-                     @NamedQuery( name = "Key.getNonText",
-                                  query = "SELECT k FROM PropertyKey k WHERE repository=:repository AND k.valueDataType <> :type" ),
+            @NamedQuery( name = "Key.getNonText",
+                         query = "SELECT k FROM PropertyKey k WHERE repository=:repository AND k.valueDataType <> :type" ),
 
-                     @NamedQuery( name = "Key.getKeys",
-                                  query = "SELECT k FROM PropertyKey k WHERE repository=:repository AND UPPER(k.key) IN :keys" ),
+            @NamedQuery( name = "Key.getKeys",
+                         query = "SELECT k FROM PropertyKey k WHERE repository=:repository AND UPPER(k.key) IN :keys" ),
 
-                     @NamedQuery( name = "Search.keysAndComments",
-                                  query = "SELECT k FROM PropertyKey k WHERE k.repository=:repository AND " +
-                                          "(UPPER(k.key) LIKE :searchTerm OR UPPER(k.readme) LIKE :searchTerm)" )
-               } )
+            @NamedQuery( name = "Search.keysAndComments",
+                         query = "SELECT k FROM PropertyKey k WHERE k.repository=:repository AND " +
+                                 "(UPPER(k.key) LIKE :searchTerm OR UPPER(k.readme) LIKE :searchTerm)" )
+      } )
 @Audited
+@AuditTable( "propertykey_audit" )
 @EntityListeners( { PropertyKeyDiffTracker.class } )
 public class PropertyKey
       extends APersisted
@@ -82,6 +85,7 @@ public class PropertyKey
              nullable = false )
     private String key;
 
+    @Lob
     @Column( columnDefinition = "TEXT" )
     private String readme;
 

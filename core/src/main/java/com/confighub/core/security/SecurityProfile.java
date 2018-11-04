@@ -32,77 +32,114 @@ import org.apache.logging.log4j.Logger;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.envers.AuditMappedBy;
+import org.hibernate.envers.AuditTable;
 import org.hibernate.envers.Audited;
 import org.hibernate.envers.NotAudited;
 
-import javax.persistence.*;
+import javax.persistence.Cacheable;
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.EntityListeners;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToMany;
+import javax.persistence.ManyToOne;
+import javax.persistence.NamedQueries;
+import javax.persistence.NamedQuery;
+import javax.persistence.OneToMany;
+import javax.persistence.PrePersist;
+import javax.persistence.PreRemove;
+import javax.persistence.PreUpdate;
+import javax.persistence.Table;
+import javax.persistence.UniqueConstraint;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 
+
 @Entity
 @Cacheable
-@Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
-@Table(uniqueConstraints=@UniqueConstraint(columnNames = {"name", "repositoryId"}))
-@NamedQueries({
-    @NamedQuery(name = "SecurityProfile.getAll",
-                query = "SELECT s FROM SecurityProfile s WHERE repository=:repository"),
+@Cache( usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE )
+@Table( name = "securityprofile",
+        uniqueConstraints = @UniqueConstraint( columnNames = { "name",
+                                                               "repositoryId" } ) )
+@NamedQueries(
+      {
+            @NamedQuery( name = "SecurityProfile.getAll",
+                         query = "SELECT s FROM SecurityProfile s WHERE repository=:repository" ),
 
-    @NamedQuery(name = "SecurityProfile.byName",
-                query = "SELECT s FROM SecurityProfile s WHERE repository=:repository AND name=:name")
-})
-@EntityListeners({ SecurityProfileDiffTracker.class })
+            @NamedQuery( name = "SecurityProfile.byName",
+                         query = "SELECT s FROM SecurityProfile s WHERE repository=:repository AND name=:name" )
+      } )
+@EntityListeners( { SecurityProfileDiffTracker.class } )
 @Audited
+@AuditTable( "securityprofile_audit" )
 public class SecurityProfile
-        extends APersisted
+      extends APersisted
 {
-    private static final Logger log = LogManager.getLogger(SecurityProfile.class);
+    private static final Logger log = LogManager.getLogger( SecurityProfile.class );
 
     @Id
     @GeneratedValue
     private Long id;
 
-    @Column(nullable = false)
+    @Column( nullable = false )
     private String name;
 
-    @Column(nullable = false)
+    @Column( nullable = false )
     private String spPassword;
 
-    @ManyToOne(fetch = FetchType.LAZY, cascade = { CascadeType.REFRESH, CascadeType.PERSIST })
-    @JoinColumn(nullable = false, name="repositoryId")
+    @ManyToOne( fetch = FetchType.LAZY,
+                cascade = { CascadeType.REFRESH,
+                            CascadeType.PERSIST } )
+    @JoinColumn( nullable = false,
+                 name = "repositoryId" )
     private Repository repository;
 
-    @AuditMappedBy(mappedBy="securityProfile")
-    @OneToMany(fetch = FetchType.LAZY,
-               cascade = { CascadeType.REFRESH, CascadeType.PERSIST },
-               mappedBy = "securityProfile")
+    @AuditMappedBy( mappedBy = "securityProfile" )
+    @OneToMany( fetch = FetchType.LAZY,
+                cascade = { CascadeType.REFRESH,
+                            CascadeType.PERSIST },
+                mappedBy = "securityProfile" )
     private Set<PropertyKey> keys;
 
-    @AuditMappedBy(mappedBy="securityProfile")
-    @OneToMany(fetch = FetchType.LAZY,
-            cascade = { CascadeType.REFRESH, CascadeType.PERSIST },
-            mappedBy = "securityProfile")
+    @AuditMappedBy( mappedBy = "securityProfile" )
+    @OneToMany( fetch = FetchType.LAZY,
+                cascade = { CascadeType.REFRESH,
+                            CascadeType.PERSIST },
+                mappedBy = "securityProfile" )
     private Set<RepoFile> files;
 
-    @AuditMappedBy(mappedBy="securityProfiles")
-    @ManyToMany(fetch = FetchType.LAZY, cascade = { CascadeType.REFRESH, CascadeType.PERSIST },
-                mappedBy = "securityProfiles")
+    @AuditMappedBy( mappedBy = "securityProfiles" )
+    @ManyToMany( fetch = FetchType.LAZY,
+                 cascade = { CascadeType.REFRESH,
+                             CascadeType.PERSIST },
+                 mappedBy = "securityProfiles" )
     @NotAudited
     private Set<Token> tokens;
 
-    @Enumerated(EnumType.STRING)
+    @Enumerated( EnumType.STRING )
     private CipherTransformation cipher;
+
 
     // --------------------------------------------------------------------------------------------
     // Construction
     // --------------------------------------------------------------------------------------------
-    protected SecurityProfile() {}
+    protected SecurityProfile()
+    {
+    }
 
-    public SecurityProfile(final Repository repository,
-                           final CipherTransformation cipher,
-                           final String name,
-                           final String spPassword )
-        throws ConfigException
+
+    public SecurityProfile( final Repository repository,
+                            final CipherTransformation cipher,
+                            final String name,
+                            final String spPassword )
+          throws ConfigException
     {
         this.repository = repository;
         this.cipher = cipher;
@@ -110,46 +147,58 @@ public class SecurityProfile
         setSecret( null, spPassword );
     }
 
+
     @PreUpdate
     @PrePersist
     public void enforce()
-            throws ConfigException
+          throws ConfigException
     {
-        if (Utils.isBlank(this.name))
-            throw new ConfigException(Error.Code.BLANK_NAME);
+        if ( Utils.isBlank( this.name ) )
+        {
+            throw new ConfigException( Error.Code.BLANK_NAME );
+        }
 
-        if (!Utils.isNameValid(this.name))
-            throw new ConfigException(Error.Code.ILLEGAL_CHARACTERS);
+        if ( !Utils.isNameValid( this.name ) )
+        {
+            throw new ConfigException( Error.Code.ILLEGAL_CHARACTERS );
+        }
     }
+
 
     @PreRemove
     public void preRemove()
-        throws ConfigException
+          throws ConfigException
     {
-        if (null != this.tokens && this.tokens.size() > 0)
+        if ( null != this.tokens && this.tokens.size() > 0 )
         {
-            this.tokens.forEach(t -> {
-                t.remove(this);
-            });
+            this.tokens.forEach( t -> {
+                t.remove( this );
+            } );
         }
     }
+
 
     // --------------------------------------------------------------------------------------------
     // Encode / Decode
     // --------------------------------------------------------------------------------------------
     public transient String sk;
 
-    public String encrypt(final String text, final String clearTextSecret)
-        throws ConfigException
+
+    public String encrypt( final String text,
+                           final String clearTextSecret )
+          throws ConfigException
     {
-        return Encryption.encrypt(this.cipher, text, clearTextSecret);
+        return Encryption.encrypt( this.cipher, text, clearTextSecret );
     }
 
-    public String decrypt(final String text, final String clearTextSecret)
-            throws ConfigException
+
+    public String decrypt( final String text,
+                           final String clearTextSecret )
+          throws ConfigException
     {
-        return Encryption.decrypt(this.cipher, text, clearTextSecret);
+        return Encryption.decrypt( this.cipher, text, clearTextSecret );
     }
+
 
     // --------------------------------------------------------------------------------------------
     // POJO
@@ -159,41 +208,50 @@ public class SecurityProfile
         return this.keys != null && this.keys.size() > 0;
     }
 
-    public boolean isSecretValid(String challenge)
-            throws ConfigException
+
+    public boolean isSecretValid( String challenge )
+          throws ConfigException
     {
-        return getDecodedPassword().equals(challenge);
+        return getDecodedPassword().equals( challenge );
     }
 
-    public boolean encryptionEnabled() {
+
+    public boolean encryptionEnabled()
+    {
         return null != this.cipher;
     }
 
+
     @Override
-    public boolean equals(Object o)
+    public boolean equals( Object o )
     {
-        if (null == o)
+        if ( null == o )
+        {
             return false;
+        }
 
         SecurityProfile other = (SecurityProfile) o;
-        return this.getId().equals(other.getId());
+        return this.getId().equals( other.getId() );
     }
+
 
     @Override
     public int hashCode()
     {
-        return Objects.hash(name, this.getName(), this.getId(), repository.getName());
+        return Objects.hash( name, this.getName(), this.getId(), repository.getName() );
     }
+
 
     public JsonObject toJson()
     {
         JsonObject json = new JsonObject();
-        json.addProperty("id", this.id);
-        json.addProperty("name", this.name);
-        json.addProperty("cipher", null == this.cipher ? null : this.cipher.getName());
+        json.addProperty( "id", this.id );
+        json.addProperty( "name", this.name );
+        json.addProperty( "cipher", null == this.cipher ? null : this.cipher.getName() );
 
         return json;
     }
+
 
     // --------------------------------------------------------------------------------------------
     // Setters and getters
@@ -203,81 +261,103 @@ public class SecurityProfile
         return id;
     }
 
+
     public String getName()
     {
         return name;
     }
 
-    public void setName(String name)
+
+    public void setName( String name )
     {
         this.name = name;
     }
+
 
     public String getSpPassword()
     {
         return spPassword;
     }
 
+
     public String getDecodedPassword()
-            throws ConfigException
+          throws ConfigException
     {
-        return Encryption.decrypt( Auth.internalCipher, this.spPassword, Auth.getSecurityGroupPassword());
+        return Encryption.decrypt( Auth.internalCipher, this.spPassword, Auth.getSecurityGroupPassword() );
     }
 
-    public Set<RepoFile> getFiles() {
+
+    public Set<RepoFile> getFiles()
+    {
         return this.files;
     }
 
-    public void setSecret(String oldPass, String secret)
-        throws ConfigException
+
+    public void setSecret( String oldPass,
+                           String secret )
+          throws ConfigException
     {
-        if (null != this.spPassword )
+        if ( null != this.spPassword )
         {
-            if (!isSecretValid(oldPass))
-                throw new ConfigException(Error.Code.INVALID_PASSWORD);
+            if ( !isSecretValid( oldPass ) )
+            {
+                throw new ConfigException( Error.Code.INVALID_PASSWORD );
+            }
         }
 
-        if (!Utils.passwordRequirementsSatisfied(secret))
-            throw new ConfigException(Error.Code.PASSWORD_REQUIREMENTS);
+        if ( !Utils.passwordRequirementsSatisfied( secret ) )
+        {
+            throw new ConfigException( Error.Code.PASSWORD_REQUIREMENTS );
+        }
 
-        this.spPassword = Encryption.encrypt( Auth.internalCipher, secret, Auth.getSecurityGroupPassword());
+        this.spPassword = Encryption.encrypt( Auth.internalCipher, secret, Auth.getSecurityGroupPassword() );
     }
+
 
     public Repository getRepository()
     {
         return repository;
     }
 
+
     public Set<PropertyKey> getKeys()
     {
-        if (null == this.keys)
+        if ( null == this.keys )
+        {
             return new HashSet<>();
+        }
 
         return keys;
     }
 
-    public void setKeys(Set<PropertyKey> keys)
+
+    public void setKeys( Set<PropertyKey> keys )
     {
         this.keys = keys;
     }
+
 
     public CipherTransformation getCipher()
     {
         return cipher;
     }
 
-    public void setCipher(CipherTransformation cipher)
+
+    public void setCipher( CipherTransformation cipher )
     {
         this.cipher = cipher;
     }
+
 
     public Set<Token> getTokens()
     {
         return tokens;
     }
 
+
     @Override
-    public ClassName getClassName() {
+    public ClassName getClassName()
+    {
         return ClassName.SecurityProfile;
     }
 }

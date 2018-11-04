@@ -39,6 +39,7 @@ import java.util.Set;
 
 
 @Entity
+@Table( name = "useraccount" )
 @Cacheable
 @Cache( usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE )
 @NamedQueries(

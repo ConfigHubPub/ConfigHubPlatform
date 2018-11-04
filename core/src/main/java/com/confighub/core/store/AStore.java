@@ -95,6 +95,7 @@ public abstract class AStore
         try
         {
             em.persist( toSave );
+            em.flush();
         }
         catch ( ConfigException e )
         {
@@ -119,6 +120,7 @@ public abstract class AStore
         try
         {
             em.remove( em.contains( toDelete ) ? toDelete : em.merge( toDelete ) );
+            em.flush();
         }
         catch ( ConfigException e )
         {
@@ -176,6 +178,7 @@ public abstract class AStore
             ThreadLocalRevEntry.set( revContext );
 
             em.remove( toDelete );
+            em.flush();
         }
         catch ( EntityNotFoundException ignore )
         {
@@ -231,6 +234,7 @@ public abstract class AStore
             ThreadLocalRevEntry.set( revContext );
 
             em.remove( toDelete );
+            em.flush();
         }
         catch ( EntityNotFoundException ignore )
         {
@@ -272,6 +276,7 @@ public abstract class AStore
         try
         {
             em.persist( toSave );
+            em.flush();
 
             RevisionEntityContext revContext = ThreadLocalRevEntry.get();
             if ( null == revContext )
@@ -326,6 +331,7 @@ public abstract class AStore
         try
         {
             em.persist( toSave );
+            em.flush();
 
             RevisionEntityContext revContext = ThreadLocalRevEntry.get();
             if ( null == revContext )
@@ -451,7 +457,7 @@ public abstract class AStore
                 code = Error.Code.INTERNAL_ERROR;
             }
             else if ( t instanceof org.hibernate.exception.LockAcquisitionException ||
-                      t instanceof com.mysql.jdbc.exceptions.jdbc4.MySQLIntegrityConstraintViolationException ||
+//                      t instanceof com.mysql.jdbc.exceptions.jdbc4.MySQLIntegrityConstraintViolationException ||
                       t instanceof ConstraintViolationException ||
                       t instanceof PersistenceException )
             {
