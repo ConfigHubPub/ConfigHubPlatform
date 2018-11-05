@@ -262,7 +262,8 @@ public class Store
      */
     public UserAccount createUser( final String email,
                                    final String username,
-                                   final String password )
+                                   final String password,
+                                   final UserAccount.AccountType accountType )
           throws ConfigException
     {
         if ( !Auth.isLocalAccountsEnabled() )
@@ -280,6 +281,7 @@ public class Store
         user.setUsername( username );
         user.setUserPassword( password );
         user.setActive( true );
+        user.setAccountType( accountType );
 
         saveOrUpdateNonAudited( user );
         return user;

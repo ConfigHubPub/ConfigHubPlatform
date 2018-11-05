@@ -35,16 +35,18 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-@Path("/login")
-@Produces("application/json")
+
+@Path( "/login" )
+@Produces( "application/json" )
 public class Login
 {
-    private static final Logger log = LogManager.getLogger(Login.class);
+    private static final Logger log = LogManager.getLogger( Login.class );
+
 
     @AuthenticationNotRequired
     @POST
-    public Response login(@FormParam("email") String login,
-                          @FormParam("password") String password)
+    public Response login( @FormParam( "email" ) String login,
+                           @FormParam( "password" ) String password )
     {
         Store store = new Store();
         JsonObject json = new JsonObject();
@@ -54,35 +56,34 @@ public class Login
         {
             UserAccount user = null;
 
-            if (Auth.isLdapEnabled())
+            if ( Auth.isLdapEnabled() )
             {
-                user = Auth.ldapAuth(login, password, store);
+                user = Auth.ldapAuth( login, password, store );
             }
 
-            if (null == user && Auth.isLocalAccountsEnabled())
+            if ( null == user && Auth.isLocalAccountsEnabled() )
             {
-                user = store.login(login, password);
+                user = store.login( login, password );
             }
 
-            if (null == user)
+            if ( null == user )
             {
-                throw new ConfigException(Error.Code.USER_AUTH);
+                throw new ConfigException( Error.Code.USER_AUTH );
             }
 
-            json.addProperty("token", Auth.createUserToken(user));
-            json.addProperty("success", true);
+            json.addProperty( "token", Auth.createUserToken( user ) );
+            json.addProperty( "success", true );
 
-            return Response.ok(gson.toJson(json), MediaType.APPLICATION_JSON).build();
+            return Response.ok( gson.toJson( json ), MediaType.APPLICATION_JSON ).build();
         }
-        catch (ConfigException e)
+        catch ( ConfigException e )
         {
             e.printStackTrace();
 
+            json.addProperty( "success", false );
+            json.addProperty( "message", e.getMessage() );
 
-            json.addProperty("success", false);
-            json.addProperty("message", e.getMessage());
-
-            return Response.ok(gson.toJson(json), MediaType.APPLICATION_JSON).build();
+            return Response.ok( gson.toJson( json ), MediaType.APPLICATION_JSON ).build();
         }
         finally
         {

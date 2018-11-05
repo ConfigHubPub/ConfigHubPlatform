@@ -32,11 +32,27 @@ import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.envers.NotAudited;
 
-import javax.persistence.*;
+import javax.persistence.Cacheable;
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.EntityListeners;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToMany;
+import javax.persistence.NamedQueries;
+import javax.persistence.NamedQuery;
+import javax.persistence.OneToOne;
+import javax.persistence.PrePersist;
+import javax.persistence.PreUpdate;
+import javax.persistence.Table;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
-
 
 @Entity
 @Table( name = "useraccount" )
@@ -67,6 +83,12 @@ public class UserAccount
 {
     private static final Logger log = LogManager.getLogger( UserAccount.class );
 
+    public enum AccountType
+    {
+        LOCAL,
+        LDAP
+    }
+
     @Id
     @GeneratedValue
     private Long id;
@@ -92,6 +114,11 @@ public class UserAccount
     @ManyToMany( fetch = FetchType.LAZY,
                  cascade = { CascadeType.REFRESH } )
     private Set<Organization> organizations;
+
+    @Enumerated( EnumType.STRING )
+    @Column( name = "account_type",
+             nullable = false )
+    private AccountType accountType;
 
     @Column( nullable = false )
     private Date createDate;
@@ -273,6 +300,18 @@ public class UserAccount
           throws ConfigException
     {
         return Passwords.validatePassword( challenge, this.userPassword );
+    }
+
+
+    public AccountType getAccountType()
+    {
+        return accountType;
+    }
+
+
+    public void setAccountType( final AccountType accountType )
+    {
+        this.accountType = accountType;
     }
 
 
