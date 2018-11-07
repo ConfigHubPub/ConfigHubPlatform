@@ -40,7 +40,7 @@ public abstract class AStore
 {
     private static final Logger log = LogManager.getLogger( AStore.class );
 
-    public static boolean verbose = true;
+    public static boolean verbose = false;
 
     /**
      * <url>http://stackoverflow.com/questions/4543947/when-should-entitymanagerfactory-instance-be-created-opened</url>
