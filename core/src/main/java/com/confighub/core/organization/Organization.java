@@ -32,120 +32,164 @@ import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 
+
 @Entity
+@Table( name = "organization" )
 @Cacheable
-@Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
+@Cache( usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE )
 public class Organization
-        extends APersisted
+      extends APersisted
 {
     @Id
     @GeneratedValue
     private Long id;
 
-    @Column(name = "name")
+    @Column( name = "name" )
     private String name;
 
-    @OneToOne(fetch = FetchType.LAZY, cascade = { CascadeType.ALL })
+    @OneToOne( fetch = FetchType.LAZY,
+               cascade = { CascadeType.ALL } )
     private Account account;
 
-    @ManyToMany(fetch = FetchType.LAZY, cascade = { CascadeType.REFRESH })
-    @Column(nullable = false)
-    @JoinTable(name="Organization_Owners")
+    @ManyToMany( fetch = FetchType.LAZY,
+                 cascade = { CascadeType.REFRESH } )
+    @Column( nullable = false )
+    @JoinTable( name = "organization_owners" )
     private Set<UserAccount> owners;
 
-    @ManyToMany(fetch = FetchType.LAZY, cascade = { CascadeType.REFRESH })
-    @JoinTable(name="Organization_Admins")
+    @ManyToMany( fetch = FetchType.LAZY,
+                 cascade = { CascadeType.REFRESH } )
+    @JoinTable( name = "organization_admins" )
     private Set<UserAccount> administrators;
 
-    @Column(nullable = false)
+    @Column( nullable = false )
     private Date createDate;
 
     // --------------------------------------------------------------------------------------------
     // User management
     // --------------------------------------------------------------------------------------------
 
-    public void addOwner(UserAccount owner)
-        throws ConfigException
+
+    public void addOwner( UserAccount owner )
+          throws ConfigException
     {
-        if (null == owner)
-            throw new ConfigException(Error.Code.MISSING_PARAMS);
+        if ( null == owner )
+        {
+            throw new ConfigException( Error.Code.MISSING_PARAMS );
+        }
 
-        if (isOwnerOrAdmin(owner))
-            throw new ConfigException(Error.Code.ORG_EXISTING_MANAGER);
+        if ( isOwnerOrAdmin( owner ) )
+        {
+            throw new ConfigException( Error.Code.ORG_EXISTING_MANAGER );
+        }
 
-        if (null == this.owners)
+        if ( null == this.owners )
+        {
             this.owners = new HashSet<>();
+        }
 
-        this.owners.add(owner);
-        owner.joinOrganization(this);
+        this.owners.add( owner );
+        owner.joinOrganization( this );
     }
 
-    public boolean removeOwner(UserAccount owner)
-        throws ConfigException
+
+    public boolean removeOwner( UserAccount owner )
+          throws ConfigException
     {
-        if (null == this.owners) return false;
-        if (null == owner) return false;
+        if ( null == this.owners )
+        {
+            return false;
+        }
+        if ( null == owner )
+        {
+            return false;
+        }
 
-        if (this.owners.size() == 1)
-            throw new ConfigException(Error.Code.ORG_NO_OWNERS);
+        if ( this.owners.size() == 1 )
+        {
+            throw new ConfigException( Error.Code.ORG_NO_OWNERS );
+        }
 
-        owner.removeOrganization(this);
-        return this.owners.remove(owner);
+        owner.removeOrganization( this );
+        return this.owners.remove( owner );
     }
+
 
     public int getOwnerCount()
     {
         return this.owners.size();
     }
 
-    public void addAdministrator(UserAccount admin)
-        throws ConfigException
+
+    public void addAdministrator( UserAccount admin )
+          throws ConfigException
     {
-        if (null == admin)
-            throw new ConfigException(Error.Code.MISSING_PARAMS);
+        if ( null == admin )
+        {
+            throw new ConfigException( Error.Code.MISSING_PARAMS );
+        }
 
-        if (isOwnerOrAdmin(admin))
-            throw new ConfigException(Error.Code.ORG_EXISTING_MANAGER);
+        if ( isOwnerOrAdmin( admin ) )
+        {
+            throw new ConfigException( Error.Code.ORG_EXISTING_MANAGER );
+        }
 
-        if (null == this.administrators)
+        if ( null == this.administrators )
+        {
             this.administrators = new HashSet<>();
+        }
 
-        this.administrators.add(admin);
-        admin.joinOrganization(this);
+        this.administrators.add( admin );
+        admin.joinOrganization( this );
     }
 
-    public boolean removeAdministrator(UserAccount admin)
+
+    public boolean removeAdministrator( UserAccount admin )
     {
-        if (null == this.administrators) return false;
-        if (null == admin) return false;
+        if ( null == this.administrators )
+        {
+            return false;
+        }
+        if ( null == admin )
+        {
+            return false;
+        }
 
-        admin.removeOrganization(this);
-        return this.administrators.remove(admin);
+        admin.removeOrganization( this );
+        return this.administrators.remove( admin );
     }
+
 
     public int getAdminCount()
     {
-        if (null == this.administrators) return 0;
+        if ( null == this.administrators )
+        {
+            return 0;
+        }
         return this.administrators.size();
     }
 
 
-    public boolean isOwnerOrAdmin(UserAccount user)
+    public boolean isOwnerOrAdmin( UserAccount user )
     {
-        if (null != this.owners && this.owners.contains(user))
+        if ( null != this.owners && this.owners.contains( user ) )
+        {
             return true;
+        }
 
-        return null != this.administrators && this.administrators.contains(user);
+        return null != this.administrators && this.administrators.contains( user );
     }
 
-    public boolean isOwner(UserAccount user)
+
+    public boolean isOwner( UserAccount user )
     {
-        return this.owners.contains(user);
+        return this.owners.contains( user );
     }
 
-    public boolean isAdmin(UserAccount user)
+
+    public boolean isAdmin( UserAccount user )
     {
-        return null != this.administrators && this.administrators.contains(user);
+        return null != this.administrators && this.administrators.contains( user );
     }
 
 
@@ -153,22 +197,29 @@ public class Organization
     // Validation
     // --------------------------------------------------------------------------------------------
 
+
     @PrePersist
-    protected void setCreationDate() {
+    protected void setCreationDate()
+    {
         this.createDate = new Date();
     }
+
 
     @PreRemove
     public void removeFromUsers()
     {
-        for (UserAccount owner : this.owners)
-            owner.removeOrganization(this);
+        for ( UserAccount owner : this.owners )
+        {
+            owner.removeOrganization( this );
+        }
         this.owners.clear();
 
-        if (null != this.administrators)
+        if ( null != this.administrators )
         {
-            for (UserAccount admin : this.administrators)
-                admin.removeOrganization(this);
+            for ( UserAccount admin : this.administrators )
+            {
+                admin.removeOrganization( this );
+            }
 
             this.administrators.clear();
         }
@@ -178,24 +229,29 @@ public class Organization
     // POJO Ops
     // --------------------------------------------------------------------------------------------
 
-    @Override
-    public boolean equals(Object o)
-    {
-        if (null == o)
-            return false;
 
-        return o instanceof Organization && ((Organization)o).getId().equals(this.getId());
+    @Override
+    public boolean equals( Object o )
+    {
+        if ( null == o )
+        {
+            return false;
+        }
+
+        return o instanceof Organization && ( (Organization) o ).getId().equals( this.getId() );
     }
+
 
     @Override
     public int hashCode()
     {
-        return Objects.hash(this.account);
+        return Objects.hash( this.account );
     }
 
     // --------------------------------------------------------------------------------------------
     // Setters and getters
     // --------------------------------------------------------------------------------------------
+
 
     @Override
     public Long getId()
@@ -203,63 +259,75 @@ public class Organization
         return this.id;
     }
 
+
     public String getAccountName()
     {
         return this.account.getName();
     }
 
-    public void setAccountName(String name)
+
+    public void setAccountName( String name )
     {
-        if (null == this.account)
+        if ( null == this.account )
         {
             this.account = new Account();
-            this.account.setOrganization(this);
+            this.account.setOrganization( this );
         }
-        this.account.setName(name);
+        this.account.setName( name );
     }
+
 
     public String getName()
     {
         return this.name;
     }
 
-    public void setName(String name)
+
+    public void setName( String name )
     {
         this.name = name;
     }
+
 
     public Account getAccount()
     {
         return this.account;
     }
 
+
     public Set<UserAccount> getOwners()
     {
         return owners;
     }
+
 
     public Set<UserAccount> getAdministrators()
     {
         return administrators;
     }
 
+
     public Date getCreateDate()
     {
         return createDate;
     }
+
 
     public Set<Repository> getRepositories()
     {
         return this.account.getRepositories();
     }
 
-    public int getRepositoryCount() {
+
+    public int getRepositoryCount()
+    {
         return this.account.getRepositoryCount();
     }
 
+
     @Override
-    public ClassName getClassName() {
+    public ClassName getClassName()
+    {
         return ClassName.Organization;
     }
-
 }

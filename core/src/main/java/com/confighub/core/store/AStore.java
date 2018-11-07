@@ -26,11 +26,20 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.hibernate.exception.ConstraintViolationException;
 
-import javax.persistence.*;
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.EntityNotFoundException;
+import javax.persistence.EntityTransaction;
+import javax.persistence.NoResultException;
+import javax.persistence.OptimisticLockException;
+import javax.persistence.Persistence;
+import javax.persistence.PersistenceException;
+
 
 public abstract class AStore
 {
-    private static final Logger log = LogManager.getLogger(AStore.class);
+    private static final Logger log = LogManager.getLogger( AStore.class );
+
     public static boolean verbose = false;
 
     /**
@@ -57,11 +66,12 @@ public abstract class AStore
      * EntityManagerFactory interface are thread-safe.
      */
     private static final EntityManagerFactory emf;
+
     protected EntityManager em;
 
     static
     {
-        emf = Persistence.createEntityManagerFactory("ConfigHubMain");
+         emf = Persistence.createEntityManagerFactory( "ConfigHubMain" );
     }
 
     public AStore()
@@ -69,336 +79,416 @@ public abstract class AStore
         this.em = emf.createEntityManager();
     }
 
+
     public void begin()
     {
         em.getTransaction().begin();
     }
 
-    protected boolean saveOrUpdateNonAudited(Object toSave)
-            throws ConfigException
+
+    protected boolean saveOrUpdateNonAudited( Object toSave )
+          throws ConfigException
     {
-        if (null == toSave)
+        if ( null == toSave )
+        {
             return false;
+        }
 
         try
         {
-            em.persist(toSave);
+            em.persist( toSave );
+            em.flush();
         }
-        catch (ConfigException e) {
+        catch ( ConfigException e )
+        {
             throw e;
         }
-        catch (Exception e)
+        catch ( Exception e )
         {
-            handleException(e);
+            handleException( e );
         }
 
         return true;
     }
 
-    protected boolean delete(APersisted toDelete)
+
+    protected boolean delete( APersisted toDelete )
     {
-        if (null == toDelete)
+        if ( null == toDelete )
+        {
             return false;
+        }
 
         try
         {
-            em.remove(em.contains(toDelete) ? toDelete : em.merge(toDelete));
+            em.remove( em.contains( toDelete ) ? toDelete : em.merge( toDelete ) );
+            em.flush();
         }
-        catch (ConfigException e) {
+        catch ( ConfigException e )
+        {
             throw e;
         }
-        catch (EntityNotFoundException ignore) { }
-        catch (Exception e)
+        catch ( EntityNotFoundException ignore )
         {
-            handleException(e);
+        }
+        catch ( Exception e )
+        {
+            handleException( e );
         }
         return true;
     }
 
-    protected boolean deleteAudited(final UserAccount user, final Repository repository, APersisted toDelete)
-        throws ConfigException
+
+    protected boolean deleteAudited( final UserAccount user,
+                                     final Repository repository,
+                                     APersisted toDelete )
+          throws ConfigException
     {
-        return deleteAudited(user, repository, toDelete, null);
+        return deleteAudited( user, repository, toDelete, null );
     }
 
-    protected boolean deleteAudited(final UserAccount user,
-                                    final Repository repository,
-                                    APersisted toDelete,
-                                    String changeComment)
-            throws ConfigException
+
+    protected boolean deleteAudited( final UserAccount user,
+                                     final Repository repository,
+                                     APersisted toDelete,
+                                     String changeComment )
+          throws ConfigException
     {
-        if (null == toDelete)
+        if ( null == toDelete )
+        {
             return false;
+        }
 
         try
         {
             RevisionEntityContext revContext = ThreadLocalRevEntry.get();
-            if (null == revContext)
+            if ( null == revContext )
+            {
                 revContext = new RevisionEntityContext();
+            }
 
-            if (null != repository)
-                revContext.setRepositoryId(repository.getId());
+            if ( null != repository )
+            {
+                revContext.setRepositoryId( repository.getId() );
+            }
 
             toDelete.revType = APersisted.RevisionType.Delete;
-            revContext.setAPersisted(toDelete);
-            revContext.setUserId(user.getId());
-            revContext.setChangeComment(changeComment);
+            revContext.setAPersisted( toDelete );
+            revContext.setUserId( user.getId() );
+            revContext.setChangeComment( changeComment );
 
-            ThreadLocalRevEntry.set(revContext);
+            ThreadLocalRevEntry.set( revContext );
 
-            em.remove(toDelete);
+            em.remove( toDelete );
+            em.flush();
         }
-        catch (EntityNotFoundException ignore) { ignore.printStackTrace(); }
-        catch (ConfigException e) {
+        catch ( EntityNotFoundException ignore )
+        {
+            ignore.printStackTrace();
+        }
+        catch ( ConfigException e )
+        {
             throw e;
         }
-        catch (Exception e)
+        catch ( Exception e )
         {
-            handleException(e);
+            handleException( e );
         }
 
         return true;
     }
 
-    protected boolean deleteAuditedViaAPI(final String appIdentifier,
-                                          final Repository repository,
-                                          APersisted toDelete,
-                                          String changeComment)
-            throws ConfigException
+
+    protected boolean deleteAuditedViaAPI( final String appIdentifier,
+                                           final Repository repository,
+                                           APersisted toDelete,
+                                           String changeComment )
+          throws ConfigException
     {
-        if (null == toDelete)
+        if ( null == toDelete )
+        {
             return false;
+        }
 
         try
         {
             RevisionEntityContext revContext = ThreadLocalRevEntry.get();
-            if (null == revContext)
+            if ( null == revContext )
+            {
                 revContext = new RevisionEntityContext();
+            }
 
-            if (null != repository)
-                revContext.setRepositoryId(repository.getId());
+            if ( null != repository )
+            {
+                revContext.setRepositoryId( repository.getId() );
+            }
 
             toDelete.revType = APersisted.RevisionType.Delete;
-            revContext.setAPersisted(toDelete);
+            revContext.setAPersisted( toDelete );
 
-            if (!Utils.isBlank(appIdentifier))
-                revContext.setAppId(appIdentifier);
+            if ( !Utils.isBlank( appIdentifier ) )
+            {
+                revContext.setAppId( appIdentifier );
+            }
 
-            revContext.setChangeComment(changeComment);
+            revContext.setChangeComment( changeComment );
 
-            ThreadLocalRevEntry.set(revContext);
+            ThreadLocalRevEntry.set( revContext );
 
-            em.remove(toDelete);
+            em.remove( toDelete );
+            em.flush();
         }
-        catch (EntityNotFoundException ignore) { ignore.printStackTrace(); }
-        catch (ConfigException e) {
+        catch ( EntityNotFoundException ignore )
+        {
+            ignore.printStackTrace();
+        }
+        catch ( ConfigException e )
+        {
             throw e;
         }
-        catch (Exception e)
+        catch ( Exception e )
         {
-            handleException(e);
+            handleException( e );
         }
 
         return true;
     }
 
-    protected boolean saveOrUpdateAudited(final UserAccount user,
-                                          final Repository repository,
-                                          final APersisted toSave)
-            throws ConfigException
+
+    protected boolean saveOrUpdateAudited( final UserAccount user,
+                                           final Repository repository,
+                                           final APersisted toSave )
+          throws ConfigException
     {
-        return saveOrUpdateAudited(user, repository, toSave, null);
+        return saveOrUpdateAudited( user, repository, toSave, null );
     }
 
 
-    protected boolean saveOrUpdateAuditedViaAPI(final String appIdentifier,
-                                                final Repository repository,
-                                                final APersisted toSave,
-                                                final String changeComment)
-            throws ConfigException
+    protected boolean saveOrUpdateAuditedViaAPI( final String appIdentifier,
+                                                 final Repository repository,
+                                                 final APersisted toSave,
+                                                 final String changeComment )
+          throws ConfigException
     {
-        if (null == toSave)
+        if ( null == toSave )
+        {
             return false;
+        }
 
         try
         {
-            em.persist(toSave);
+            em.persist( toSave );
+            em.flush();
 
             RevisionEntityContext revContext = ThreadLocalRevEntry.get();
-            if (null == revContext)
+            if ( null == revContext )
+            {
                 revContext = new RevisionEntityContext();
+            }
 
-            if (null != repository)
-                revContext.setRepositoryId(repository.getId());
+            if ( null != repository )
+            {
+                revContext.setRepositoryId( repository.getId() );
+            }
 
-            if (!Utils.isBlank(appIdentifier))
-                revContext.setAppId(appIdentifier);
+            if ( !Utils.isBlank( appIdentifier ) )
+            {
+                revContext.setAppId( appIdentifier );
+            }
 
-            revContext.setChangeComment(changeComment);
+            revContext.setChangeComment( changeComment );
 
-            revContext.setAPersisted(toSave);
-            ThreadLocalRevEntry.set(revContext);
+            revContext.setAPersisted( toSave );
+            ThreadLocalRevEntry.set( revContext );
         }
-        catch (ConfigException e) {
+        catch ( ConfigException e )
+        {
             throw e;
         }
-        catch (Exception e)
+        catch ( Exception e )
         {
-            handleException(e);
+            handleException( e );
         }
 
         return true;
     }
 
 
-    protected boolean saveOrUpdateAudited(final UserAccount user,
-                                          final Repository repository,
-                                          final APersisted toSave,
-                                          final String changeComment)
-            throws ConfigException
+    protected boolean saveOrUpdateAudited( final UserAccount user,
+                                           final Repository repository,
+                                           final APersisted toSave,
+                                           final String changeComment )
+          throws ConfigException
     {
-        if (null == toSave)
+        if ( null == toSave )
+        {
             return false;
+        }
 
-        if (null == user)
-            throw new ConfigException(Error.Code.MISSING_PARAMS);
+        if ( null == user )
+        {
+            throw new ConfigException( Error.Code.MISSING_PARAMS );
+        }
 
         try
         {
-            em.persist(toSave);
+            em.persist( toSave );
+            em.flush();
 
             RevisionEntityContext revContext = ThreadLocalRevEntry.get();
-            if (null == revContext)
+            if ( null == revContext )
+            {
                 revContext = new RevisionEntityContext();
+            }
 
-            if (null != repository)
-                revContext.setRepositoryId(repository.getId());
+            if ( null != repository )
+            {
+                revContext.setRepositoryId( repository.getId() );
+            }
 
-            revContext.setUserId(user.getId());
-            revContext.setChangeComment(changeComment);
+            revContext.setUserId( user.getId() );
+            revContext.setChangeComment( changeComment );
 
-            revContext.setAPersisted(toSave);
-            ThreadLocalRevEntry.set(revContext);
+            revContext.setAPersisted( toSave );
+            ThreadLocalRevEntry.set( revContext );
         }
-        catch (ConfigException e) {
+        catch ( ConfigException e )
+        {
             throw e;
         }
-        catch (Exception e)
+        catch ( Exception e )
         {
-            handleException(e);
+            handleException( e );
         }
 
         return true;
     }
+
 
     public void commit()
-            throws ConfigException
+          throws ConfigException
     {
         try
         {
             em.getTransaction().commit();
         }
-        catch (ConfigException e) {
+        catch ( ConfigException e )
+        {
             throw e;
         }
-        catch (Exception e)
+        catch ( Exception e )
         {
-            handleException(e);
+            handleException( e );
         }
     }
 
+
     // ToDo - go over visibility of this method due to the security concerns
-    public <T> T get(Class clazz, Long id)
+    public <T> T get( Class clazz,
+                      Long id )
     {
-        if (null == id)
+        if ( null == id )
+        {
             return null;
+        }
 
-        return (T) em.find(clazz, id);
+        return (T) em.find( clazz, id );
     }
 
-    public UserAccount getUser(final Long id)
+
+    public UserAccount getUser( final Long id )
     {
-        if (null == id)
+        if ( null == id )
+        {
             return null;
-        return get(UserAccount.class, id);
+        }
+        return get( UserAccount.class, id );
     }
 
-    public <T> T merge(T o)
+
+    public <T> T merge( T o )
     {
-        return em.merge(o);
+        return em.merge( o );
     }
+
 
     public void rollback()
     {
-        if (em.isOpen())
+        if ( em.isOpen() )
         {
             EntityTransaction transaction = em.getTransaction();
-            if (transaction.isActive())
+            if ( transaction.isActive() )
+            {
                 transaction.rollback();
+            }
         }
     }
+
 
     public void close()
     {
         EntityTransaction transaction = em.getTransaction();
 
-        if (transaction.isActive())
+        if ( transaction.isActive() )
+        {
             transaction.rollback();
+        }
         em.close();
     }
 
-    protected static void handleException(Exception e)
-            throws ConfigException
+
+    protected static void handleException( Exception e )
+          throws ConfigException
     {
-        if (verbose)
+        if ( verbose )
         {
             e.printStackTrace();
-            log.error(e);
+            log.error( e.getMessage() );
         }
 
         Throwable t = e;
         Error.Code code = Error.Code.CATCH_ALL;
         do
         {
-            if (t instanceof OptimisticLockException) {
+            if ( t instanceof OptimisticLockException )
+            {
                 code = Error.Code.DB_LOCKING;
             }
-            else if (t instanceof javax.persistence.RollbackException)
+            else if ( t instanceof javax.persistence.RollbackException )
             {
                 code = Error.Code.INTERNAL_ERROR;
             }
-            else if (t instanceof org.hibernate.exception.LockAcquisitionException ||
-                     t instanceof com.mysql.jdbc.exceptions.jdbc4.MySQLIntegrityConstraintViolationException ||
-                     t instanceof ConstraintViolationException ||
-                     t instanceof PersistenceException)
+            else if ( t instanceof org.hibernate.exception.LockAcquisitionException ||
+//                      t instanceof com.mysql.jdbc.exceptions.jdbc4.MySQLIntegrityConstraintViolationException ||
+                      t instanceof ConstraintViolationException ||
+                      t instanceof PersistenceException )
             {
                 code = Error.Code.CONSTRAINT;
             }
-            else if (t instanceof NoResultException)
+            else if ( t instanceof NoResultException )
             {
-                throw new ConfigException(Error.Code.NOT_FOUND);
+                throw new ConfigException( Error.Code.NOT_FOUND );
             }
-            else if (t instanceof ConfigException)
+            else if ( t instanceof ConfigException )
             {
-                throw (ConfigException)t;
+                throw (ConfigException) t;
             }
 
             t = t.getCause();
+        }
+        while ( t != null );
 
-        } while (t != null);
-
-        if (Error.Code.CATCH_ALL.equals(code))
+        if ( Error.Code.CATCH_ALL.equals( code ) )
         {
             // ToDo: this exception should be decorated with instructions to go to system error page
-            System.out.println("----------------- Un-handled exception start --------------------");
+            System.out.println( "----------------- Un-handled exception start --------------------" );
             e.printStackTrace();
-            System.out.println("----------------- Un-handled exception end   --------------------");
-            log.error("----------------- Un-handled exception start --------------------");
-            log.error(e);
-            log.error("----------------- Un-handled exception end   --------------------");
-
+            System.out.println( "----------------- Un-handled exception end   --------------------" );
+            log.error( "----------------- Un-handled exception start --------------------" );
+            log.error( e.getMessage() );
+            log.error( "----------------- Un-handled exception end   --------------------" );
         }
-        throw new ConfigException(code);
+        throw new ConfigException( code );
     }
 
 
@@ -406,14 +496,14 @@ public abstract class AStore
     // --------------------------------------------------------------------------------------------
     // Existence checks
     // --------------------------------------------------------------------------------------------
-    public boolean isAccountNameUsed(String name)
+    public boolean isAccountNameUsed( String name )
     {
         try
         {
-            long count = (long)em.createNamedQuery("AccountName.count").setParameter("name", name).getSingleResult();
+            long count = (long) em.createNamedQuery( "AccountName.count" ).setParameter( "name", name ).getSingleResult();
             return count > 0;
         }
-        catch (NoResultException e)
+        catch ( NoResultException e )
         {
             return false;
         }

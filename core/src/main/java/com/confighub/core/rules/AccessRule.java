@@ -22,7 +22,7 @@ import com.confighub.core.error.Error;
 import com.confighub.core.organization.Team;
 import com.confighub.core.repository.AContextAwarePersistent;
 import com.confighub.core.repository.Depth;
-import com.confighub.core.repository.Level;
+import com.confighub.core.repository.CtxLevel;
 import com.confighub.core.repository.Property;
 import com.confighub.core.resolver.AResolver;
 import com.confighub.core.store.APersisted;
@@ -38,35 +38,47 @@ import org.easyrules.annotation.Condition;
 import org.easyrules.annotation.Rule;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.annotations.Type;
+import org.hibernate.envers.AuditTable;
 import org.hibernate.envers.Audited;
 import org.hibernate.envers.NotAudited;
 
 import javax.persistence.*;
 import java.util.*;
 
+
 @Rule
 @Entity
+@Table( name = "accessrule" )
 @Cacheable
-@Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
-@NamedQueries({ @NamedQuery(name = "Rule.byId", query = "SELECT r FROM AccessRule r WHERE team=:team AND id=:id"), })
-@EntityListeners({ AccessRuleDiffTracker.class })
+@Cache( usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE )
+@NamedQueries( { @NamedQuery( name = "Rule.byId",
+                              query = "SELECT r FROM AccessRule r WHERE team=:team AND id=:id" ), } )
+@EntityListeners( { AccessRuleDiffTracker.class } )
 @Audited
+@AuditTable( "accessrule_audit" )
 public class AccessRule
-        extends APersisted
-        implements Comparable
+      extends APersisted
+      implements Comparable
 {
-    private static final Logger log = LogManager.getLogger(AccessRule.class);
+    private static final Logger log = LogManager.getLogger( AccessRule.class );
+
 
     @Override
-    public int compareTo(Object o)
+    public int compareTo( Object o )
     {
-        AccessRule other = (AccessRule)o;
-        if (this.priority == other.priority)
+        AccessRule other = (AccessRule) o;
+        if ( this.priority == other.priority )
+        {
             return 0;
-        if (this.priority > other.priority)
+        }
+        if ( this.priority > other.priority )
+        {
             return 1;
+        }
         return -1;
     }
+
 
     public enum KeyMatchType
     {
@@ -87,74 +99,92 @@ public class AccessRule
     @GeneratedValue
     private Long id;
 
-    @Column(nullable = false)
+    @Column( nullable = false )
     private int priority;
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false, name = "ruleTarget")
+    @Enumerated( EnumType.STRING )
+    @Column( nullable = false,
+             name = "ruleTarget" )
     private RuleTarget ruleTarget;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "keyMatchType")
+    @Enumerated( EnumType.STRING )
+    @Column( name = "keyMatchType" )
     private KeyMatchType keyMatchType;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "contextMatchType")
+    @Enumerated( EnumType.STRING )
+    @Column( name = "contextMatchType" )
     private ContextMatchType contextMatchType;
 
-    @Column(name = "matchValue")
+    @Column( name = "matchValue" )
     private String matchValue;
 
-    @ManyToMany(fetch = FetchType.LAZY, cascade = { CascadeType.REFRESH })
+    @ManyToMany( fetch = FetchType.LAZY,
+                 cascade = { CascadeType.REFRESH } )
     @NotAudited
-    private Set<Level> context;
+    private Set<CtxLevel> context;
 
     // ENVERS optimization
-    @JoinColumn(nullable = false)
+    @Lob
+    @Type( type = "org.hibernate.type.TextType" )
+    @Column( nullable = false,
+             columnDefinition = "TEXT" )
     private String contextJson;
 
-    @ManyToOne(fetch = FetchType.LAZY, cascade = { CascadeType.REFRESH })
-    @JoinColumn(nullable = false, name = "team")
+    @ManyToOne( fetch = FetchType.LAZY,
+                cascade = { CascadeType.REFRESH } )
+    @JoinColumn( nullable = false,
+                 name = "team" )
     private Team team;
 
-    @Column(nullable = false)
+    @Column( nullable = false )
     private boolean canEdit;
 
     private transient AContextAwarePersistent contextAwarePersistent;
 
-    public void setContextAwarePersistent(AContextAwarePersistent contextAwarePersistent,
-                                          AccessRuleWrapper.RuleResponse ruleResponse)
+
+    public void setContextAwarePersistent( AContextAwarePersistent contextAwarePersistent,
+                                           AccessRuleWrapper.RuleResponse ruleResponse )
     {
         this.contextAwarePersistent = contextAwarePersistent;
         this.ruleResponse = ruleResponse;
-        if (contextAwarePersistent instanceof Property)
+        if ( contextAwarePersistent instanceof Property )
         {
-            Property property = (Property)contextAwarePersistent;
+            Property property = (Property) contextAwarePersistent;
             this.key = property.getKey();
         }
     }
 
+
     private transient String key;
+
     private transient AccessRuleWrapper.RuleResponse ruleResponse;
 
-    public void setKey(String key, AccessRuleWrapper.RuleResponse ruleResponse)
+
+    public void setKey( String key,
+                        AccessRuleWrapper.RuleResponse ruleResponse )
     {
         this.key = key;
         this.ruleResponse = ruleResponse;
     }
 
-    protected AccessRule() {}
 
-    public AccessRule(final Team team,
-                      final RuleTarget ruleTarget,
-                      final ContextMatchType contextMatchType,
-                      final Set<Level> context,
-                      final boolean canEdit,
-                      final int priority)
-            throws ConfigException
+    protected AccessRule()
     {
-        if (Utils.anyNull(ruleTarget, contextMatchType))
-            throw new ConfigException(Error.Code.MISSING_PARAMS);
+    }
+
+
+    public AccessRule( final Team team,
+                       final RuleTarget ruleTarget,
+                       final ContextMatchType contextMatchType,
+                       final Set<CtxLevel> context,
+                       final boolean canEdit,
+                       final int priority )
+          throws ConfigException
+    {
+        if ( Utils.anyNull( ruleTarget, contextMatchType ) )
+        {
+            throw new ConfigException( Error.Code.MISSING_PARAMS );
+        }
 
         this.team = team;
         this.ruleTarget = ruleTarget;
@@ -168,16 +198,18 @@ public class AccessRule
     }
 
 
-    public AccessRule(final Team team,
-                      final RuleTarget ruleTarget,
-                      final KeyMatchType keyMatchType,
-                      final String matchValue,
-                      final boolean canEdit,
-                      final int priority)
-            throws ConfigException
+    public AccessRule( final Team team,
+                       final RuleTarget ruleTarget,
+                       final KeyMatchType keyMatchType,
+                       final String matchValue,
+                       final boolean canEdit,
+                       final int priority )
+          throws ConfigException
     {
-        if (Utils.anyNull(ruleTarget, keyMatchType, matchValue) || Utils.isBlank(matchValue))
-            throw new ConfigException(Error.Code.MISSING_PARAMS);
+        if ( Utils.anyNull( ruleTarget, keyMatchType, matchValue ) || Utils.isBlank( matchValue ) )
+        {
+            throw new ConfigException( Error.Code.MISSING_PARAMS );
+        }
 
         this.team = team;
         this.ruleTarget = ruleTarget;
@@ -190,120 +222,141 @@ public class AccessRule
         this.priority = priority;
     }
 
-    private transient TreeMap<Depth, Collection<Level>> depthMap = null;
 
-    public TreeMap<Depth, Collection<Level>> getDepthMap(boolean includeClusters)
+    private transient TreeMap<Depth, Collection<CtxLevel>> depthMap = null;
+
+
+    public TreeMap<Depth, Collection<CtxLevel>> getDepthMap( boolean includeClusters )
     {
-        if (null == this.context)
+        if ( null == this.context )
+        {
             return null;
+        }
 
-        if (null != depthMap)
+        if ( null != depthMap )
+        {
             return depthMap;
+        }
 
         depthMap = new TreeMap<>();
-        for (Level level : this.context)
+        for ( CtxLevel ctxLevel : this.context )
         {
-            Depth depth = level.getDepth();
-            if (!depthMap.containsKey(depth))
-                depthMap.put(depth, new HashSet<>());
+            Depth depth = ctxLevel.getDepth();
+            if ( !depthMap.containsKey( depth ) )
+            {
+                depthMap.put( depth, new HashSet<>() );
+            }
 
-            depthMap.get(depth).add(level);
+            depthMap.get( depth ).add( ctxLevel );
 
             // Add all node's clusters
-            if (includeClusters && level.isMember() && null != level.getGroups())
-                depthMap.get(depth).addAll(level.getGroups());
+            if ( includeClusters && ctxLevel.isMember() && null != ctxLevel.getGroups() )
+            {
+                depthMap.get( depth ).addAll( ctxLevel.getGroups() );
+            }
         }
 
         return depthMap;
     }
 
+
     @Condition
     public boolean when()
     {
-        if (RuleTarget.Key.equals(ruleTarget))
+        if ( RuleTarget.Key.equals( ruleTarget ) )
         {
-            switch (this.keyMatchType)
+            switch ( this.keyMatchType )
             {
                 case Is:
-                    return this.key.equalsIgnoreCase(matchValue);
+                    return this.key.equalsIgnoreCase( matchValue );
 
                 case StartsWith:
-                    return this.key.toLowerCase().startsWith(matchValue.toLowerCase());
+                    return this.key.toLowerCase().startsWith( matchValue.toLowerCase() );
 
                 case EndsWith:
-                    return this.key.toLowerCase().endsWith(matchValue.toLowerCase());
+                    return this.key.toLowerCase().endsWith( matchValue.toLowerCase() );
 
                 case Contains:
-                    return this.key.toLowerCase().contains(matchValue.toLowerCase());
-
+                    return this.key.toLowerCase().contains( matchValue.toLowerCase() );
             }
-        } else if (RuleTarget.Value.equals(ruleTarget))
+        }
+        else if ( RuleTarget.Value.equals( ruleTarget ) )
         {
-            switch (contextMatchType)
+            switch ( contextMatchType )
             {
                 case Resolves:
-                    return AResolver.isContextualMatch(contextAwarePersistent.getDepthMap(), getDepthMap(true));
+                    return AResolver.isContextualMatch( contextAwarePersistent.getDepthMap(), getDepthMap( true ) );
 
                 case DoesNotResolve:
-                    return !AResolver.isContextualMatch(contextAwarePersistent.getDepthMap(), getDepthMap(true));
+                    return !AResolver.isContextualMatch( contextAwarePersistent.getDepthMap(), getDepthMap( true ) );
 
                 case ContainsAny:
-                    return AResolver.containsAny(contextAwarePersistent.getDepthMap(), getDepthMap(true));
+                    return AResolver.containsAny( contextAwarePersistent.getDepthMap(), getDepthMap( true ) );
 
                 case DoesNotContain:
-                    return !AResolver.containsAny(contextAwarePersistent.getDepthMap(), getDepthMap(true));
+                    return !AResolver.containsAny( contextAwarePersistent.getDepthMap(), getDepthMap( true ) );
 
                 case ContainsAll:
-                    return AResolver.containsAll(contextAwarePersistent.getDepthMap(), getDepthMap(true));
+                    return AResolver.containsAll( contextAwarePersistent.getDepthMap(), getDepthMap( true ) );
             }
         }
 
         return false;
     }
 
+
     @Action
     public void then()
     {
-        if (null != ruleResponse)
+        if ( null != ruleResponse )
+        {
             ruleResponse.isEditable = canEdit;
+        }
 
-        if (null != contextAwarePersistent)
+        if ( null != contextAwarePersistent )
+        {
             contextAwarePersistent.isEditable = canEdit;
+        }
     }
+
 
     @Override
     public String toString()
     {
-        return String.format("%d | %s | %s | %s",
-                             null == contextAwarePersistent || null == contextAwarePersistent.getId()
-                                     ? -1L : contextAwarePersistent.getId(),
-                             null == ruleTarget ? "n/a" : ruleTarget.name(),
-                             null == keyMatchType ? "n/a" : keyMatchType.name(),
-                             matchValue);
+        return String.format( "%d | %s | %s | %s",
+                              null == contextAwarePersistent || null == contextAwarePersistent.getId()
+                              ? -1L : contextAwarePersistent.getId(),
+                              null == ruleTarget ? "n/a" : ruleTarget.name(),
+                              null == keyMatchType ? "n/a" : keyMatchType.name(),
+                              matchValue );
     }
+
 
     public JsonObject contextToJson()
     {
         JsonObject contextJ = new JsonObject();
-        if (null != this.getContext())
+        if ( null != this.getContext() )
         {
-            TreeMap<Depth, Collection<Level>> contextMap = this.getDepthMap(false);
+            TreeMap<Depth, Collection<CtxLevel>> contextMap = this.getDepthMap( false );
 
-            if (null != contextMap)
+            if ( null != contextMap )
             {
-                for (Depth depth : contextMap.keySet())
+                for ( Depth depth : contextMap.keySet() )
                 {
                     JsonArray depthLevelsJ = new JsonArray();
-                    for (Level level : contextMap.get(depth))
-                        depthLevelsJ.add(level.getName());
+                    for ( CtxLevel ctxLevel : contextMap.get( depth ) )
+                    {
+                        depthLevelsJ.add( ctxLevel.getName() );
+                    }
 
-                    contextJ.add(String.valueOf(depth.getPlacement()), depthLevelsJ);
+                    contextJ.add( String.valueOf( depth.getPlacement() ), depthLevelsJ );
                 }
             }
         }
 
         return contextJ;
     }
+
 
     // --------------------------------------------------------------------------------------------
     // Setters and getters
@@ -314,92 +367,111 @@ public class AccessRule
         return id;
     }
 
+
     public int getPriority()
     {
         return priority;
     }
 
-    public void setPriority(int priority)
+
+    public void setPriority( int priority )
     {
         this.priority = priority;
     }
+
 
     public RuleTarget getRuleTarget()
     {
         return ruleTarget;
     }
 
+
     public KeyMatchType getKeyMatchType()
     {
         return keyMatchType;
     }
+
 
     public String getMatchValue()
     {
         return matchValue;
     }
 
+
     public ContextMatchType getContextMatchType()
     {
         return contextMatchType;
     }
 
-    public void setContextMatchType(ContextMatchType contextMatchType)
+
+    public void setContextMatchType( ContextMatchType contextMatchType )
     {
         this.contextMatchType = contextMatchType;
     }
+
 
     public boolean isCanEdit()
     {
         return canEdit;
     }
 
-    public Set<Level> getContext()
+
+    public Set<CtxLevel> getContext()
     {
         return context;
     }
 
-    public void setContext(Set<Level> context)
+
+    public void setContext( Set<CtxLevel> context )
     {
-        if (!Utils.same(this.context, context))
+        if ( !Utils.same( this.context, context ) )
         {
             this.context = context;
             this.contextJson = contextToJson().toString();
         }
     }
 
+
     public Team getTeam()
     {
         return team;
     }
 
-    public void setRuleTarget(RuleTarget ruleTarget)
+
+    public void setRuleTarget( RuleTarget ruleTarget )
     {
         this.ruleTarget = ruleTarget;
     }
 
-    public void setKeyMatchType(KeyMatchType keyMatchType)
+
+    public void setKeyMatchType( KeyMatchType keyMatchType )
     {
         this.keyMatchType = keyMatchType;
     }
 
-    public void setMatchValue(String matchValue)
+
+    public void setMatchValue( String matchValue )
     {
         this.matchValue = matchValue;
     }
 
-    public void setCanEdit(boolean canEdit)
+
+    public void setCanEdit( boolean canEdit )
     {
         this.canEdit = canEdit;
     }
 
+
     public JsonObject getContextJsonObj()
     {
-        if (null == this.contextJson)
+        if ( null == this.contextJson )
+        {
             return new JsonObject();
+        }
 
-        return new Gson().fromJson(this.contextJson, JsonObject.class);
+        return new Gson().fromJson( this.contextJson, JsonObject.class );
     }
+
 
     @Override
     public ClassName getClassName()

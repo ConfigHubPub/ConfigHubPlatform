@@ -19,7 +19,7 @@ package com.confighub.api.repository.user.context;
 
 import com.confighub.api.repository.user.AUserAccessValidation;
 import com.confighub.core.error.ConfigException;
-import com.confighub.core.repository.Level;
+import com.confighub.core.repository.CtxLevel;
 import com.confighub.core.store.Store;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
@@ -50,7 +50,7 @@ public class DeleteContextItem
             if (0 != status)
                 return Response.status(status).build();
 
-            Level ci = store.getLevel(contextItemId, repository);
+            CtxLevel ci = store.getLevel( contextItemId, repository);
             if (null != ci)
             {
                 if (null != ci.getProperties() && ci.getProperties().size() > 0)

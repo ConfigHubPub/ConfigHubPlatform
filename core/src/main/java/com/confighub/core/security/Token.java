@@ -33,82 +33,127 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.envers.AuditTable;
 import org.hibernate.envers.Audited;
 import org.hibernate.envers.NotAudited;
 import org.hibernate.envers.RelationTargetAuditMode;
 
-import javax.persistence.*;
-import java.util.*;
+import javax.persistence.Cacheable;
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.EntityListeners;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.Lob;
+import javax.persistence.ManyToMany;
+import javax.persistence.ManyToOne;
+import javax.persistence.NamedQueries;
+import javax.persistence.NamedQuery;
+import javax.persistence.PrePersist;
+import javax.persistence.PreUpdate;
+import javax.persistence.Table;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
+
 
 @Entity
+@Table( name = "token" )
 @Cacheable
-@Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
-@NamedQueries({
-        @NamedQuery(name = "Token.getAll", query = "SELECT t FROM Token t WHERE repository=:repository"),
-        @NamedQuery(name = "Token.getToken", query = "SELECT t FROM Token t WHERE token=:token AND repository=:repository"),
-        @NamedQuery(name = "Token.byId", query = "SELECT t FROM Token t WHERE repository=:repository AND id=:id"),
-})
-@EntityListeners({ TokenDiffTracker.class })
+@Cache( usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE )
+@NamedQueries(
+      {
+            @NamedQuery( name = "Token.getAll",
+                         query = "SELECT t FROM Token t WHERE repository=:repository" ),
+            @NamedQuery( name = "Token.getToken",
+                         query = "SELECT t FROM Token t WHERE token=:token AND repository=:repository" ),
+            @NamedQuery( name = "Token.byId",
+                         query = "SELECT t FROM Token t WHERE repository=:repository AND id=:id" ),
+      } )
+@EntityListeners( { TokenDiffTracker.class } )
 @Audited
+@AuditTable( "token_audit" )
 public class Token
-    extends APersisted
+      extends APersisted
 {
-    private static final Logger log = LogManager.getLogger(Token.class);
+    private static final Logger log = LogManager.getLogger( Token.class );
 
     @Id
     @GeneratedValue
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY, cascade = { CascadeType.REFRESH, CascadeType.PERSIST  })
-    @JoinColumn(nullable = false)
+    @ManyToOne( fetch = FetchType.LAZY,
+                cascade = { CascadeType.REFRESH,
+                            CascadeType.PERSIST } )
+    @JoinColumn( nullable = false )
     private Repository repository;
 
     @NotAudited
-    @Column(length = 8192)
+    @Column( length = 450 )
     private String token;
 
-    @Column(name="name")
+    @Column( name = "name" )
     private String name;
 
-    @Column(name="active")
+    @Column( name = "active" )
     private boolean active;
 
-    @Column(name="expires")
+    @Column( name = "expires" )
     private Long expires;
 
-    @Column(name="forceKeyPushEnabled")
+    @Column( name = "forceKeyPushEnabled" )
     private boolean forceKeyPushEnabled = false;
 
-    @Column(name="createdOn")
+    @Column( name = "createdOn" )
     private Long createdOn;
 
-    @ManyToMany(fetch = FetchType.LAZY, cascade = { CascadeType.REFRESH })
+    @ManyToMany( fetch = FetchType.LAZY,
+                 cascade = { CascadeType.REFRESH } )
     private Set<SecurityProfile> securityProfiles;
 
-    @ManyToOne(fetch = FetchType.LAZY, cascade = { CascadeType.REFRESH, CascadeType.PERSIST })
-    @JoinColumn(name="teamRulesId")
-    @Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
+    @ManyToOne( fetch = FetchType.LAZY,
+                cascade = { CascadeType.REFRESH,
+                            CascadeType.PERSIST } )
+    @JoinColumn( name = "teamRulesId" )
+    @Audited( targetAuditMode = RelationTargetAuditMode.NOT_AUDITED )
     private Team teamRules;
 
-    @ManyToOne(fetch = FetchType.LAZY, cascade = { CascadeType.REFRESH, CascadeType.PERSIST })
-    @JoinColumn(name="managingTeamId")
-    @Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
+    @ManyToOne( fetch = FetchType.LAZY,
+                cascade = { CascadeType.REFRESH,
+                            CascadeType.PERSIST } )
+    @JoinColumn( name = "managingTeamId" )
+    @Audited( targetAuditMode = RelationTargetAuditMode.NOT_AUDITED )
     private Team managingTeam;
 
-    @ManyToOne(fetch = FetchType.LAZY, cascade = { CascadeType.REFRESH, CascadeType.PERSIST  })
-    @JoinColumn(name="userAccountId")
-    @Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
+    @ManyToOne( fetch = FetchType.LAZY,
+                cascade = { CascadeType.REFRESH,
+                            CascadeType.PERSIST } )
+    @JoinColumn( name = "userAccountId" )
+    @Audited( targetAuditMode = RelationTargetAuditMode.NOT_AUDITED )
     private UserAccount user;
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false, name = "managedBy")
+    @Enumerated( EnumType.STRING )
+    @Column( nullable = false,
+             name = "managedBy" )
     private ManagedBy managedBy;
 
-    public enum ManagedBy {
+    public enum ManagedBy
+    {
         User, Admins, Team, All
     }
 
-    protected Token() {}
+
+    protected Token()
+    {
+    }
+
 
     /**
      * Create API Token
@@ -123,51 +168,61 @@ public class Token
      * @param userAccount
      * @param managedBy
      */
-    public Token(final Repository repository,
-                 final String name,
-                 final Long expiration,
-                 final boolean forceKeyPushEnabled,
-                 final List<SecurityProfile> securityProfiles,
-                 final String teamRules,
-                 final String managingTeam,
-                 final UserAccount userAccount,
-                 final ManagedBy managedBy)
+    public Token( final Repository repository,
+                  final String name,
+                  final Long expiration,
+                  final boolean forceKeyPushEnabled,
+                  final List<SecurityProfile> securityProfiles,
+                  final String teamRules,
+                  final String managingTeam,
+                  final UserAccount userAccount,
+                  final ManagedBy managedBy )
     {
         this.name = name;
         this.expires = expiration;
         this.repository = repository;
-        this.createdOn = (new Date()).getTime();
+        this.createdOn = ( new Date() ).getTime();
         this.forceKeyPushEnabled = forceKeyPushEnabled;
         this.active = true;
         this.managedBy = managedBy;
 
-        if (null != securityProfiles)
-            for (SecurityProfile sp : securityProfiles)
-                this.addSecurityProfile(sp);
-
-        if (null != teamRules)
+        if ( null != securityProfiles )
         {
-            Team team = repository.getTeam(teamRules);
-            if (null == team)
-                throw new ConfigException(Error.Code.TEAM_NOT_FOUND);
+            for ( SecurityProfile sp : securityProfiles )
+            {
+                this.addSecurityProfile( sp );
+            }
+        }
+
+        if ( null != teamRules )
+        {
+            Team team = repository.getTeam( teamRules );
+            if ( null == team )
+            {
+                throw new ConfigException( Error.Code.TEAM_NOT_FOUND );
+            }
 
             this.teamRules = team;
         }
 
-        switch (managedBy)
+        switch ( managedBy )
         {
             case User:
-                if (null == userAccount)
-                    throw new ConfigException(Error.Code.MISSING_PARAMS);
+                if ( null == userAccount )
+                {
+                    throw new ConfigException( Error.Code.MISSING_PARAMS );
+                }
                 this.user = userAccount;
-                this.teamRules = repository.getTeamForUser(userAccount);
+                this.teamRules = repository.getTeamForUser( userAccount );
                 break;
 
             case Team:
                 this.user = null;
-                Team team = repository.getTeam(managingTeam);
-                if (null == team)
-                    throw new ConfigException(Error.Code.TEAM_NOT_FOUND);
+                Team team = repository.getTeam( managingTeam );
+                if ( null == team )
+                {
+                    throw new ConfigException( Error.Code.TEAM_NOT_FOUND );
+                }
                 this.managingTeam = team;
                 break;
 
@@ -198,30 +253,38 @@ public class Token
      * @param newOwner
      * @param modificationAuthor
      */
-    public void updateToken(final boolean active,
-                            final String name,
-                            final Long expiration,
-                            final boolean forceKeyPushEnabled,
-                            final List<SecurityProfile> addSecurityProfiles,
-                            final List<SecurityProfile> removeSecurityProfiles,
-                            final String teamRules,
-                            final String managingTeam,
-                            final ManagedBy managedBy,
-                            final String newOwner,
-                            final UserAccount modificationAuthor)
-        throws ConfigException
+    public void updateToken( final boolean active,
+                             final String name,
+                             final Long expiration,
+                             final boolean forceKeyPushEnabled,
+                             final List<SecurityProfile> addSecurityProfiles,
+                             final List<SecurityProfile> removeSecurityProfiles,
+                             final String teamRules,
+                             final String managingTeam,
+                             final ManagedBy managedBy,
+                             final String newOwner,
+                             final UserAccount modificationAuthor )
+          throws ConfigException
     {
-        boolean canEdit = isAllowedToEdit(modificationAuthor);
+        boolean canEdit = isAllowedToEdit( modificationAuthor );
 
-        if (null != addSecurityProfiles)
-            for (SecurityProfile sp : addSecurityProfiles)
-                this.addSecurityProfile(sp);
+        if ( null != addSecurityProfiles )
+        {
+            for ( SecurityProfile sp : addSecurityProfiles )
+            {
+                this.addSecurityProfile( sp );
+            }
+        }
 
-        if (null != removeSecurityProfiles)
-            for (SecurityProfile sp : removeSecurityProfiles)
-                this.remove(sp);
+        if ( null != removeSecurityProfiles )
+        {
+            for ( SecurityProfile sp : removeSecurityProfiles )
+            {
+                this.remove( sp );
+            }
+        }
 
-        if (canEdit)
+        if ( canEdit )
         {
             this.active = active;
 
@@ -230,30 +293,38 @@ public class Token
             this.forceKeyPushEnabled = forceKeyPushEnabled;
             this.managedBy = managedBy;
 
-            if (!Utils.isBlank(teamRules))
+            if ( !Utils.isBlank( teamRules ) )
             {
-                Team team = repository.getTeam(teamRules);
-                if (null == team)
-                    throw new ConfigException(Error.Code.TEAM_NOT_FOUND);
+                Team team = repository.getTeam( teamRules );
+                if ( null == team )
+                {
+                    throw new ConfigException( Error.Code.TEAM_NOT_FOUND );
+                }
 
                 this.teamRules = team;
             }
             else
+            {
                 this.teamRules = null;
+            }
 
-            switch (managedBy)
+            switch ( managedBy )
             {
                 case User:
-                    if (null == modificationAuthor)
-                        throw new ConfigException(Error.Code.MISSING_PARAMS);
+                    if ( null == modificationAuthor )
+                    {
+                        throw new ConfigException( Error.Code.MISSING_PARAMS );
+                    }
 
-                    if (modificationAuthor.getUsername().equals(newOwner))
+                    if ( modificationAuthor.getUsername().equals( newOwner ) )
                     {
                         this.user = modificationAuthor;
 
                         // If not an admin, a user has to have personal token assigned to their team.
-                        if (!this.repository.isAdminOrOwner(modificationAuthor))
-                            this.teamRules = repository.getTeamForUser(modificationAuthor);
+                        if ( !this.repository.isAdminOrOwner( modificationAuthor ) )
+                        {
+                            this.teamRules = repository.getTeamForUser( modificationAuthor );
+                        }
 
                         this.managingTeam = null;
                     }
@@ -262,9 +333,11 @@ public class Token
 
                 case Team:
                     this.user = null;
-                    Team team = repository.getTeam(managingTeam);
-                    if (null == team)
-                        throw new ConfigException(Error.Code.TEAM_NOT_FOUND);
+                    Team team = repository.getTeam( managingTeam );
+                    if ( null == team )
+                    {
+                        throw new ConfigException( Error.Code.TEAM_NOT_FOUND );
+                    }
                     this.managingTeam = team;
                     break;
 
@@ -277,34 +350,41 @@ public class Token
         }
     }
 
-    public boolean isAllowedToDelete(UserAccount user)
+
+    public boolean isAllowedToDelete( UserAccount user )
     {
-        if (null == user)
+        if ( null == user )
+        {
             return false;
+        }
 
-        return this.repository.isAdminOrOwner(user)
-               || (ManagedBy.User.equals(this.managedBy) && user.equals(this.user));
-
+        return this.repository.isAdminOrOwner( user )
+               || ( ManagedBy.User.equals( this.managedBy ) && user.equals( this.user ) );
     }
 
-    public boolean isAllowedToEdit(UserAccount user)
+
+    public boolean isAllowedToEdit( UserAccount user )
     {
-        if (null == user)
+        if ( null == user )
+        {
             return false;
+        }
 
-        if (this.repository.isAdminOrOwner(user))
+        if ( this.repository.isAdminOrOwner( user ) )
+        {
             return true;
+        }
 
-        switch (this.managedBy)
+        switch ( this.managedBy )
         {
             // user is the token owner
             case User:
-                return user.equals(this.user);
+                return user.equals( this.user );
 
             // user is a member of a managing team
             case Team:
                 return null != this.managingTeam
-                       && this.managingTeam.isMember(user);
+                       && this.managingTeam.isMember( user );
 
             case Admins:
                 return false;
@@ -316,24 +396,27 @@ public class Token
         return false;
     }
 
-    public boolean isAllowedToViewToken(UserAccount user)
-    {
-        if (null == user)
-            return false;
 
-        switch (this.managedBy)
+    public boolean isAllowedToViewToken( UserAccount user )
+    {
+        if ( null == user )
+        {
+            return false;
+        }
+
+        switch ( this.managedBy )
         {
             // user is the token owner
             case User:
-                return user.equals(this.user);
+                return user.equals( this.user );
 
             // user is a member of a managing team
             case Team:
-                return  null != this.managingTeam
-                        && this.managingTeam.isMember(user);
+                return null != this.managingTeam
+                       && this.managingTeam.isMember( user );
 
             case Admins:
-                return this.repository.isAdminOrOwner(user);
+                return this.repository.isAdminOrOwner( user );
 
             case All:
                 return true;
@@ -342,115 +425,145 @@ public class Token
         return false;
     }
 
+
     @Override
     public String toString()
     {
-        return String.format("Token[%5d]: %s, repoId: %d", this.id, this.name, this.repository.getId());
+        return String.format( "Token[%5d]: %s, repoId: %d", this.id, this.name, this.repository.getId() );
     }
+
 
     public JsonObject toJson()
     {
         JsonObject json = new JsonObject();
 
-        json.addProperty("name", this.name);
-        json.addProperty("expires", this.expires);
-        json.addProperty("forceKeyPushEnabled", this.forceKeyPushEnabled);
+        json.addProperty( "name", this.name );
+        json.addProperty( "expires", this.expires );
+        json.addProperty( "forceKeyPushEnabled", this.forceKeyPushEnabled );
 
-        if (null != this.securityProfiles)
+        if ( null != this.securityProfiles )
         {
             JsonArray sps = new JsonArray();
-            for (SecurityProfile sp : this.securityProfiles)
-                sps.add(sp.getName());
-            json.add("sps", sps);
+            for ( SecurityProfile sp : this.securityProfiles )
+            {
+                sps.add( sp.getName() );
+            }
+            json.add( "sps", sps );
         }
 
         return json;
     }
 
+
     @PreUpdate
     @PrePersist
     public void enforce()
-            throws ConfigException
+          throws ConfigException
     {
-        if (Utils.isBlank(this.name))
-            throw new ConfigException(Error.Code.BLANK_NAME);
+        if ( Utils.isBlank( this.name ) )
+        {
+            throw new ConfigException( Error.Code.BLANK_NAME );
+        }
 
-        if (!Utils.isNameValid(this.name))
-            throw new ConfigException(Error.Code.ILLEGAL_CHARACTERS);
-
+        if ( !Utils.isNameValid( this.name ) )
+        {
+            throw new ConfigException( Error.Code.ILLEGAL_CHARACTERS );
+        }
     }
+
 
     public AccessRuleWrapper getRulesWrapper()
     {
-        if (null != teamRules)
-            return this.repository.getRulesWrapper(this.teamRules);
+        if ( null != teamRules )
+        {
+            return this.repository.getRulesWrapper( this.teamRules );
+        }
 
         return null;
     }
+
 
     public void clearSecurityProfiles()
     {
         this.securityProfiles = null;
     }
 
+
     /**
      * @param sp
      */
-    private void addSecurityProfile(SecurityProfile sp)
+    private void addSecurityProfile( SecurityProfile sp )
     {
-        if (null == this.securityProfiles)
+        if ( null == this.securityProfiles )
+        {
             this.securityProfiles = new HashSet<>();
+        }
 
-        this.securityProfiles.add(sp);
+        this.securityProfiles.add( sp );
     }
+
 
     /**
      * @param sp
      */
-    protected void remove(SecurityProfile sp)
+    protected void remove( SecurityProfile sp )
     {
-        if (null != this.securityProfiles)
-            this.securityProfiles.remove(sp);
+        if ( null != this.securityProfiles )
+        {
+            this.securityProfiles.remove( sp );
+        }
     }
+
 
     private void build()
-        throws ConfigException
+          throws ConfigException
     {
-        if (null == this.token)
+        if ( null == this.token )
+        {
             this.token = generateToken();
+        }
     }
+
 
     public boolean isExpired()
     {
-        if (null == this.expires)
+        if ( null == this.expires )
+        {
             return false;
+        }
 
         return this.expires < System.currentTimeMillis();
     }
 
+
     private String generateToken()
     {
-        return Auth.getApiToken(this.repository);
+        return Auth.getApiToken( this.repository );
     }
 
     // --------------------------------------------------------------------------------------------
     // POJO Ops
     // --------------------------------------------------------------------------------------------
 
-    @Override
-    public boolean equals(Object o)
-    {
-        if (null == o)
-            return false;
 
-        return o instanceof Token && ((Token)o).getId().equals(this.getId());
+    @Override
+    public boolean equals( Object o )
+    {
+        if ( null == o )
+        {
+            return false;
+        }
+
+        return o instanceof Token && ( (Token) o ).getId().equals( this.getId() );
     }
+
 
     @Override
     public int hashCode()
     {
-        return Objects.hash(this.token);
+        return Objects.hash( this.token );
     }
+
 
     // --------------------------------------------------------------------------------------------
     // Setters and getters
@@ -461,69 +574,82 @@ public class Token
         return id;
     }
 
+
     public Repository getRepository()
     {
         return repository;
     }
+
 
     public String getToken()
     {
         return token;
     }
 
+
     public String getName()
     {
         return name;
     }
+
 
     public boolean isForceKeyPushEnabled()
     {
         return forceKeyPushEnabled;
     }
 
+
     public boolean isActive()
     {
         return active;
     }
+
 
     public Long getExpires()
     {
         return expires;
     }
 
+
     public Long getCreatedOn()
     {
         return createdOn;
     }
+
 
     public Set<SecurityProfile> getSecurityProfiles()
     {
         return securityProfiles;
     }
 
+
     public Team getTeamRules()
     {
         return teamRules;
     }
+
 
     public Team getManagingTeam()
     {
         return managingTeam;
     }
 
+
     public ManagedBy getManagedBy()
     {
         return managedBy;
     }
+
 
     public UserAccount getUser()
     {
         return user;
     }
 
+
     @Override
-    public ClassName getClassName() {
+    public ClassName getClassName()
+    {
         return ClassName.Token;
     }
-
 }

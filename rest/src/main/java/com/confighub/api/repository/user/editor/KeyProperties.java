@@ -87,7 +87,7 @@ public class KeyProperties
 
             store.begin();
             JsonObject json = GsonHelper.keyToGSON(key);
-            Collection<Level> ctx = ContextParser.parseAndCreate(contextString, repository, store, user, dateObj);
+            Collection<CtxLevel> ctx = ContextParser.parseAndCreate( contextString, repository, store, user, dateObj);
             Context context = new Context(store, repository, ctx, dateObj);
 
             SecurityProfile ep = key.getSecurityProfile();

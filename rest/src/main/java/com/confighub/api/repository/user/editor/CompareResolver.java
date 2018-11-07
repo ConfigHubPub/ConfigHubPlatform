@@ -96,23 +96,23 @@ public class CompareResolver
             if (null != bDateObj)
                 bRepo = store.getRepository(repository.getId(), bDateObj);
 
-            Collection<Level> aContextLevels = ContextParser.parseAndCreate(aContextString,
-                                                                            aRepo,
-                                                                            store,
-                                                                            user,
-                                                                            aDateObj,
-                                                                            true);
-            Collection<Level> bContextLevels = ContextParser.parseAndCreate(bContextString,
-                                                                            bRepo,
-                                                                            store,
-                                                                            user,
-                                                                            bDateObj,
-                                                                            true);
+            Collection<CtxLevel> aContextCtxLevels = ContextParser.parseAndCreate( aContextString,
+                                                                                   aRepo,
+                                                                                   store,
+                                                                                   user,
+                                                                                   aDateObj,
+                                                                                   true);
+            Collection<CtxLevel> bContextCtxLevels = ContextParser.parseAndCreate( bContextString,
+                                                                                   bRepo,
+                                                                                   store,
+                                                                                   user,
+                                                                                   bDateObj,
+                                                                                   true);
 
             AccessRuleWrapper accessRuleWrapper = repository.getRulesWrapper(user);
 
-            Context aContext = new Context(store, aRepo, aContextLevels, aDateObj, allKeys);
-            Context bContext = new Context(store, bRepo, bContextLevels, bDateObj, allKeys);
+            Context aContext = new Context( store, aRepo, aContextCtxLevels, aDateObj, allKeys);
+            Context bContext = new Context( store, bRepo, bContextCtxLevels, bDateObj, allKeys);
 
             Map<PropertyKey, Collection<Property>> aResolved;
             Map<PropertyKey, Collection<Property>> bResolved;

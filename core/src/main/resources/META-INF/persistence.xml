@@ -29,7 +29,6 @@
             <property name="hibernate.show_sql" value="false"/>
             <property name="hibernate.format_sql" value="false"/>
             <property name="use_sql_comments" value="false"/>
-            <property name="hibernate.hbm2ddl.auto" value="update"/>
             <property name="hibernate.transaction.flush_before_completion" value="true"/>
 
             <!-- Envers -->
@@ -38,7 +37,7 @@
                       value="true"/>
             <property name="org.hibernate.envers.audit_strategy"
                       value="org.hibernate.envers.strategy.ValidityAuditStrategy"/>
-            <property name="org.hibernate.envers.audit_table_suffix" value="_Audit"/>
+            <property name="org.hibernate.envers.audit_table_suffix" value="_audit"/>
 
         </properties>
     </persistence-unit>

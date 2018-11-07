@@ -1,15 +1,28 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Configuration status="WARN">
+
+    <Properties>
+        <Property name="layout">%highlight{%d %p %m%n}{FATAL=red, ERROR=red, INFO=white, WARN=yellow, DEBUG=green}
+        </Property>
+    </Properties>
+
     <Appenders>
-        <File name="FILE"
+
+        <File name="SERVER_LOG"
               fileName="${sys:log.path}/configHub.log"
+              append="true"
               ignoreExceptions="false">
-            <PatternLayout pattern="%highlight{%d %p %m%n}{FATAL=red, ERROR=red, INFO=white, WARN=yellow, DEBUG=green}" />
+            <PatternLayout pattern="${layout}"/>
         </File>
+
+        <Console name="CONSOLE" target="SYSTEM_OUT">
+            <PatternLayout pattern="${layout}"/>
+        </Console>
+
     </Appenders>
     <Loggers>
         <Root level="INFO">
-            <AppenderRef ref="FILE" />
+            <AppenderRef ref="SERVER_LOG"/>
         </Root>
     </Loggers>
 </Configuration>

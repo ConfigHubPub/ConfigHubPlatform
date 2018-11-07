@@ -62,7 +62,7 @@ public class SecurityProfileDiffTracker
         SecurityProfile sp = (SecurityProfile) obj;
 
         o.name = sp.getName();
-        o.password = sp.getPassword();
+        o.password = sp.getSpPassword();
         o.cipher = sp.getCipher();
         o.encrypted = sp.encryptionEnabled();
 
@@ -83,7 +83,7 @@ public class SecurityProfileDiffTracker
         if (!Utils.equal(sp.getName(), o.name))
             json.addProperty("name", o.name);
 
-        if (!Utils.equal(sp.getPassword(), o.password))
+        if (!Utils.equal( sp.getSpPassword(), o.password))
             json.addProperty("password", true);
 
         if (sp.getCipher() != o.cipher)

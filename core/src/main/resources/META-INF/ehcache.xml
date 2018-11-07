@@ -37,7 +37,7 @@
             timeToLiveSeconds="600"
             overflowToDisk="false"/>
 
-    <cache  name="com.confighub.core.repository.Level"
+    <cache  name="com.confighub.core.repository.CtxLevel"
             maxElementsInMemory="100000"
             eternal="false"
             timeToIdleSeconds="300"

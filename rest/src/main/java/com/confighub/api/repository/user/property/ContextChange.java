@@ -69,11 +69,11 @@ public class ContextChange
                 return Response.ok(gson.toJson(json), MediaType.APPLICATION_JSON).build();
 
             Set<Property> all = key.getProperties();
-            Collection<Level> context = ContextParser.parseAndCreate(propertyContext, repository, store, user, null);
+            Collection<CtxLevel> context = ContextParser.parseAndCreate( propertyContext, repository, store, user, null);
             SecurityProfile ep = null;
 
             int score = 0;
-            for (Level l : context)
+            for ( CtxLevel l : context)
                 score += l.getContextScore();
 
             for (Property prop : all)
@@ -135,7 +135,7 @@ public class ContextChange
 
             json.addProperty("success", true);
 
-            Collection<Level> context = ContextParser.parseAndCreate(propertyContext, repository, store, user, null);
+            Collection<CtxLevel> context = ContextParser.parseAndCreate( propertyContext, repository, store, user, null);
 
             String cleanPath = !Utils.isBlank(path) && path.startsWith("/") ? path.substring(1) : path;
             String absPath = Utils.isBlank(cleanPath) ? fileName : cleanPath + "/" + fileName;
@@ -144,7 +144,7 @@ public class ContextChange
             if (null != absoluteFilePath)
             {
                 int score = 0;
-                for (Level l : context)
+                for ( CtxLevel l : context)
                     score += l.getContextScore();
 
                 Set<RepoFile> files = absoluteFilePath.getFiles();

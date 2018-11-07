@@ -117,7 +117,7 @@ public class GetJSONDiff
         if (null != date)
             specificRepo = store.getRepository(repository.getId(), date);
 
-        Collection<Level> aCtx =
+        Collection<CtxLevel> aCtx =
                 ContextParser.parseAndCreate(contextString,
                                              specificRepo,
                                              store,

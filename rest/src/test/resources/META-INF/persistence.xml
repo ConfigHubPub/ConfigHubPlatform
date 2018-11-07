@@ -11,7 +11,7 @@
         <class>com.confighub.core.organization.Organization</class>
         <class>com.confighub.core.organization.Team</class>
         <class>com.confighub.core.repository.AbsoluteFilePath</class>
-        <class>com.confighub.core.repository.Level</class>
+        <class>com.confighub.core.repository.CtxLevel</class>
         <class>com.confighub.core.repository.Property</class>
         <class>com.confighub.core.repository.PropertyKey</class>
         <class>com.confighub.core.repository.RepoFile</class>
@@ -21,6 +21,7 @@
         <class>com.confighub.core.security.SecurityProfile</class>
         <class>com.confighub.core.security.Token</class>
         <class>com.confighub.core.store.RevisionEntry</class>
+        <class>com.confighub.core.system.SystemConfig</class>
         <exclude-unlisted-classes>true</exclude-unlisted-classes>
 
         <properties>

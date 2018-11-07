@@ -20,7 +20,7 @@ package com.confighub.api.repository.user.files;
 import com.confighub.api.repository.user.AUserAccessValidation;
 import com.confighub.core.error.ConfigException;
 import com.confighub.core.error.Error;
-import com.confighub.core.repository.Level;
+import com.confighub.core.repository.CtxLevel;
 import com.confighub.core.repository.Property;
 import com.confighub.core.repository.PropertyKey;
 import com.confighub.core.resolver.Context;
@@ -79,7 +79,7 @@ public class GetFilePreview
                                                          ts,
                                                          repository.getCreateDate());
 
-            Collection<Level> ctx = ContextParser.parseAndCreate(contextString, repository, store, user, dateObj);
+            Collection<CtxLevel> ctx = ContextParser.parseAndCreate( contextString, repository, store, user, dateObj);
             Context context = new Context(store, repository, ctx, dateObj, false);
             if (!context.isFullContext())
                 throw new ConfigException(Error.Code.PARTIAL_CONTEXT);

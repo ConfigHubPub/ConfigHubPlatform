@@ -18,7 +18,7 @@
 package com.confighub.core.resolver;
 
 import com.confighub.core.error.Error;
-import com.confighub.core.repository.Level;
+import com.confighub.core.repository.CtxLevel;
 import com.confighub.core.utils.Pair;
 import com.confighub.core.error.ConfigException;
 import com.confighub.core.repository.Depth;
@@ -100,7 +100,7 @@ public class UIKeyCategoryResolver
 
         for (Property property : properties)
         {
-            Map<Depth, Level> propertyContextMap = property.getContextMap();
+            Map<Depth, CtxLevel> propertyContextMap = property.getContextMap();
 
             if (isContextualMatchAudit(property.getDepthMap(), context))
             {

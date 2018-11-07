@@ -22,7 +22,7 @@ import com.confighub.api.util.GsonHelper;
 import com.confighub.core.error.ConfigException;
 import com.confighub.core.error.Error;
 import com.confighub.core.organization.Team;
-import com.confighub.core.repository.Level;
+import com.confighub.core.repository.CtxLevel;
 import com.confighub.core.rules.AccessRule;
 import com.confighub.core.store.Store;
 import com.confighub.core.utils.ContextParser;
@@ -119,7 +119,7 @@ public class CreateAccessRule
 
                 case "Value":
 
-                    Collection<Level> context = null;
+                    Collection<CtxLevel> context = null;
                     try
                     {
                         context = ContextParser.parseAndCreate(contextString, repository, store, user, null);
@@ -146,7 +146,7 @@ public class CreateAccessRule
                     rule = new AccessRule(team,
                                           AccessRule.RuleTarget.Value,
                                           contextMatchType,
-                                          (Set<Level>)context,
+                                          (Set<CtxLevel>)context,
                                           canEdit,
                                           priority);
                     team.addRule(rule);
