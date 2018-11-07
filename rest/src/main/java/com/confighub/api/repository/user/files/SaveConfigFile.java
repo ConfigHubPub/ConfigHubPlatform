@@ -33,30 +33,32 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.Collection;
 
-@Path("/saveConfigFile")
+
+@Path( "/saveConfigFile" )
 public class SaveConfigFile
-        extends AUserAccessValidation
+      extends AUserAccessValidation
 {
-    private static final Logger log = LogManager.getLogger(SaveConfigFile.class);
+    private static final Logger log = LogManager.getLogger( SaveConfigFile.class );
+
 
     @POST
-    @Path("/{account}/{repository}")
-    @Produces("application/json")
-    public Response saveOrUpdate(@PathParam("account") String account,
-                                 @PathParam("repository") String repositoryName,
-                                 @HeaderParam("Authorization") String token,
-                                 @FormParam("path") String path,
-                                 @FormParam("name") String name,
-                                 @FormParam("id") Long id,
-                                 @FormParam("content") String content,
-                                 @FormParam("context") String fileContext,
-                                 @FormParam("active") boolean active,
-                                 @FormParam("changeComment") String changeComment,
-                                 @FormParam("currentPassword") String currentPassword,
-                                 @FormParam("newProfilePassword") String newProfilePassword,
-                                 @FormParam("spName") String spName,
-                                 @FormParam("renameAll") boolean renameAll,
-                                 @FormParam("updateRefs") boolean updateRefs)
+    @Path( "/{account}/{repository}" )
+    @Produces( "application/json" )
+    public Response saveOrUpdate( @PathParam( "account" ) String account,
+                                  @PathParam( "repository" ) String repositoryName,
+                                  @HeaderParam( "Authorization" ) String token,
+                                  @FormParam( "path" ) String path,
+                                  @FormParam( "name" ) String name,
+                                  @FormParam( "id" ) Long id,
+                                  @FormParam( "content" ) String content,
+                                  @FormParam( "context" ) String fileContext,
+                                  @FormParam( "active" ) boolean active,
+                                  @FormParam( "changeComment" ) String changeComment,
+                                  @FormParam( "currentPassword" ) String currentPassword,
+                                  @FormParam( "newProfilePassword" ) String newProfilePassword,
+                                  @FormParam( "spName" ) String spName,
+                                  @FormParam( "renameAll" ) boolean renameAll,
+                                  @FormParam( "updateRefs" ) boolean updateRefs )
     {
         JsonObject json = new JsonObject();
         Gson gson = new Gson();
@@ -64,66 +66,71 @@ public class SaveConfigFile
 
         try
         {
-            int status = validateWrite(account, repositoryName, token, store, true);
-            if (0 != status)
-                return Response.status(status).build();
+            int status = validateWrite( account, repositoryName, token, store, true );
+            if ( 0 != status )
+            {
+                return Response.status( status ).build();
+            }
 
-            Collection<CtxLevel> context = ContextParser.parseAndCreate( fileContext, repository, store, user, null);
-            RepoFile file;
             store.begin();
-            if (null != id && id > 0)
+
+            final Collection<CtxLevel> context = ContextParser.parseAndCreate( fileContext, repository, store, user, null );
+            RepoFile file;
+
+            if ( null != id && id > 0 )
             {
-                file = store.updateRepoFile(user,
-                                            repository,
-                                            id,
-                                            path,
-                                            name,
-                                            renameAll,
-                                            updateRefs,
-                                            content,
-                                            context,
-                                            active,
-                                            spName,
-                                            newProfilePassword,
-                                            currentPassword,
-                                            changeComment);
-            } else
+                file = store.updateRepoFile( user,
+                                             repository,
+                                             id,
+                                             path,
+                                             name,
+                                             renameAll,
+                                             updateRefs,
+                                             content,
+                                             context,
+                                             active,
+                                             spName,
+                                             newProfilePassword,
+                                             currentPassword,
+                                             changeComment );
+            }
+            else
             {
-                file = store.createRepoFile(user,
-                                            repository,
-                                            path,
-                                            name,
-                                            content,
-                                            context,
-                                            active,
-                                            spName,
-                                            newProfilePassword,
-                                            changeComment);
+                file = store.createRepoFile( user,
+                                             repository,
+                                             path,
+                                             name,
+                                             content,
+                                             context,
+                                             active,
+                                             spName,
+                                             newProfilePassword,
+                                             changeComment );
             }
             store.commit();
 
-            json.addProperty("success", true);
-            json.addProperty("id", file.getId());
+            json.addProperty( "success", true );
+            json.addProperty( "id", file.getId() );
 
-            return Response.ok(gson.toJson(json), MediaType.APPLICATION_JSON).build();
+            return Response.ok( gson.toJson( json ), MediaType.APPLICATION_JSON ).build();
         }
-        catch (ConfigException e)
+        catch ( ConfigException e )
         {
             store.rollback();
 
-            switch (e.getErrorCode())
+            switch ( e.getErrorCode() )
             {
                 case FILE_CIRCULAR_REFERENCE:
-                    json.add("circularRef", e.getJson());
+                    json.add( "circularRef", e.getJson() );
 
                 default:
-                    json.addProperty("status", "ERROR");
+                    json.addProperty( "status", "ERROR" );
             }
 
-            json.addProperty("message", e.getMessage());
-            json.addProperty("success", false);
+            json.addProperty( "message", e.getMessage() );
+            json.addProperty( "success", false );
 
-            return Response.ok(gson.toJson(json), MediaType.APPLICATION_JSON).build();
+            return Response.ok( gson.toJson( json ), MediaType.APPLICATION_JSON ).build();
         }
         finally
         {

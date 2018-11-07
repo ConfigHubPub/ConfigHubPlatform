@@ -3,11 +3,9 @@ package com.confighub.api.system;
 import com.confighub.api.server.auth.TokenState;
 import com.confighub.core.store.Store;
 import com.confighub.core.user.UserAccount;
-import lombok.extern.slf4j.Slf4j;
 
 import javax.ws.rs.core.Response;
 
-@Slf4j
 public abstract class ASysAdminAccessValidation
 {
     protected UserAccount user;

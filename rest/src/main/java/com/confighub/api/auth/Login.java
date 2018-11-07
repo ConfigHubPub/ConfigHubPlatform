@@ -52,7 +52,6 @@ public class Login
         JsonObject json = new JsonObject();
         Gson gson = new Gson();
 
-
         try
         {
             UserAccount user = store.getUserAccount( username );
@@ -103,6 +102,7 @@ public class Login
             }
 
             final String token = Auth.createUserToken( user );
+            json.addProperty( "token", token );
             json.addProperty( "success", true );
 
             return Response.ok( gson.toJson( json ), MediaType.APPLICATION_JSON ).build();

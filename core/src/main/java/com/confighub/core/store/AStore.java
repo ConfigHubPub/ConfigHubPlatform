@@ -22,7 +22,8 @@ import com.confighub.core.error.Error;
 import com.confighub.core.repository.Repository;
 import com.confighub.core.user.UserAccount;
 import com.confighub.core.utils.Utils;
-import lombok.extern.slf4j.Slf4j;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.hibernate.exception.ConstraintViolationException;
 
 import javax.persistence.EntityManager;
@@ -35,10 +36,11 @@ import javax.persistence.Persistence;
 import javax.persistence.PersistenceException;
 
 
-@Slf4j
 public abstract class AStore
 {
-    public static boolean verbose = false;
+    private static final Logger log = LogManager.getLogger( AStore.class );
+
+    public static boolean verbose = true;
 
     /**
      * <url>http://stackoverflow.com/questions/4543947/when-should-entitymanagerfactory-instance-be-created-opened</url>

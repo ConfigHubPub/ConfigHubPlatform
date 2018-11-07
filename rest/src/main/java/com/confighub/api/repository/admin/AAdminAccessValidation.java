@@ -24,44 +24,55 @@ import com.confighub.core.store.Store;
 import com.confighub.core.store.diff.ADiffTracker;
 import com.confighub.core.user.UserAccount;
 import com.confighub.core.utils.Utils;
-import lombok.extern.slf4j.Slf4j;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import javax.ws.rs.core.Response;
 
-@Slf4j
+
 public abstract class AAdminAccessValidation
 {
+    private static final Logger log = LogManager.getLogger( AAdminAccessValidation.class );
+
     protected UserAccount user;
+
     protected Repository repository;
 
-    protected int validate(final String account,
-                           final String repositoryName,
-                           final String token,
-                           final Store store)
+
+    protected int validate( final String account,
+                            final String repositoryName,
+                            final String token,
+                            final Store store )
     {
-        return validate(account, repositoryName, token, store, false);
+        return validate( account, repositoryName, token, store, false );
     }
 
-    protected int validateWrite(final String account,
-                                final String repositoryName,
-                                final String token,
-                                final Store store,
-                                final boolean enableTracking)
+
+    protected int validateWrite( final String account,
+                                 final String repositoryName,
+                                 final String token,
+                                 final Store store,
+                                 final boolean enableTracking )
     {
-        if (enableTracking) ADiffTracker.track();
+        if ( enableTracking )
+        {
+            ADiffTracker.track();
+        }
 
-        int status = validate(account, repositoryName, token, store, enableTracking);
+        int status = validate( account, repositoryName, token, store, enableTracking );
 
-        if (0 != status)
+        if ( 0 != status )
+        {
             return status;
+        }
 
-        if (null == this.user)
+        if ( null == this.user )
         {
             // Not authorized - 401
             return Response.Status.UNAUTHORIZED.getStatusCode();
         }
 
-        if (!this.repository.hasWriteAccess(this.user) || !this.repository.isAdminOrOwner(this.user))
+        if ( !this.repository.hasWriteAccess( this.user ) || !this.repository.isAdminOrOwner( this.user ) )
         {
             // Forbidden - 403
             return Response.Status.FORBIDDEN.getStatusCode();
@@ -70,13 +81,14 @@ public abstract class AAdminAccessValidation
         return 0;
     }
 
-    protected int validate(final String account,
-                           final String repositoryName,
-                           final String token,
-                           final Store store,
-                           final boolean enableTracking)
+
+    protected int validate( final String account,
+                            final String repositoryName,
+                            final String token,
+                            final Store store,
+                            final boolean enableTracking )
     {
-        if (Utils.anyBlank(account, repositoryName))
+        if ( Utils.anyBlank( account, repositoryName ) )
         {
             // Bad request - 400
             return Response.Status.BAD_REQUEST.getStatusCode();
@@ -84,33 +96,33 @@ public abstract class AAdminAccessValidation
 
         try
         {
-            this.repository = store.getRepository(account, repositoryName);
-            if (null == this.repository)
+            this.repository = store.getRepository( account, repositoryName );
+            if ( null == this.repository )
             {
                 return Response.Status.NOT_FOUND.getStatusCode();
             }
 
-            this.user = TokenState.getUser(token, store);
+            this.user = TokenState.getUser( token, store );
 
-            if (!repository.isDemo())
+            if ( !repository.isDemo() )
             {
 
-                if (null == this.user)
+                if ( null == this.user )
                 {
                     // Not authorized - 401
                     return Response.Status.UNAUTHORIZED.getStatusCode();
                 }
 
-                if (!this.repository.isAdminOrOwner(this.user))
+                if ( !this.repository.isAdminOrOwner( this.user ) )
                 {
                     // Forbidden - 403
                     return Response.Status.FORBIDDEN.getStatusCode();
                 }
             }
         }
-        catch (final ConfigException e)
+        catch ( final ConfigException e )
         {
-            log.error(e.getMessage());
+            log.error( e.getMessage() );
             e.printStackTrace();
 
             return Response.Status.INTERNAL_SERVER_ERROR.getStatusCode();

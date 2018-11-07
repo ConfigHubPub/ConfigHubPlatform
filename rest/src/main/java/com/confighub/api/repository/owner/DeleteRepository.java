@@ -21,8 +21,6 @@ import com.confighub.core.error.ConfigException;
 import com.confighub.core.store.Store;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 import javax.ws.rs.FormParam;
 import javax.ws.rs.HeaderParam;
@@ -38,9 +36,6 @@ import javax.ws.rs.core.Response;
 public class DeleteRepository
       extends AOwnerAccessValidation
 {
-    private static final Logger log = LogManager.getLogger( DeleteRepository.class );
-
-
     @POST
     @Path( "/{account}/{repository}" )
     @Produces( "application/json" )
@@ -60,14 +55,12 @@ public class DeleteRepository
                 return Response.status( status ).build();
             }
 
-            log.warn( ">>>>>>>>>>>> delete 1" );
             user = store.login( user.getUsername(), password );
-            log.warn( ">>>>>>>>>>>> delete 2" );
 
             store.begin();
             store.deleteRepository( repository, user );
             store.commit();
-            log.warn( ">>>>>>>>>>>> delete 3" );
+
             json.addProperty( "success", true );
         }
         catch ( ConfigException e )

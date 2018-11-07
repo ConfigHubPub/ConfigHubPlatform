@@ -35,7 +35,6 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import lombok.extern.slf4j.Slf4j;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.HeaderParam;
@@ -48,7 +47,6 @@ import javax.ws.rs.core.Response;
 import java.util.Set;
 
 
-@Slf4j
 @Path( "/push" )
 @Produces( "application/json" )
 @Consumes( MediaType.APPLICATION_JSON )

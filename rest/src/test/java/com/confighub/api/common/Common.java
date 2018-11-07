@@ -69,8 +69,8 @@ public class Common
         JsonObject json = gson.fromJson( (String) response.getEntity(), JsonObject.class );
         if ( !json.get( "success" ).getAsBoolean() )
         {
-            Login loginAPI = new Login();
-            response = loginAPI.login( username + "@confighub.com", password );
+            final Login loginAPI = new Login();
+            response = loginAPI.login( username, password );
 
             assertNotNull( response );
             assertNotNull( response.getEntity() );
@@ -78,6 +78,7 @@ public class Common
             json = gson.fromJson( (String) response.getEntity(), JsonObject.class );
             assertNotNull( json );
         }
+
         assertNotNull( json.get( "token" ) );
         final String token = json.get( "token" ).getAsString();
         assertNotNull( token );
