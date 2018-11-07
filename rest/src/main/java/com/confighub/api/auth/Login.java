@@ -102,7 +102,7 @@ public class Login
                 throw new ConfigException( Error.Code.USER_AUTH );
             }
 
-            json.addProperty( "token", Auth.createUserToken( user ) );
+            final String token = Auth.createUserToken( user );
             json.addProperty( "success", true );
 
             return Response.ok( gson.toJson( json ), MediaType.APPLICATION_JSON ).build();

@@ -25,6 +25,8 @@ import com.confighub.core.user.UserAccount;
 import com.confighub.core.utils.Utils;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import javax.ws.rs.FormParam;
 import javax.ws.rs.POST;
@@ -40,6 +42,9 @@ import java.util.Map;
 @Produces( "application/json" )
 public class Signup
 {
+
+    private static final Logger log = LogManager.getLogger( Signup.class );
+
 
     @AuthenticationNotRequired
     @POST
@@ -99,7 +104,7 @@ public class Signup
             UserAccount user = store.createUser( email, username, password, UserAccount.AccountType.LOCAL );
             store.commit();
 
-            String token = Auth.createUserToken( user );
+            final String token = Auth.createUserToken( user );
             json.addProperty( "token", token );
             json.addProperty( "success", true );
 

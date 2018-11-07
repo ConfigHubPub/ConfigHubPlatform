@@ -21,46 +21,61 @@ import com.confighub.core.error.ConfigException;
 import com.confighub.core.store.Store;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
-import javax.ws.rs.*;
+import javax.ws.rs.FormParam;
+import javax.ws.rs.HeaderParam;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-@Path("/deleteRepository")
+
+@Path( "/deleteRepository" )
 public class DeleteRepository
-        extends AOwnerAccessValidation
+      extends AOwnerAccessValidation
 {
+    private static final Logger log = LogManager.getLogger( DeleteRepository.class );
+
+
     @POST
-    @Path("/{account}/{repository}")
-    @Produces("application/json")
-    public Response delete(@HeaderParam("Authorization") String token,
-                           @PathParam("account") String account,
-                           @PathParam("repository") String repositoryName,
-                           @FormParam("password") String password)
+    @Path( "/{account}/{repository}" )
+    @Produces( "application/json" )
+    public Response delete( @HeaderParam( "Authorization" ) String token,
+                            @PathParam( "account" ) String account,
+                            @PathParam( "repository" ) String repositoryName,
+                            @FormParam( "password" ) String password )
     {
         JsonObject json = new JsonObject();
         Store store = new Store();
 
         try
         {
-            int status = validate(account, repositoryName, token, store, true);
-            if (0 != status)
-                return Response.status(status).build();
+            int status = validate( account, repositoryName, token, store, true );
+            if ( 0 != status )
+            {
+                return Response.status( status ).build();
+            }
 
-            user = store.login(user.getUsername(), password);
+            log.warn( ">>>>>>>>>>>> delete 1" );
+            user = store.login( user.getUsername(), password );
+            log.warn( ">>>>>>>>>>>> delete 2" );
 
             store.begin();
-            store.deleteRepository(repository, user);
+            store.deleteRepository( repository, user );
             store.commit();
-
-            json.addProperty("success", true);
+            log.warn( ">>>>>>>>>>>> delete 3" );
+            json.addProperty( "success", true );
         }
-        catch (ConfigException e)
+        catch ( ConfigException e )
         {
             store.rollback();
 
-            json.addProperty("message", e.getErrorCode().getMessage());
-            json.addProperty("success", false);
+            json.addProperty( "message", e.getErrorCode().getMessage() );
+            json.addProperty( "success", false );
         }
         finally
         {
@@ -68,6 +83,6 @@ public class DeleteRepository
         }
 
         Gson gson = new Gson();
-        return Response.ok(gson.toJson(json), MediaType.APPLICATION_JSON).build();
+        return Response.ok( gson.toJson( json ), MediaType.APPLICATION_JSON ).build();
     }
 }

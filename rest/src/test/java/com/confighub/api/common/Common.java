@@ -35,50 +35,56 @@ import java.util.List;
 
 import static org.junit.Assert.*;
 
+
 /**
  * Common REST API operations used by unit tests.
  */
 public class Common
 {
     public static final Gson gson;
+
     public static final Logger log;
 
-
-    static {
-        System.setProperty("log.path", "target/test-logs");
-        log = LogManager.getLogger("Test");
+    static
+    {
+        System.setProperty( "log.path", "target/test-logs" );
+        log = LogManager.getLogger( "Test" );
         gson = new Gson();
     }
-
 
     /**
      * @param username
      * @param password
      * @return
      */
-    public static String createOrGetUser(String username, String password)
+    public static String createOrGetUser( String username,
+                                          String password )
     {
         final Signup signupAPI = new Signup();
-        Response response = signupAPI.signup(username + "@confighub.com", username, password);
+        Response response = signupAPI.signup( username + "@confighub.com", username, password );
 
-        assertNotNull(response);
-        assertEquals(200, response.getStatus());
+        assertNotNull( response );
+        assertEquals( 200, response.getStatus() );
 
-        JsonObject json = gson.fromJson((String)response.getEntity(), JsonObject.class);
-        if (!json.get("success").getAsBoolean())
+        JsonObject json = gson.fromJson( (String) response.getEntity(), JsonObject.class );
+        if ( !json.get( "success" ).getAsBoolean() )
         {
             Login loginAPI = new Login();
-            response = loginAPI.login(username + "@confighub.com", password);
+            response = loginAPI.login( username + "@confighub.com", password );
 
-            assertNotNull(response);
-            assertEquals(200, response.getStatus());
-            json = gson.fromJson((String)response.getEntity(), JsonObject.class);
+            assertNotNull( response );
+            assertNotNull( response.getEntity() );
+            assertEquals( 200, response.getStatus() );
+            json = gson.fromJson( (String) response.getEntity(), JsonObject.class );
+            assertNotNull( json );
         }
-        String token = json.get("token").getAsString();
-        assertNotNull(token);
+        assertNotNull( json.get( "token" ) );
+        final String token = json.get( "token" ).getAsString();
+        assertNotNull( token );
 
         return token;
     }
+
 
     /**
      * @param accountName
@@ -90,46 +96,47 @@ public class Common
      * @param labels
      * @return
      */
-    public static Response createRepository(String accountName,
-                                            String repoName,
-                                            String repoDescription,
-                                            String userToken,
-                                            String accountPass,
-                                            boolean isPrivate,
-                                            Depth depth,
-                                            String labels)
+    public static Response createRepository( String accountName,
+                                             String repoName,
+                                             String repoDescription,
+                                             String userToken,
+                                             String accountPass,
+                                             boolean isPrivate,
+                                             Depth depth,
+                                             String labels )
     {
         CreateRepository createRepositoryAPI = new CreateRepository();
-        Response response = createRepositoryAPI.createRepository(userToken,
-                                                                 accountName,
-                                                                 repoName,
-                                                                 repoDescription,
-                                                                 isPrivate,
-                                                                 depth.getIndex(),
-                                                                 labels);
-        assertNotNull(response);
-        assertEquals(200, response.getStatus());
+        Response response = createRepositoryAPI.createRepository( userToken,
+                                                                  accountName,
+                                                                  repoName,
+                                                                  repoDescription,
+                                                                  isPrivate,
+                                                                  depth.getIndex(),
+                                                                  labels );
+        assertNotNull( response );
+        assertEquals( 200, response.getStatus() );
 
         {
             UpdateRepositoryFeatures repoUpdateAPI = new UpdateRepositoryFeatures();
-            Response updateResponse = repoUpdateAPI.update(userToken,
-                                                           accountName,
-                                                           repoName,
-                                                           accountPass,
-                                                           false,
-                                                           true,
-                                                           true,
-                                                           false,
-                                                           false,
-                                                           true,
-                                                           true);
+            Response updateResponse = repoUpdateAPI.update( userToken,
+                                                            accountName,
+                                                            repoName,
+                                                            accountPass,
+                                                            false,
+                                                            true,
+                                                            true,
+                                                            false,
+                                                            false,
+                                                            true,
+                                                            true );
 
-            assertNotNull(updateResponse);
-            assertEquals(200, updateResponse.getStatus());
+            assertNotNull( updateResponse );
+            assertEquals( 200, updateResponse.getStatus() );
         }
 
         return response;
     }
+
 
     /**
      * @param userToken
@@ -138,46 +145,48 @@ public class Common
      * @param accountPassword
      * @return
      */
-    public static Response deleteRepository(final String userToken,
-                                            final String accountName,
-                                            final String repositoryName,
-                                            final String accountPassword)
+    public static Response deleteRepository( final String userToken,
+                                             final String accountName,
+                                             final String repositoryName,
+                                             final String accountPassword )
     {
-        DeleteRepository deleteRepositoryAPI = new DeleteRepository();
-        Response response = deleteRepositoryAPI.delete(userToken, accountName, repositoryName, accountPassword);
+        final DeleteRepository deleteRepositoryAPI = new DeleteRepository();
+        Response response = deleteRepositoryAPI.delete( userToken, accountName, repositoryName, accountPassword );
 
-        assertNotNull(response);
-        assertEquals(200, response.getStatus());
+        assertNotNull( response );
+        assertEquals( 200, response.getStatus() );
 
-        JsonObject json = gson.fromJson((String)response.getEntity(), JsonObject.class);
-        assertTrue(json.get("success").getAsBoolean());
+        JsonObject json = gson.fromJson( (String) response.getEntity(), JsonObject.class );
+        assertTrue( json.get( "success" ).getAsBoolean() );
 
         return response;
     }
 
 
     /**
-     *  640:GSD ; 1280:Development ; 2560:360T                          ; 5120:360T-Commerzban
-     *  640:GSD ; 1280:Development ; 2560:360T,AccretionHostDatFileSync ; 5120:360T-Commerzbank,360T-SEB
-     *  640:GSD                    ; 2560:360T,AccretionHostDatFileSync ; 5120:360T-Commerzbank,360T-SEB
+     * 640:GSD ; 1280:Development ; 2560:360T                          ; 5120:360T-Commerzban
+     * 640:GSD ; 1280:Development ; 2560:360T,AccretionHostDatFileSync ; 5120:360T-Commerzbank,360T-SEB
+     * 640:GSD                    ; 2560:360T,AccretionHostDatFileSync ; 5120:360T-Commerzbank,360T-SEB
      *
      * @param context
      * @return
      */
-    public static String buildUIContextString(String[] context)
+    public static String buildUIContextString( String[] context )
     {
         List<String> levels = new ArrayList<>();
 
         int arrayIndex = 0;
-        for (int depthIndex = context.length; depthIndex > 0; depthIndex--)
+        for ( int depthIndex = context.length; depthIndex > 0; depthIndex-- )
         {
             String elements = context[arrayIndex++];
-            if (Utils.isBlank(elements)) continue;
+            if ( Utils.isBlank( elements ) )
+            {
+                continue;
+            }
 
-            levels.add(String.format("%d:%s", Depth.getByIndex(depthIndex).getPlacement(), elements));
+            levels.add( String.format( "%d:%s", Depth.getByIndex( depthIndex ).getPlacement(), elements ) );
         }
 
-        return Utils.join(levels, ";");
+        return Utils.join( levels, ";" );
     }
-
 }
