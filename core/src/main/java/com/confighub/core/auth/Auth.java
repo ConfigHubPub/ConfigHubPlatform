@@ -142,14 +142,10 @@ public final class Auth
 
     public static UserAccount ldapAuth( final String username,
                                         final String password,
+                                        final boolean createUserIfNotStored,
                                         final Store store )
           throws ConfigException
     {
-        if ( Utils.anyBlank( username, password ) )
-        {
-            throw new ConfigException( Error.Code.USER_AUTH );
-        }
-
         try
         {
             final LdapEntry entry = ldapConnector.search( ldapNetworkConnection,
@@ -161,19 +157,25 @@ public final class Auth
                 throw new LdapException();
             }
 
+            boolean authenticated = ldapConnector.authenticate( ldapNetworkConnection,
+                                                                entry.getBindPrincipal(),
+                                                                password );
+            if ( !authenticated )
+            {
+                throw new ConfigException( Error.Code.USER_AUTH );
+            }
 
-            ldapConnector.authenticate( ldapNetworkConnection,
-                                        entry.getBindPrincipal(),
-                                        password );
+            // At this point, the user has authenticated via LDAP
 
             UserAccount ua = store.getUserAccount( username );
 
-            if ( null == ua )
+            if ( null == ua && createUserIfNotStored )
             {
                 store.begin();
-                ua = store.createUser( entry.getAttributes().getOrDefault( ldapConfig.getEmailAttribute(), null ),
+                final String emailAddress = entry.getAttributes().getOrDefault( ldapConfig.getEmailAttribute(), null );
+                ua = store.createUser( emailAddress,
                                        username,
-                                       "",
+                                       null,
                                        UserAccount.AccountType.LDAP );
                 ua.setName( entry.getAttributes().getOrDefault( ldapConfig.getNameAttribute(), username ) );
                 store.commit();
@@ -181,7 +183,7 @@ public final class Auth
 
             return ua;
         }
-        catch ( LdapException e )
+        catch ( LdapException | RuntimeException e )
         {
             log.error( "Failed to auth username: " + username + " to LDAP" );
             return null;

@@ -54,6 +54,7 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
+
 @Entity
 @Table( name = "useraccount" )
 @Cacheable
@@ -105,7 +106,6 @@ public class UserAccount
                cascade = { CascadeType.ALL } )
     private Account account;
 
-    @Column( nullable = false )
     private String userPassword;
 
     @Column( name = "name" )
@@ -179,7 +179,8 @@ public class UserAccount
     public void enforce()
           throws ConfigException
     {
-        if ( Utils.anyBlank( this.userPassword ) )
+        if ( AccountType.LOCAL.equals( this.accountType ) &&
+             Utils.anyBlank( this.userPassword ) )
         {
             throw new ConfigException( Error.Code.USER_AUTH );
         }
@@ -288,6 +289,11 @@ public class UserAccount
     public void setUserPassword( String userPassword )
           throws ConfigException
     {
+        if ( !AccountType.LOCAL.equals( this.accountType ) )
+        {
+            return;
+        }
+
         if ( !Utils.passwordRequirementsSatisfied( userPassword ) )
         {
             throw new ConfigException( Error.Code.PASSWORD_REQUIREMENTS );

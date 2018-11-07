@@ -27,6 +27,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.hibernate.annotations.Type;
 import org.hibernate.envers.Audited;
 
 import javax.persistence.*;
@@ -54,6 +55,7 @@ public abstract class AContextAwarePersistent
 
     // ENVERS optimization
     @Lob
+    @Type( type = "org.hibernate.type.TextType" )
     @Column( nullable = false,
              columnDefinition = "TEXT" )
     protected String contextJson;

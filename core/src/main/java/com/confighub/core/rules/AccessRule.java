@@ -38,6 +38,7 @@ import org.easyrules.annotation.Condition;
 import org.easyrules.annotation.Rule;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.annotations.Type;
 import org.hibernate.envers.AuditTable;
 import org.hibernate.envers.Audited;
 import org.hibernate.envers.NotAudited;
@@ -124,6 +125,7 @@ public class AccessRule
 
     // ENVERS optimization
     @Lob
+    @Type( type = "org.hibernate.type.TextType" )
     @Column( nullable = false,
              columnDefinition = "TEXT" )
     private String contextJson;

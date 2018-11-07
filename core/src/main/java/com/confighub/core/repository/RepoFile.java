@@ -31,6 +31,7 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.annotations.Type;
 import org.hibernate.envers.AuditTable;
 import org.hibernate.envers.Audited;
 
@@ -69,6 +70,7 @@ public class RepoFile
     private AbsoluteFilePath absFilePath;
 
     @Lob
+    @Type( type = "org.hibernate.type.TextType" )
     @Column( nullable = false,
              columnDefinition = "TEXT" )
     private String content;

@@ -58,7 +58,7 @@ public class Common
      */
     public static String createOrGetUser(String username, String password)
     {
-        Signup signupAPI = new Signup();
+        final Signup signupAPI = new Signup();
         Response response = signupAPI.signup(username + "@confighub.com", username, password);
 
         assertNotNull(response);

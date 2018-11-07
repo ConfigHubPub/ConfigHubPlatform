@@ -141,9 +141,11 @@ public class Store
                                            final String password )
           throws ConfigException
     {
-        user.setUserPassword( password );
-        saveOrUpdateNonAudited( user );
-
+        if ( UserAccount.AccountType.LOCAL.equals( user.getAccountType() ) )
+        {
+            user.setUserPassword( password );
+            saveOrUpdateNonAudited( user );
+        }
         return user;
     }
 
@@ -279,9 +281,9 @@ public class Store
         UserAccount user = new UserAccount();
         user.setEmail( email );
         user.setUsername( username );
-        user.setUserPassword( password );
         user.setActive( true );
         user.setAccountType( accountType );
+        user.setUserPassword( password );
 
         saveOrUpdateNonAudited( user );
         return user;
@@ -498,7 +500,7 @@ public class Store
      * @param user
      * @param repository
      * @param searchTerm
-     * @return Map<PropertyKey       ,               Collection       <       Property>> of keys and values that contain the searchTerm
+     * @return Map<PropertyKey                                                               ,                                                                                                                               Collection                                                               <                                                               Property>> of keys and values that contain the searchTerm
      * @throws ConfigException
      */
     public Map<PropertyKey, Collection<Property>> searchKeysAndValues( final UserAccount user,
@@ -1230,7 +1232,7 @@ public class Store
             return (Token) em.createNamedQuery( "Token.getToken" )
                              .setLockMode( LockModeType.NONE )
                              .setParameter( "repository", repository )
-                             .setParameter("token",token )
+                             .setParameter( "token", token )
                              .getSingleResult();
         }
         catch ( NoResultException e )
@@ -1405,7 +1407,7 @@ public class Store
      * non-null Collection of Level objects, which might be empty.
      *
      * @param repository to which levels as assigned
-     * @return Map<Depth   ,       Collection   <   Level>>
+     * @return Map<Depth                               ,                                                               Collection                               <                               Level>>
      * @throws ConfigException if unable to fetch from the database
      */
     public Map<Depth, Collection<CtxLevel>> getLevelsByDepth( final Repository repository )
@@ -1471,8 +1473,8 @@ public class Store
     /**
      * Update level
      *
-     * @param ctxLevel  that is to be persisted with changed attributes
-     * @param author that is making the change
+     * @param ctxLevel that is to be persisted with changed attributes
+     * @param author   that is making the change
      * @return the same level after it was persisted
      * @throws ConfigException is throw if unable to save
      */
@@ -1784,7 +1786,7 @@ public class Store
      *
      * @param user       that is deleting the level
      * @param repository to which level belongs
-     * @param ctxLevel      to be deleted
+     * @param ctxLevel   to be deleted
      * @return true if deleted
      * @throws ConfigException is throw if unable to delete
      */
@@ -1947,7 +1949,7 @@ public class Store
             return (Property) em.createNamedQuery( "Property.get" )
                                 .setLockMode( LockModeType.NONE )
                                 .setParameter( "repository", repository )
-                                .setParameter("id", propertyId )
+                                .setParameter( "id", propertyId )
                                 .getSingleResult();
         }
         catch ( NoResultException e )

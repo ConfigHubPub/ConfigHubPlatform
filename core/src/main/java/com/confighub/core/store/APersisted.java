@@ -22,6 +22,7 @@ import com.confighub.core.repository.RepoFile;
 import com.confighub.core.user.UserAccount;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.hibernate.annotations.Type;
 import org.hibernate.envers.Audited;
 
 import javax.persistence.Column;
@@ -74,6 +75,7 @@ public abstract class APersisted
     public abstract ClassName getClassName();
 
     @Lob
+    @Type( type = "org.hibernate.type.TextType" )
     @Column(name = "diffJson", columnDefinition = "TEXT")
     public String diffJson;
 

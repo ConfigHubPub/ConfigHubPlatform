@@ -45,25 +45,56 @@ public class Login
 
     @AuthenticationNotRequired
     @POST
-    public Response login( @FormParam( "email" ) String login,
+    public Response login( @FormParam( "email" ) String username,
                            @FormParam( "password" ) String password )
     {
         Store store = new Store();
         JsonObject json = new JsonObject();
         Gson gson = new Gson();
 
+
         try
         {
-            UserAccount user = null;
-
-            if ( Auth.isLdapEnabled() )
+            UserAccount user = store.getUserAccount( username );
+            if ( null == user )
             {
-                user = Auth.ldapAuth( login, password, store );
+                // if a user is not stored in local DB, the only option is to check
+                // if they can auth via LDAP.
+                if ( Auth.isLdapEnabled() )
+                {
+                    user = Auth.ldapAuth( username, password, true, store );
+                }
+                else
+                {
+                    throw new ConfigException( Error.Code.USER_AUTH );
+                }
             }
-
-            if ( null == user && Auth.isLocalAccountsEnabled() )
+            else
             {
-                user = store.login( login, password );
+                switch ( user.getAccountType() )
+                {
+                    case LDAP:
+                        if ( Auth.isLdapEnabled() )
+                        {
+                            Auth.ldapAuth( username, password, false, store );
+                        }
+                        else
+                        {
+                            throw new ConfigException( Error.Code.USER_AUTH );
+                        }
+                        break;
+
+                    case LOCAL:
+                        if ( Auth.isLocalAccountsEnabled() )
+                        {
+                            store.login( username, password );
+                        }
+                        else
+                        {
+                            throw new ConfigException( Error.Code.USER_AUTH );
+                        }
+                        break;
+                }
             }
 
             if ( null == user )
@@ -78,8 +109,6 @@ public class Login
         }
         catch ( ConfigException e )
         {
-            e.printStackTrace();
-
             json.addProperty( "success", false );
             json.addProperty( "message", e.getMessage() );
 

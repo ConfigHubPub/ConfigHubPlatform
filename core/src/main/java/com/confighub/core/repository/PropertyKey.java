@@ -29,6 +29,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.annotations.Type;
 import org.hibernate.envers.AuditMappedBy;
 import org.hibernate.envers.AuditTable;
 import org.hibernate.envers.Audited;
@@ -86,6 +87,7 @@ public class PropertyKey
     private String key;
 
     @Lob
+    @Type( type = "org.hibernate.type.TextType" )
     @Column( columnDefinition = "TEXT" )
     private String readme;
 

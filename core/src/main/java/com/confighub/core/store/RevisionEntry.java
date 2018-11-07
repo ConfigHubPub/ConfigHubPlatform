@@ -28,8 +28,17 @@ import org.hibernate.envers.RevisionEntity;
 import org.hibernate.envers.RevisionNumber;
 import org.hibernate.envers.RevisionTimestamp;
 
-import javax.persistence.*;
-import java.lang.reflect.Type;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.Lob;
+import javax.persistence.NamedQueries;
+import javax.persistence.NamedQuery;
+import javax.persistence.Table;
+import org.hibernate.annotations.Type;
 import java.util.Date;
 import java.util.Map;
 import java.util.Set;
@@ -117,11 +126,13 @@ public class RevisionEntry
     private boolean notify;
 
     @Lob
+    @Type( type = "org.hibernate.type.TextType" )
     @Column( name = "searchKey",
              columnDefinition = "TEXT" )
     private String searchKey;
 
     @Lob
+    @Type( type = "org.hibernate.type.TextType" )
     @Column( columnDefinition = "TEXT" )
     private String revType;
 
@@ -129,6 +140,7 @@ public class RevisionEntry
     private CommitGroup commitGroup;
 
     @Lob
+    @Type( type = "org.hibernate.type.TextType" )
     @Column( columnDefinition = "TEXT" )
     private String changeComment;
 
@@ -281,7 +293,7 @@ public class RevisionEntry
 
     public Map<String, String> getRevTypes( Gson gson )
     {
-        Type revTypeMap = new TypeToken<Map<String, String>>() {}.getType();
+        java.lang.reflect.Type revTypeMap = new TypeToken<Map<String, String>>() {}.getType();
         return gson.fromJson( this.revType, revTypeMap );
     }
 
