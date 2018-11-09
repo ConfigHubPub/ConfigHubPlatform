@@ -6,13 +6,19 @@ Full [Installation instructions](http://docs.confighub.com/en/latest/pages/getti
 
 The ConfigHub server application has the following prerequisites:
 
-- Runs on Windows/macOS/Linux distribution (Debian Linux, Ubuntu Linux, or CentOS recommended)
-- MySQL 5.0 or later, or PostgreSQL 9 or later (latest stable version is recommended)
-- Oracle Java SE 8 or later (latest stable update is recommended)
+- Runs on Windows/MacOS/Linux distribution (Debian Linux, Ubuntu Linux, or CentOS recommended) or as a docker image
+- Supported databases: MariaDB/MySQL, PostgreSQL, Oracle 11 or later
+- Tested with Oracle Java 8
 
-## Upgrading from a previous version?
+## Database Schema
 
-Please read the release notes - database schema upgrades may be required.
+Schema is liquibase managed by an application found in [Database-Manager](https://github.com/ConfigHubPub/Database-Manager) 
+repo.  A pre-compiled JAR is included with each ConfigHub Platform release. 
+
+## Issue Tracking
+
+Found a bug? Have an idea for an improvement? Feel free to [add an issue](../../issues).
+
 
 
 ## Docker ConfigHub Platform
