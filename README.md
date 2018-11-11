@@ -20,6 +20,14 @@ repo.  A pre-compiled JAR is included with each ConfigHub Platform release.
 Found a bug? Have an idea for an improvement? Feel free to [add an issue](../../issues).
 
 
+## Contributing
+
+Help us build the future of configuration management and be part of a project that is changing how 
+configuration is leveraged across teams every day.
+
+Follow the [contributors guide](https://www.confighub.org/community) and read [the contributing instructions](CONTRIBUTING.md) to get started.
+
+
 
 ## Docker ConfigHub Platform
 A docker image for [ConfigHub](https://www.confighub.com/).
