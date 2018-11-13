@@ -17,6 +17,7 @@
 
 package com.confighub.core.user;
 
+import com.confighub.core.auth.Auth;
 import com.confighub.core.error.ConfigException;
 import com.confighub.core.error.Error;
 import com.confighub.core.organization.Organization;
@@ -302,10 +303,20 @@ public class UserAccount
     }
 
 
-    public boolean isPasswordValid( String challenge )
+    public boolean isPasswordValid( final String challenge )
           throws ConfigException
     {
-        return Passwords.validatePassword( challenge, this.userPassword );
+        if ( AccountType.LOCAL.equals( this.accountType ) )
+        {
+            return Passwords.validatePassword( challenge, this.userPassword );
+        }
+
+        if ( AccountType.LDAP.equals( this.accountType ) )
+        {
+            return Auth.validatePassword( this.getUsername(), challenge );
+        }
+
+        return false;
     }
 
 

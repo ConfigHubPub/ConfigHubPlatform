@@ -140,6 +140,31 @@ public final class Auth
     }
 
 
+    public static boolean validatePassword( final String username,
+                                            final String password )
+    {
+        try
+        {
+            final LdapEntry entry = ldapConnector.search( ldapNetworkConnection,
+                                                          ldapConfig,
+                                                          username );
+            if ( null == entry )
+            {
+                log.warn( "Could not find user in LDAP.  Username: {}", username );
+                throw new LdapException();
+            }
+
+            return ldapConnector.authenticate( ldapNetworkConnection,
+                                               entry.getBindPrincipal(),
+                                               password );
+        }
+        catch ( Exception e )
+        {
+            throw new ConfigException( Error.Code.SECURITY_ERROR );
+        }
+    }
+
+
     public static UserAccount ldapAuth( final String username,
                                         final String password,
                                         final boolean createUserIfNotStored,

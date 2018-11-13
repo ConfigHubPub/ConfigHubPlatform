@@ -30,21 +30,23 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-@Path("/addContextLevel")
+
+@Path( "/addContextLevel" )
 public class AddContextLevel
-        extends AAdminAccessValidation
+      extends AAdminAccessValidation
 {
-    private static final Logger log = LogManager.getLogger(AddContextLevel.class);
+    private static final Logger log = LogManager.getLogger( AddContextLevel.class );
+
 
     @POST
-    @Path("/{account}/{repository}")
-    @Produces("application/json")
-    public Response update(@HeaderParam("Authorization") String token,
-                           @PathParam("account") String account,
-                           @PathParam("repository") String repositoryName,
-                           @FormParam("password") String password,
-                           @FormParam("label") String label,
-                           @FormParam("index") int insertIndex)
+    @Path( "/{account}/{repository}" )
+    @Produces( "application/json" )
+    public Response update( @HeaderParam( "Authorization" ) String token,
+                            @PathParam( "account" ) String account,
+                            @PathParam( "repository" ) String repositoryName,
+                            @FormParam( "password" ) String password,
+                            @FormParam( "label" ) String label,
+                            @FormParam( "index" ) int insertIndex )
     {
         JsonObject json = new JsonObject();
         Gson gson = new Gson();
@@ -52,33 +54,36 @@ public class AddContextLevel
 
         try
         {
-            int status = validateWrite(account, repositoryName, token, store, true);
-            if (0 != status) return Response.status(status).build();
-
-            if (!user.isPasswordValid(password))
+            int status = validateWrite( account, repositoryName, token, store, true );
+            if ( 0 != status )
             {
-                json.addProperty("message", "Invalid authentication credentials specified.");
-                json.addProperty("success", false);
+                return Response.status( status ).build();
+            }
 
-                return Response.ok(gson.toJson(json), MediaType.APPLICATION_JSON).build();
+            if ( !user.isPasswordValid( password ) )
+            {
+                json.addProperty( "message", "Invalid authentication credentials specified." );
+                json.addProperty( "success", false );
+
+                return Response.ok( gson.toJson( json ), MediaType.APPLICATION_JSON ).build();
             }
 
             store.begin();
-            store.expandContextScope(repository, user, label, insertIndex);
+            store.expandContextScope( repository, user, label, insertIndex );
             store.commit();
 
-            json.addProperty("success", true);
-            json.add("repo", GsonHelper.repositoryToJSON(repository));
-            return Response.ok(gson.toJson(json), MediaType.APPLICATION_JSON).build();
+            json.addProperty( "success", true );
+            json.add( "repo", GsonHelper.repositoryToJSON( repository ) );
+            return Response.ok( gson.toJson( json ), MediaType.APPLICATION_JSON ).build();
         }
-        catch (ConfigException e)
+        catch ( ConfigException e )
         {
             store.rollback();
 
-            json.addProperty("message", e.getMessage());
-            json.addProperty("success", false);
+            json.addProperty( "message", e.getMessage() );
+            json.addProperty( "success", false );
 
-            return Response.ok(gson.toJson(json), MediaType.APPLICATION_JSON).build();
+            return Response.ok( gson.toJson( json ), MediaType.APPLICATION_JSON ).build();
         }
         finally
         {
