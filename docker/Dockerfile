@@ -1,6 +1,6 @@
 FROM        java:8-alpine
 
-ENV         VERSION="v1.8"
+ENV         VERSION="v1.8.1"
 
 RUN         apk update && apk add --no-cache \
                 wget \
