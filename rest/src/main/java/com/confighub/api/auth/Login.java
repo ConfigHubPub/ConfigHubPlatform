@@ -1,3 +1,4 @@
+
 /*
  * This file is part of ConfigHub.
  *
@@ -75,7 +76,7 @@ public class Login
                     case LDAP:
                         if ( Auth.isLdapEnabled() )
                         {
-                            Auth.ldapAuth( username, password, false, store );
+                            user = Auth.ldapAuth( username, password, false, store );
                         }
                         else
                         {
@@ -86,7 +87,7 @@ public class Login
                     case LOCAL:
                         if ( Auth.isLocalAccountsEnabled() )
                         {
-                            store.login( username, password );
+                            user = store.login( username, password );
                         }
                         else
                         {
