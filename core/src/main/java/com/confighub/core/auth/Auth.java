@@ -71,8 +71,6 @@ public final class Auth
 
     private static LdapConfig ldapConfig;
 
-    private static LdapNetworkConnection ldapNetworkConnection;
-
     private static final LdapConnector ldapConnector = new LdapConnector();
 
     static
@@ -111,25 +109,15 @@ public final class Auth
         log.warn( "Initializing Auth keys completed" );
     }
 
-
-    public static void updateLdap( final LdapConfig config )
+    private static LdapNetworkConnection getLdapNetworkConnection()
     {
-        ldapConfig = config;
-
         try
         {
-            ldapEnabled = ldapConfig.isLdapEnabled();
-
             if ( ldapEnabled )
             {
-                ldapNetworkConnection = ldapConnector.connect( ldapConfig.toConnectionConfig() );
+                return ldapConnector.connect( ldapConfig.toConnectionConfig() );
             }
-            else
-            {
-                ldapNetworkConnection = null;
-            }
-
-            localAccountsEnabled = ldapEnabled ? ldapConfig.isLocalAccountsEnabled() : true;
+            log.warn("ldap is not enabled" );
         }
         catch ( LdapException e )
         {
@@ -137,15 +125,23 @@ public final class Auth
             localAccountsEnabled = true;
             log.error( "Failed to connect to LDAP: " + e.getMessage() );
         }
+
+        return null;
     }
 
+    public static void updateLdap( final LdapConfig config )
+    {
+        ldapConfig = config;
+        ldapEnabled = ldapConfig.isLdapEnabled();
+        localAccountsEnabled = ldapEnabled ? ldapConfig.isLocalAccountsEnabled() : true;
+    }
 
     public static boolean validatePassword( final String username,
                                             final String password )
     {
-        try
+        try(LdapNetworkConnection ldapConnection = getLdapNetworkConnection())
         {
-            final LdapEntry entry = ldapConnector.search( ldapNetworkConnection,
+            final LdapEntry entry = ldapConnector.search( ldapConnection,
                                                           ldapConfig,
                                                           username );
             if ( null == entry )
@@ -154,16 +150,16 @@ public final class Auth
                 throw new LdapException();
             }
 
-            return ldapConnector.authenticate( ldapNetworkConnection,
+            return ldapConnector.authenticate( ldapConnection,
                                                entry.getBindPrincipal(),
                                                password );
         }
         catch ( Exception e )
         {
+            log.error( "Failed to validate password for user: " + username, e);
             throw new ConfigException( Error.Code.SECURITY_ERROR );
         }
     }
-
 
     public static UserAccount ldapAuth( final String username,
                                         final String password,
@@ -171,9 +167,9 @@ public final class Auth
                                         final Store store )
           throws ConfigException
     {
-        try
+        try(LdapNetworkConnection ldapConnection = getLdapNetworkConnection())
         {
-            final LdapEntry entry = ldapConnector.search( ldapNetworkConnection,
+            final LdapEntry entry = ldapConnector.search( ldapConnection,
                                                           ldapConfig,
                                                           username );
             if ( null == entry )
@@ -182,7 +178,7 @@ public final class Auth
                 throw new LdapException();
             }
 
-            boolean authenticated = ldapConnector.authenticate( ldapNetworkConnection,
+            boolean authenticated = ldapConnector.authenticate( ldapConnection,
                                                                 entry.getBindPrincipal(),
                                                                 password );
             if ( !authenticated )
@@ -208,9 +204,9 @@ public final class Auth
 
             return ua;
         }
-        catch ( LdapException | RuntimeException e )
+        catch ( LdapException | RuntimeException | IOException e )
         {
-            log.error( "Failed to auth username: " + username + " to LDAP" );
+            log.error( "Failed to auth username: " + username + " to LDAP", e);
             return null;
         }
     }
