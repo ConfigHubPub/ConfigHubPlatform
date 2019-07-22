@@ -159,6 +159,17 @@ public abstract class AClientAccessValidation
         setPasswords(store, repository, token, date, passwords);
     }
 
+    public void validateKeyDataPull(final String clientToken,
+                                    final String version,
+                                    final String appName,
+                                    final String remoteIp,
+                                    Store store)
+            throws ConfigException
+    {
+        checkToken(clientToken, store);
+        setPasswords(store, repository, token, date, passwords);
+    }
+
 
     public void validatePull(String clientToken,
                              String contextString,
