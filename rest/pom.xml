@@ -5,7 +5,7 @@
 
     <groupId>ConfigHub</groupId>
     <artifactId>ConfigHub-Rest</artifactId>
-    <version>1.8.1</version>
+    <version>1.8.2</version>
     <name>ConfigHub REST</name>
     <packaging>war</packaging>
 
