@@ -14,7 +14,7 @@
 
     <groupId>ConfigHub</groupId>
     <artifactId>ConfigHub-Core</artifactId>
-    <version>1.8.2</version>
+    <version>1.8.3</version>
     <name>ConfigHub Core</name>
 
     <dependencies>
