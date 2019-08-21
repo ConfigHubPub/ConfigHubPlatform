@@ -119,12 +119,14 @@ public class APIPullKeyData
             gson = new GsonBuilder().serializeNulls().create();
 
         JsonObject keyJson = new JsonObject();
-        keyJson.addProperty("key", propertyKey.getKey());
-        keyJson.addProperty("readme", propertyKey.getReadme());
-        keyJson.addProperty("deprecated", propertyKey.isDeprecated());
-        keyJson.addProperty("vdt", propertyKey.getValueDataType().name());
-        keyJson.addProperty("push", propertyKey.isPushValueEnabled());
-
+        if(null != propertyKey)
+        {
+            keyJson.addProperty("key", propertyKey.getKey());
+            keyJson.addProperty("readme", propertyKey.getReadme());
+            keyJson.addProperty("deprecated", propertyKey.isDeprecated());
+            keyJson.addProperty("vdt", propertyKey.getValueDataType().name());
+            keyJson.addProperty("push", propertyKey.isPushValueEnabled());
+        }
         Response.ResponseBuilder response = Response.ok(gson.toJson(keyJson), MediaType.APPLICATION_JSON);
         response.status(200);
         return response.build();
