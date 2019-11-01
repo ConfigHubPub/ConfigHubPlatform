@@ -139,6 +139,28 @@ public class APIPush
         return Response.ok().build();
     }
 
+    private boolean isDeleteOpp( final JsonObject valueJson ) {
+        return valueJson.has( "opp" ) && "delete".equalsIgnoreCase( valueJson.get( "opp" ).getAsString() );
+    }
+
+    private boolean hasKeyContextDeleteOpp( final Gson gson, final JsonObject entry )
+    {
+        if ( entry.has( "values" ) )
+        {
+            JsonArray values = gson.fromJson( entry.get( "values" ), JsonArray.class );
+
+            for ( int j = 0; j < values.size(); j++ )
+            {
+                JsonObject valueJson = gson.fromJson( values.get( j ), JsonObject.class );
+                if (isDeleteOpp(valueJson)) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
 
     private void pushData( final String postJson,
                            final String appName,
@@ -156,7 +178,7 @@ public class APIPush
 
         boolean enableKeyCreation = jsonObject.has( "enableKeyCreation" )
                                     ? jsonObject.get( "enableKeyCreation" ).getAsBoolean()
-                                    : false || forcePushEnabled;
+                                    : forcePushEnabled;
 
 
         JsonArray arr = jsonObject.getAsJsonArray( "data" );
@@ -175,7 +197,7 @@ public class APIPush
                 {
                     String absPath = entry.get( "file" ).getAsString();
                     String content = entry.has( "content" ) ? entry.get( "content" ).getAsString() : "";
-                    boolean active = entry.has( "active" ) ? entry.get( "active" ).getAsBoolean() : true;
+                    boolean active = !entry.has( "active" ) || entry.get( "active" ).getAsBoolean();
                     String spName = entry.has( "securityGroup" ) ? entry.get( "securityGroup" ).getAsString() : null;
                     String spPassword = entry.has( "password" ) ? entry.get( "password" ).getAsString() : null;
 
@@ -193,9 +215,7 @@ public class APIPush
 
                     RepoFile file = store.getRepoFile( repository, absPath, context, null );
 
-                    boolean isDelete = entry.has( "opp" )
-                                       ? "delete".equalsIgnoreCase( entry.get( "opp" ).getAsString() )
-                                       : false;
+                    boolean isDelete = isDeleteOpp(entry);
 
                     if ( null == file )
                     {
@@ -268,9 +288,7 @@ public class APIPush
                 {
                 }
 
-                boolean isDeleteKey = entry.has( "opp" )
-                                      ? "delete".equalsIgnoreCase( entry.get( "opp" ).getAsString() )
-                                      : false;
+                boolean isDeleteKey = isDeleteOpp(entry);
 
                 PropertyKey propertyKey = store.getKey( repository, key );
                 if ( null == propertyKey )
@@ -294,7 +312,7 @@ public class APIPush
                     ej.addProperty( "push", false );
                     throw new ConfigException( Error.Code.PUSH_DISABLED, ej );
                 }
-                else if ( repository.isValueTypeEnabled() )
+                else if ( repository.isValueTypeEnabled() && !hasKeyContextDeleteOpp(gson, entry) )
                 {
                     propertyKey.setValueDataType( valueDataType );
                 }
@@ -373,9 +391,7 @@ public class APIPush
 
                             Property property = propertyKey.getPropertyForContext( ctxLevels );
 
-                            boolean isDelete = valueJson.has( "opp" )
-                                               ? "delete".equalsIgnoreCase( valueJson.get( "opp" ).getAsString() )
-                                               : false;
+                            boolean isDelete = isDeleteOpp(valueJson);
 
                             if ( null == property )
                             {
@@ -426,16 +442,6 @@ public class APIPush
 
                                     case List:
                                     case Map:
-                                        if ( valueJson.get( "value" ).isJsonNull() )
-                                        {
-                                            property.setValue( null, pass );
-                                        }
-                                        else
-                                        {
-                                            property.setValue( valueJson.get( "value" ).getAsString(), pass );
-                                        }
-                                        break;
-
                                     default:
                                         if ( valueJson.get( "value" ).isJsonNull() )
                                         {
