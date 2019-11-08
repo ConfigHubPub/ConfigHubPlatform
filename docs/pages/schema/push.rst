@@ -128,10 +128,10 @@ To delete a specific key value:
       "data": [
          {
            "key": "aKey",
-           "values": {
+           "values": [ {
               "context": "el;*;*",
               "opp": "delete"
-           }
+           } ]
          }
       ]
    }

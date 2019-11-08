@@ -1,0 +1,31 @@
+version: "2.2"
+services:
+  confighub:
+    container_name: confighub.dev
+    build:
+      context: .
+      dockerfile: confighub.Dockerfile
+    restart: always
+    ports:
+      - "8080:8080"
+      - "8443:443"
+      - "5080:5080"
+    volumes:
+      - ./rest/target/ROOT.war:/usr/local/tomee/webapps/ROOT.war
+      - ./rest/src/main/webapp/js:/ROOT-js
+    environment:
+      CATALINA_OPTS: "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5080"
+    links:
+      - database
+  database:
+    container_name: database.dev
+    image: mariadb:10
+    command: mysqld --general-log=1 --general-log-file=/var/log/mysql/mysql.log --skip-networking=0
+    restart: always
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_DATABASE: "ConfigHub"
+      MYSQL_USER: "confighub"
+      MYSQL_PASSWORD: "confighub"
+      MYSQL_ROOT_PASSWORD: "root"

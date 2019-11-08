@@ -6,3 +6,4 @@ target
 *.ipr
 *.iws
 .idea/*
+docker/ConfigHubDBManager.jar
