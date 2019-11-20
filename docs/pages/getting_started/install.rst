@@ -57,7 +57,7 @@ a database configuration:
            Password = password
 
            JtaManaged = false
-           validationQuery="SELECT 1"
+           validationQuery = SELECT 1
            maxWaitTime = 2 seconds
            maxActive = 200
        </Resource>
