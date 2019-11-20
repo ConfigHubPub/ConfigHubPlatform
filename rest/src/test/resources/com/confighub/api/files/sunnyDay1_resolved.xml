@@ -8,7 +8,7 @@
         Password = s!e@c#r$e%t^P&a*s(s)w{o}r|d"':;?/>.<,~`
         JtaManaged = false
 
-        validationQuery="SELECT 1"
+        validationQuery = SELECT 1
         maxWaitTime = 2 seconds
         maxActive = 200
     </Resource>
