@@ -23,8 +23,8 @@ public class PropertiesSubstitutor {
         return text.contains("${" + key + "}");
     }
 
-    public static void substitute(final Map<PropertyKey, Property> resolved,
-                                  final Map<String, String> passwords) {
+    public static Map<PropertyKey, String> resolveTextSubstitutions(final Map<PropertyKey, Property> resolved,
+                                                                    final Map<String, String> passwords) {
         Map<PropertyKey, String> textPropertiesValues = new HashMap<>();
         for (PropertyKey key : resolved.keySet())
         {
@@ -73,7 +73,6 @@ public class PropertiesSubstitutor {
 
         for (PropertyKey key : textPropertiesValues.keySet())
         {
-            inboundDependencies.put(key, new HashSet<>());
             if(outboundDependencies.get(key).isEmpty())
             {
                 queue.offer(key);
@@ -97,10 +96,6 @@ public class PropertiesSubstitutor {
             }
         }
 
-        //TODO: move to the calling method?
-        for (PropertyKey key : textPropertiesValues.keySet()) {
-            Property property = resolved.get(key);
-            property.setValue(textPropertiesValues.get(key));
-        }
+        return textPropertiesValues;
     }
 }

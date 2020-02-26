@@ -199,7 +199,14 @@ public class APIPull
         EnumSet<Depth> depths = repository.getDepth().getDepths();
         JsonObject config = new JsonObject();
 
-        PropertiesSubstitutor.substitute(resolved, passwords);
+        Map<PropertyKey, String> textPropertiesValues =
+                PropertiesSubstitutor.resolveTextSubstitutions(resolved, passwords);
+
+        for (PropertyKey key : textPropertiesValues.keySet()) {
+            Property property = resolved.get(key);
+            property.setValue(textPropertiesValues.get(key));
+        }
+
 
         if (!noFiles)
         {
