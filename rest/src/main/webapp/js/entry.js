@@ -711,6 +711,8 @@
                             {
                                 if (tmpV)
                                     $scope.listData = tmpV;
+                                else
+                                    $scope.listData = [''];
                             }
                             else if (kd.vdt == 'Map')
                             {
@@ -734,6 +736,8 @@
                                 $scope.value = value;
                                 if (value)
                                     $scope.listData = angular.copy(value);
+                                else
+                                    $scope.listData = null;
                             }
                             else if ($scope.entry[$scope.side].vdt == 'Map')
                             {
@@ -908,7 +912,7 @@
 
                             if (kd.vdt == 'List')
                             {
-                                if (!$scope.listData || $scope.listData.length == 0)
+                                if (!$scope.listData)
                                     $scope.value = null;
                                 else
                                     $scope.value = JSON.stringify($scope.listData);
