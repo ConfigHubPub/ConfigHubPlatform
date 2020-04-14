@@ -1,0 +1,27 @@
+<div class="modal" tabindex="-1" role="dialog">
+    <form>
+        <div class="modal-dialog narrow-modal">
+            <div class="modal-content">
+
+                <div class="modal-header fyi">
+                    <button type="button" class="big-close" ng-click="$hide()">&times;</button>
+                    <span class="modal-title">
+                    <strong>Heads up!</strong>
+                </span>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group fyi">
+                        If you are seeing this, you are overwriting an existing context for a property or file.
+                        Be advised if you proceed, you are not creating a new property value or file, you will be replacing
+                        the existing context potentially leaving the old context value or file empty.
+                        Please proceed with caution.
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-danger" ng-click="$hide();saveEdit()">Update context</button>
+                    <button type="button" class="btn btn-default" ng-click="$hide()">Abandon save</button>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
