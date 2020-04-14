@@ -306,7 +306,7 @@
 
                     <button tabindex="1002"
                             ng-disabled="!validType || (conflict && active) || ut < type.member"
-                            ng-click="saveValue()"
+                            ng-click="checkContextAndSaveValue()"
                             class="btn btn-success btn-sm">
                         <span ng-if="entry.newProperty">Save property</span>
                         <span ng-if="!entry.newProperty">{{ property.isNew ? 'Add' : 'Update' }} value</span>

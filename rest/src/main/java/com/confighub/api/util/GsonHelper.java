@@ -455,6 +455,7 @@ public abstract class GsonHelper
         json.addProperty("scopeSize", repository.getDepth().getIndex());
         json.addProperty("tokenlessAPIPull", repository.isAllowTokenFreeAPIPull());
         json.addProperty("tokenlessAPIPush", repository.isAllowTokenFreeAPIPush());
+        json.addProperty("confirmContextChange", repository.isConfirmContextChange());
         json.add("labels", getRepositoryDepthLabels(repository));
 
         return json;

@@ -269,6 +269,30 @@
                         </td>
                     </tr>
 
+                    <tr>
+                        <td>
+                            <nz-toggle
+                                    tip-false="'Disabled'"
+                                    tip-true="'Enabled'"
+                                    class="square"
+                                    width="32"
+                                    height="16"
+                                    ng-disabled="togglesDisabled"
+                                    ng-model="features.confirmContextChange"></nz-toggle>
+                        </td>
+                        <td>
+                            <div class="feature-text">
+                                <h5 class="title">
+                                    Context change confirmation required for files and properties
+                                </h5>
+
+                                <div class="alert alert-danger" role="alert" ng-if="ccMessage">{{ ccMessage }}</div>
+
+                                If enabled, when a user changes the context of a given file or property they must confirm
+                                that they are intending to change the context of the file or property.
+                            </div>
+                        </td>
+                    </tr>
                 </table>
 
 

@@ -132,6 +132,9 @@ public class Repository
     @Column( name = "allowTokenFreeAPIPull" )
     private boolean allowTokenFreeAPIPull;
 
+    @Column( name = "confirmContextChange" )
+    private boolean confirmContextChange;
+
     @NotAudited
     @OneToMany( fetch = FetchType.LAZY,
                 cascade = { CascadeType.ALL } )
@@ -218,6 +221,7 @@ public class Repository
 
         this.allowTokenFreeAPIPull = false;
         this.allowTokenFreeAPIPush = false;
+        this.confirmContextChange = false;
     }
 
     // --------------------------------------------------------------------------------------------
@@ -946,12 +950,20 @@ public class Repository
         return accessControlEnabled;
     }
 
-
     public void setAccessControlEnabled( boolean accessControlEnabled )
     {
         this.accessControlEnabled = accessControlEnabled;
     }
 
+    public boolean isConfirmContextChange()
+    {
+        return confirmContextChange;
+    }
+
+    public void setConfirmContextChange( boolean confirmContextChange )
+    {
+        this.confirmContextChange = confirmContextChange;
+    }
 
     public boolean isValueTypeEnabled()
     {
@@ -1129,18 +1141,15 @@ public class Repository
         return allowTokenFreeAPIPush;
     }
 
-
     public boolean isAllowTokenFreeAPIPull()
     {
         return allowTokenFreeAPIPull;
     }
 
-
     public void setAllowTokenFreeAPIPush( boolean allowTokenFreeAPIPush )
     {
         this.allowTokenFreeAPIPush = allowTokenFreeAPIPush;
     }
-
 
     public void setAllowTokenFreeAPIPull( boolean allowTokenFreeAPIPull )
     {

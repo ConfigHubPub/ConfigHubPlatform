@@ -235,6 +235,7 @@ public class AuditPullTest
                                                        false,
                                                        false,
                                                        false,
+                                                       false,
                                                        false);
 
         assertNotNull(updateResponse);

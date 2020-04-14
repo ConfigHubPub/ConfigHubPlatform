@@ -1137,6 +1137,7 @@
                                         name = response.data.levels[i].n ? response.data.levels[i].n : undefined;
                                         $scope.context[score] = name;
                                     }
+                                    $scope.previousContext = angular.copy($scope.context);
 
                                     $scope.validateContext();
                                     $scope.locked = false;
@@ -1297,10 +1298,57 @@
                         $scope.newSp = lsp ? lsp.name : '';
                     };
 
-
                     $scope.updateActive = function(active) {
                         $scope.active = active;
                         $scope.validateFileContext();
+                    };
+
+                    function confirmSave()
+                    {
+                        confirm = $modal({
+                            template: '/repo/files/confirmSave.tpl.html',
+                            scope: $scope,
+                            show: false,
+                        });
+                        parentShow = confirm.show;
+                        confirm.show = function() {
+                            $timeout(function () {
+                                parentShow();
+                            }, 250);
+                            return;
+                        };
+                        return confirm;
+                    }
+
+                    $scope.isContextChanged = function()
+                    {
+                        if (JSON.stringify($scope.previousContext) != JSON.stringify($scope.context) && $scope.fileId) {
+                            return true;
+                        }
+                        return false;
+                    };
+
+                    $scope.checkContextAndSaveFile = function()
+                    {
+                        if (!$scope.isContextChanged())
+                        {
+                            $scope.saveFile();
+                            return;
+                        }
+                        $http.get('/rest/repositoryInfo/' + $scope.account + '/' + $scope.repoName, {})
+                            .then(function (response) {
+                                if (response.data.confirmContextChange) {
+                                    confirmSave().show();
+                                    return;
+                                }
+                                $scope.saveFile();
+                            });
+                        return;
+                    };
+
+                    $scope.saveEdit = function()
+                    {
+                        $scope.saveFile();
                     };
 
                     $scope.saveFile = function()

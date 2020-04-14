@@ -108,7 +108,8 @@ angular
                         description: $scope.repo.description,
                         'private': true,
                         contextSize: $scope.contexts.length,
-                        labels: getLabels()
+                        labels: getLabels(),
+                        confirmContextChange: $scope.repo.confirmContextChange ? $scope.repo.confirmContextChange : false
                     };
 
                     $http({

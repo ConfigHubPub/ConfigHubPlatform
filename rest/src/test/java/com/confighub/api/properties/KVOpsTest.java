@@ -357,7 +357,8 @@ public class KVOpsTest
                                                        false,
                                                        false,
                                                        true,
-                                                       true);
+                                                       true,
+                                                       false);
 
         assertNotNull(updateResponse);
         assertEquals(200, updateResponse.getStatus());

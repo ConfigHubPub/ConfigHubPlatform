@@ -150,7 +150,8 @@ angular
                                 isPersonal: $scope.repo.isPersonal,
                                 adminContextControlled: $scope.repo.adminContextControlled,
                                 tokenlessAPIPull: $scope.repo.tokenlessAPIPull,
-                                tokenlessAPIPush: $scope.repo.tokenlessAPIPush
+                                tokenlessAPIPush: $scope.repo.tokenlessAPIPush,
+                                confirmContextChange: $scope.repo.confirmContextChange
                             };
                             $scope.isPrivate = $scope.repo.isPrivate;
 
@@ -209,6 +210,7 @@ angular
                             adminContextControlled: $scope.features.adminContextControlled,
                             tokenlessAPIPull: $scope.features.tokenlessAPIPull,
                             tokenlessAPIPush: $scope.features.tokenlessAPIPush,
+                            confirmContextChange: $scope.features.confirmContextChange,
                             password: password
                         };
 
@@ -260,7 +262,8 @@ angular
                         valueTypeEnabled: $scope.repo.valueTypeEnabled,
                         contextClustersEnabled: $scope.repo.contextClustersEnabled,
                         isPersonal: $scope.repo.isPersonal,
-                        adminContextControlled: $scope.repo.adminContextControlled
+                        adminContextControlled: $scope.repo.adminContextControlled,
+                        confirmContextChange: $scope.repo.confirmContextChange()
                     };
                 };
 

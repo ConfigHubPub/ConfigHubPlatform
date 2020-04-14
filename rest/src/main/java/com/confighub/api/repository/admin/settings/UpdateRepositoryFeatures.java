@@ -54,7 +54,8 @@ public class UpdateRepositoryFeatures
                            @FormParam("contextClusters") boolean contextClusters,
                            @FormParam("adminContextControlled") boolean adminContextControlled,
                            @FormParam("tokenlessAPIPull") boolean tokenlessAPIPull,
-                           @FormParam("tokenlessAPIPush") boolean tokenlessAPIPush)
+                           @FormParam("tokenlessAPIPush") boolean tokenlessAPIPush,
+                           @FormParam("confirmContextChange") boolean confirmContextChange)
     {
         JsonObject json = new JsonObject();
         Gson gson = new Gson();
@@ -125,6 +126,7 @@ public class UpdateRepositoryFeatures
             repository.setAdminContextControlled(adminContextControlled);
             repository.setAllowTokenFreeAPIPull(tokenlessAPIPull);
             repository.setAllowTokenFreeAPIPush(tokenlessAPIPush);
+            repository.setConfirmContextChange(confirmContextChange);
 
             store.begin();
             store.update(repository, user);
