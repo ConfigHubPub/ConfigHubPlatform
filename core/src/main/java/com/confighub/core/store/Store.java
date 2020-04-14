@@ -3630,14 +3630,10 @@ public class Store
         if ( null != currentTeam )
         {
             currentTeam.removeMember( member );
-        }
-
-        Team newTeam = addTeamMember( repository, user, toTeam, member );
-        if ( null != currentTeam )
-        {
             saveOrUpdateAudited( user, repository, currentTeam );
         }
 
+        Team newTeam = addTeamMember( repository, user, toTeam, member );
         return newTeam;
     }
 

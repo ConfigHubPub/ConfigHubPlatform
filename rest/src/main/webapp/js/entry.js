@@ -616,14 +616,15 @@
                 restrict: "A",
                 templateUrl: 'repo/valueForm.tpl.html',
                 scope: true,
-                controller: ['$scope', '$http', 'secretService', '$httpParamSerializer', 'focus', '$timeout',
-                    function ($scope, $http, secretService, $httpParamSerializer, focus, $timeout)
+                controller: ['$scope', '$http', 'secretService', '$httpParamSerializer', 'focus', '$timeout', '$modal',
+                    function ($scope, $http, secretService, $httpParamSerializer, focus, $timeout, $modal)
                     {
                         $scope.addValueScope($scope);
 
                         $scope.validType = true;
                         $scope.listData = [''];
                         $scope.mapData = [{p: ['','']}];
+                        $scope.oldcontext = null;
 
                         $scope.contextSelectConfig = $scope.canManageContext ? propContextSelectConfig : propContextSelectConfigNoEdit;
 
@@ -711,6 +712,8 @@
                             {
                                 if (tmpV)
                                     $scope.listData = tmpV;
+                                else
+                                    $scope.listData = [''];
                             }
                             else if (kd.vdt == 'Map')
                             {
@@ -734,6 +737,8 @@
                                 $scope.value = value;
                                 if (value)
                                     $scope.listData = angular.copy(value);
+                                else
+                                    $scope.listData = null;
                             }
                             else if ($scope.entry[$scope.side].vdt == 'Map')
                             {
@@ -764,6 +769,8 @@
 
                             $scope.context[score] = name;
                         }
+
+                        $scope.previousContext = JSON.parse(JSON.stringify($scope.context))
 
                         // -----------------------------------------------------------------------
                         // Value-Data-Type
@@ -900,15 +907,50 @@
                             );
                         };
 
-                        $scope.saveValue = function()
+                        function confirmSave()
                         {
+                            confirm = $modal({
+                                template: '/repo/files/confirmSave.tpl.html',
+                                scope: $scope,
+                                show: false,
+                            });
+                            parentShow = confirm.show;
+                            confirm.show = function() {
+                                $timeout(function () {
+                                    parentShow();
+                                }, 250);
+                                return;
+                            };
+                            return confirm;
+                        }
+
+                        $scope.isMoreSpecificContext = function() {
+                            for (key in $scope.previousContext) {
+                                if (!$scope.previousContext[key] && $scope.context[key]) {
+                                    confirmSave().show();
+                                    return true;
+                                }
+                            }
+                            return false;
+                        };
+
+                        $scope.checkAndSaveValue = function()
+                        {
+                            if ($scope.isMoreSpecificContext()) {
+                                return;
+                            }
+                            $scope.saveValue()
+
+                        };
+
+                        $scope.saveValue = function() {
                             if ($scope.demo) return;
 
                             kd = $scope.getEntryData($scope.side);
 
                             if (kd.vdt == 'List')
                             {
-                                if (!$scope.listData || $scope.listData.length == 0)
+                                if (!$scope.listData)
                                     $scope.value = null;
                                 else
                                     $scope.value = JSON.stringify($scope.listData);
