@@ -2,9 +2,9 @@
 <Resources>
     <Resource id="ConfigHubMainDS" type="DataSource">
         JdbcDriver=com.mysql.jdbc.Driver
-        JdbcUrl=jdbc:mysql://database:3306/ConfigHub?useSSL=false&amp;autoReconnect=true
-        UserName=confighub
-        Password=confighub
+        JdbcUrl=jdbc:mysql://${DB_HOST}:3306/${DB_NAME}?useSSL=false&amp;autoReconnect=true
+        UserName=${DB_USER}
+        Password=${DB_PASS}
 
         JtaManaged = false
         validationQuery = SELECT 1

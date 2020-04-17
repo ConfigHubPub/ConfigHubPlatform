@@ -5,10 +5,11 @@ COPY       docker/ConfigHubDBManager.jar /
 
 RUN        apt-get update && \
            apt-get -y install \
+               gettext \
                vim \
                tcpdump \
                net-tools \
                mariadb-client
 
 EXPOSE     80 443
-ENTRYPOINT ["/initdev.sh"]
+ENTRYPOINT ["/confighubdev.sh"]
