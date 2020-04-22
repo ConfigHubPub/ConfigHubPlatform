@@ -7,3 +7,4 @@ target
 *.iws
 .idea/*
 docker/ConfigHubDBManager.jar
+docker/database-entrypoint-initdb.d/*
