@@ -616,8 +616,8 @@
                 restrict: "A",
                 templateUrl: 'repo/valueForm.tpl.html',
                 scope: true,
-                controller: ['$scope', '$http', 'secretService', '$httpParamSerializer', 'focus', '$timeout', '$modal',
-                    function ($scope, $http, secretService, $httpParamSerializer, focus, $timeout, $modal)
+                controller: ['$scope', '$http', 'secretService', '$httpParamSerializer', 'focus', '$timeout',
+                    function ($scope, $http, secretService, $httpParamSerializer, focus, $timeout)
                     {
                         $scope.addValueScope($scope);
 
@@ -769,8 +769,6 @@
                             $scope.context[score] = name;
                         }
 
-                        $scope.previousContext = angular.copy($scope.context);
-
                         // -----------------------------------------------------------------------
                         // Value-Data-Type
                         // -----------------------------------------------------------------------
@@ -906,47 +904,8 @@
                             );
                         };
 
-                        function confirmSave()
+                        $scope.saveValue = function()
                         {
-                            confirm = $modal({
-                                template: '/repo/files/confirmSave.tpl.html',
-                                scope: $scope,
-                                show: false,
-                            });
-                            parentShow = confirm.show;
-                            confirm.show = function() {
-                                $timeout(function () {
-                                    parentShow();
-                                }, 250);
-                                return;
-                            };
-                            return confirm;
-                        }
-
-                        $scope.isContextChanged = function() {
-                            let tempContext = {};
-                            for (level in $scope.context)
-                                tempContext[level] = $scope.context[level] ? $scope.context[level] : "";
-
-                            if (JSON.stringify($scope.previousContext) != JSON.stringify(tempContext) && !$scope.entry.newProperty) {
-                                confirmSave().show();
-                                return true;
-                            }
-                            return false;
-                        };
-
-                        $scope.checkAndSaveValue = function() {
-                            if ($scope.isContextChanged()) {
-                                return;
-                            }
-                            $scope.saveValue();
-                        };
-
-                        $scope.saveEdit = function() {
-                            $scope.saveValue();
-                        }
-
-                        $scope.saveValue = function() {
                             if ($scope.demo) return;
 
                             kd = $scope.getEntryData($scope.side);

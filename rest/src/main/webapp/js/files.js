@@ -1137,7 +1137,6 @@
                                         name = response.data.levels[i].n ? response.data.levels[i].n : undefined;
                                         $scope.context[score] = name;
                                     }
-                                    $scope.previousContext = angular.copy($scope.context);
 
                                     $scope.validateContext();
                                     $scope.locked = false;
@@ -1298,48 +1297,11 @@
                         $scope.newSp = lsp ? lsp.name : '';
                     };
 
+
                     $scope.updateActive = function(active) {
                         $scope.active = active;
                         $scope.validateFileContext();
                     };
-
-                    function confirmSave()
-                    {
-                        confirm = $modal({
-                            template: '/repo/files/confirmSave.tpl.html',
-                            scope: $scope,
-                            show: false,
-                        });
-                        parentShow = confirm.show;
-                        confirm.show = function() {
-                            $timeout(function () {
-                                parentShow();
-                            }, 250);
-                            return;
-                        };
-                        return confirm;
-                    }
-
-                    $scope.isContextChanged = function() {
-                        if (JSON.stringify($scope.previousContext) != JSON.stringify($scope.context) && $scope.fileId) {
-                            confirmSave().show();
-                            return true;
-                        }
-                        return false;
-                    };
-
-                    $scope.checkAndSaveFile = function()
-                    {
-                        if ($scope.isContextChanged()) {
-                            return;
-                        }
-                        $scope.saveFile();
-                    }
-
-                    $scope.saveEdit = function()
-                    {
-                        $scope.saveFile();
-                    }
 
                     $scope.saveFile = function()
                     {

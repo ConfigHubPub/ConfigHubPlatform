@@ -280,7 +280,7 @@
                                         <button type="button"
                                                 class="btn btn-success btn-sm"
                                                 ng-disabled="ut < type.member || hasErrors || readOnly || conflict"
-                                                ng-click="checkAndSaveFile(fileName)">
+                                                ng-click="saveFile(fileName)">
                                             <span ng-if="fileId">Update file</span>
                                             <span ng-if="!fileId">Create file</span>
                                         </button>
