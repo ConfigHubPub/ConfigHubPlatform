@@ -1012,7 +1012,7 @@ public class Store
 
                 depthLabels.put( newDepth, repository.getLabel( d ) );
 
-                ctxLevels.stream().forEach( l -> {
+                ctxLevels.forEach(l -> {
                     l.setDepth( newDepth );
                     saveOrUpdateAudited( user, repository, l );
                 } );
@@ -1029,8 +1029,8 @@ public class Store
             repository.setDepthLabels( depthLabels );
         }
 
-        repository.getProperties().stream().forEach( p -> p.updateContextString() );
-        repository.getFiles().stream().forEach( f -> f.updateContextString() );
+        repository.getProperties().forEach(AContextAwarePersistent::updateContextString);
+        repository.getFiles().forEach(AContextAwarePersistent::updateContextString);
         saveOrUpdateAudited( user, repository, repository );
 
         log.info( "Inserting context hierarchy: " + label + " index: " + insertIndex );

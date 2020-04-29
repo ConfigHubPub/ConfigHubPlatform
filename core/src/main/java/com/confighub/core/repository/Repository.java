@@ -132,6 +132,9 @@ public class Repository
     @Column( name = "allowTokenFreeAPIPull" )
     private boolean allowTokenFreeAPIPull;
 
+    @Column (name = "cachingEnabled" )
+    private boolean cachingEnabled;
+
     @NotAudited
     @OneToMany( fetch = FetchType.LAZY,
                 cascade = { CascadeType.ALL } )
@@ -804,7 +807,7 @@ public class Repository
     @Override
     public int hashCode()
     {
-        return Objects.hash( this.name );
+        return Objects.hash( this.getId() );
     }
 
 
@@ -991,6 +994,18 @@ public class Repository
         }
 
         return isAdminOrOwner( user );
+    }
+
+
+    public boolean isCachingEnabled()
+    {
+        return cachingEnabled;
+    }
+
+
+    public void setCachingEnabled(boolean cachingEnabled)
+    {
+        this.cachingEnabled = cachingEnabled;
     }
 
 

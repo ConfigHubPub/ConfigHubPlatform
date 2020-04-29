@@ -97,27 +97,27 @@ public class PropertyKey
     @Column( name = "pushValueEnabled" )
     private boolean pushValueEnabled = false;
 
-    @ManyToOne( fetch = FetchType.LAZY,
-                cascade = { CascadeType.REFRESH,
+    // NOTE we do not enable lazy-loading, because we prefer to cache the values across Hibernate sessions
+    @ManyToOne( cascade = { CascadeType.REFRESH,
                             CascadeType.PERSIST } )
     private SecurityProfile securityProfile;
 
-    @ManyToMany( fetch = FetchType.LAZY,
-                 cascade = { CascadeType.REFRESH,
+    // NOTE we do not enable lazy-loading, because we prefer to cache the values across Hibernate sessions
+    @ManyToMany( cascade = { CascadeType.REFRESH,
                              CascadeType.PERSIST },
                  mappedBy = "keys" )
     private Set<RepoFile> files;
 
+    // NOTE we do not enable lazy-loading, because we prefer to cache the values across Hibernate sessions
     @AuditMappedBy( mappedBy = "propertyKey" )
-    @OneToMany( fetch = FetchType.LAZY,
-                cascade = { CascadeType.REFRESH,
+    @OneToMany( cascade = { CascadeType.REFRESH,
                             CascadeType.PERSIST,
                             CascadeType.REMOVE },
                 mappedBy = "propertyKey" )
     private Set<Property> properties;
 
-    @ManyToOne( fetch = FetchType.LAZY,
-                cascade = { CascadeType.REFRESH,
+    // NOTE we do not enable lazy-loading, because we prefer to cache the values across Hibernate sessions
+    @ManyToOne( cascade = { CascadeType.REFRESH,
                             CascadeType.PERSIST } )
     @JoinColumn( nullable = false,
                  name = "repositoryId" )

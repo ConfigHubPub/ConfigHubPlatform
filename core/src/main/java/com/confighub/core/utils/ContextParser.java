@@ -19,15 +19,23 @@ package com.confighub.core.utils;
 
 import com.confighub.core.error.ConfigException;
 import com.confighub.core.error.Error;
-import com.confighub.core.repository.Depth;
 import com.confighub.core.repository.CtxLevel;
+import com.confighub.core.repository.Depth;
 import com.confighub.core.repository.Repository;
 import com.confighub.core.store.Store;
 import com.confighub.core.user.UserAccount;
+import com.google.common.base.MoreObjects;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Date;
+import java.util.EnumSet;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  *
@@ -191,7 +199,7 @@ public class ContextParser
         {
             String[] ciNames = ctx.split(";");
             EnumSet<Depth> depths = Depth.getByIndex(ciNames.length).getDepths();
-            if (null == ciNames || null == depths || depths.isEmpty())
+            if (MoreObjects.firstNonNull(depths, new HashSet<Depth>()).isEmpty())
                 throw new ConfigException(Error.Code.PARTIAL_CONTEXT);
 
             int i = 0;
@@ -215,6 +223,5 @@ public class ContextParser
         }
 
         return context;
-
     }
 }
