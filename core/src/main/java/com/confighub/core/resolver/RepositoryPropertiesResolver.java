@@ -17,18 +17,24 @@
 
 package com.confighub.core.resolver;
 
-import com.confighub.core.repository.PropertyKey;
-import com.confighub.core.store.Store;
 import com.confighub.core.error.ConfigException;
 import com.confighub.core.error.Error;
 import com.confighub.core.repository.Depth;
 import com.confighub.core.repository.LevelCtx;
 import com.confighub.core.repository.Property;
+import com.confighub.core.repository.PropertyKey;
+import com.confighub.core.store.Store;
 import com.confighub.core.utils.Utils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public class RepositoryPropertiesResolver
         extends AResolver
@@ -191,11 +197,9 @@ public class RepositoryPropertiesResolver
     private Map<PropertyKey, Collection<Property>> getPropertiesByKey(Context context)
             throws ConfigException
     {
-        Collection<Property> properties;
-        if (null == context.date)
-            properties = context.repository.getProperties();
-        else
-            properties = store.getProperties(context.repository, null == context.date ? new Date() : context.date);
+        Collection<Property> properties = context.date == null
+                ? context.repository.getProperties()
+                : store.getProperties(context.repository, context.date);
 
         Map<Long, Integer> counters = new HashMap<>();
 

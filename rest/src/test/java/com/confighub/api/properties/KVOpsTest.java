@@ -348,17 +348,18 @@ public class KVOpsTest
         // Enable access controls for this repository
         UpdateRepositoryFeatures repoUpdateAPI = new UpdateRepositoryFeatures();
         Response updateResponse = repoUpdateAPI.update(userToken,
-                                                       accountName,
-                                                       repoName,
-                                                       accountPass,
-                                                       false,
-                                                       true,
-                                                       true,
-                                                       false,
-                                                       false,
-                                                       true,
-                                                       true,
-                                                       false);
+                accountName,
+                repoName,
+                accountPass,
+                false,
+                true,
+                true,
+                false,
+                false,
+                true,
+                true,
+                false,
+                false);
 
         assertNotNull(updateResponse);
         assertEquals(200, updateResponse.getStatus());

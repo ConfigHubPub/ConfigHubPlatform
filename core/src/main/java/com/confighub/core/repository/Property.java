@@ -91,14 +91,14 @@ public class Property
     @GeneratedValue
     private Long id;
 
-    @ManyToOne( fetch = FetchType.LAZY,
-                cascade = { CascadeType.PERSIST,
+    // NOTE we do not enable lazy-loading, because we prefer to cache the values across Hibernate sessions
+    @ManyToOne( cascade = { CascadeType.PERSIST,
                             CascadeType.REFRESH } )
     @JoinColumn( nullable = false )
     private PropertyKey propertyKey;
 
-    @ManyToOne( fetch = FetchType.LAZY,
-                cascade = { CascadeType.REFRESH,
+    // NOTE we do not enable lazy-loading, because we prefer to cache the values across Hibernate sessions
+    @ManyToOne( cascade = { CascadeType.REFRESH,
                             CascadeType.PERSIST } )
     @JoinColumn( name = "absoluteFilePath" )
     private AbsoluteFilePath absoluteFilePath;
@@ -296,7 +296,7 @@ public class Property
     @Override
     public boolean equals( Object o )
     {
-        if ( null == o || !( o instanceof Property ) )
+        if ( !( o instanceof Property ) )
         {
             return false;
         }

@@ -624,7 +624,8 @@ public class Store
                                         final boolean isPrivate,
                                         final UserAccount owner,
                                         final Map<Depth, String> depthLabels,
-                                        final boolean confirmContextChange )
+                                        final boolean confirmContextChange,
+                                        final boolean isCachingEnabled )
           throws ConfigException
     {
         Repository repository = new Repository( name, depth, isPrivate, owner.getAccount() );
@@ -633,6 +634,7 @@ public class Store
         repository.setSecurityProfilesEnabled( true );
         repository.setValueTypeEnabled( true );
         repository.setConfirmContextChange( confirmContextChange );
+        repository.setCachingEnabled( isCachingEnabled );
 
         saveOrUpdateAudited( owner, repository, repository );
         return repository;
@@ -658,7 +660,8 @@ public class Store
                                         final Organization organization,
                                         final Map<Depth, String> depthLabels,
                                         final UserAccount author,
-                                        final boolean confirmContextChange )
+                                        final boolean confirmContextChange,
+                                        final boolean isCachingEnabled )
             throws ConfigException
     {
         // ToDo:: SECURITY RISK
@@ -679,6 +682,7 @@ public class Store
         repository.setSecurityProfilesEnabled( true );
         repository.setValueTypeEnabled( true );
         repository.setConfirmContextChange( confirmContextChange );
+        repository.setCachingEnabled( isCachingEnabled );
 
         saveOrUpdateAudited( author, repository, repository );
 
@@ -1014,7 +1018,7 @@ public class Store
 
                 depthLabels.put( newDepth, repository.getLabel( d ) );
 
-                ctxLevels.stream().forEach( l -> {
+                ctxLevels.forEach(l -> {
                     l.setDepth( newDepth );
                     saveOrUpdateAudited( user, repository, l );
                 } );
@@ -1031,8 +1035,8 @@ public class Store
             repository.setDepthLabels( depthLabels );
         }
 
-        repository.getProperties().stream().forEach( p -> p.updateContextString() );
-        repository.getFiles().stream().forEach( f -> f.updateContextString() );
+        repository.getProperties().forEach(AContextAwarePersistent::updateContextString);
+        repository.getFiles().forEach(AContextAwarePersistent::updateContextString);
         saveOrUpdateAudited( user, repository, repository );
 
         log.info( "Inserting context hierarchy: " + label + " index: " + insertIndex );

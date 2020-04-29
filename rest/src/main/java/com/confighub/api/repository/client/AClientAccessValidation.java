@@ -20,13 +20,19 @@ package com.confighub.api.repository.client;
 import com.confighub.core.auth.Auth;
 import com.confighub.core.error.ConfigException;
 import com.confighub.core.error.Error;
-import com.confighub.core.repository.*;
+import com.confighub.core.model.ConcurrentContextPropertiesCache;
+import com.confighub.core.repository.CtxLevel;
+import com.confighub.core.repository.Property;
+import com.confighub.core.repository.PropertyKey;
+import com.confighub.core.repository.Repository;
+import com.confighub.core.repository.Tag;
 import com.confighub.core.security.SecurityProfile;
 import com.confighub.core.security.Token;
 import com.confighub.core.store.Store;
 import com.confighub.core.utils.ContextParser;
 import com.confighub.core.utils.DateTimeUtils;
 import com.confighub.core.utils.Utils;
+import com.google.common.collect.ImmutableMap;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.reflect.TypeToken;
@@ -40,10 +46,12 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentMap;
 
 public abstract class AClientAccessValidation
 {
     private static final Logger log = LogManager.getFormatterLogger(AClientAccessValidation.class);
+    private static final ConcurrentMap<com.confighub.core.resolver.Context, ImmutableMap<PropertyKey, Property>> contextPropertiesCache = ConcurrentContextPropertiesCache.getInstance();
 
     @Context
     private HttpServletRequest request;
@@ -54,7 +62,7 @@ public abstract class AClientAccessValidation
     protected Tag tag;
     protected Date date;
     protected JsonObject json = new JsonObject();
-    protected Map<PropertyKey, Property> resolved;
+    protected ImmutableMap<PropertyKey, Property> resolved;
     protected Map<String, String> passwords = new HashMap<>();
 
     protected void getRepositoryFromToken(String clientToken, Store store)
@@ -203,8 +211,8 @@ public abstract class AClientAccessValidation
         }
 
         addJsonHeader(json, repository, contextString, context);
-        Long start = System.currentTimeMillis();
-        resolved = context.resolveForClient();
+        long start = System.currentTimeMillis();
+        resolved = resolveForClient();
 
         log.info("Client [%s] from [%s] resolved %d keys in %d/ms > %s",
                  appName,
@@ -215,6 +223,20 @@ public abstract class AClientAccessValidation
 
 
         processAuth(store, gson, securityProfiles, token, repository, date, passwords);
+    }
+
+    private ImmutableMap<PropertyKey, Property> resolveForClient()
+    {
+        if (!repository.isCachingEnabled())
+        {
+            return ImmutableMap.copyOf(context.resolveForClient());
+        }
+
+        if (!contextPropertiesCache.containsKey(context))
+        {
+            contextPropertiesCache.putIfAbsent(context, ImmutableMap.copyOf(context.resolveForClient()));
+        }
+        return contextPropertiesCache.get(context);
     }
 
     public static void addJsonHeader(final JsonObject json,

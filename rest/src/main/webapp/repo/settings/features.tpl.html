@@ -121,6 +121,48 @@
             </div>
         </div>
 
+        <!--Cache Settings-->
+        <div class="panel panel-form">
+            <div class="panel-heading">
+                Caching Settings
+            </div>
+
+            <div class="panel-body">
+
+                <table class="table features-table">
+
+                    <tr>
+                        <td>
+                            <nz-toggle
+                                    tip-false="'Disabled'"
+                                    tip-true="'Enabled'"
+                                    class="square"
+                                    width="32"
+                                    height="16"
+                                    ng-disabled="togglesDisabled"
+                                    ng-model="features.cachingEnabled"></nz-toggle>
+                        </td>
+                        <td>
+                            <div class="feature-text">
+
+                                <h5 class="title">
+                                    Cache repository data
+                                </h5>
+
+                                <p>
+                                    If enabled, ConfigHub will cache all returned information for each context and
+                                    will be cleared each time properties in the repository are updated.  Could cause
+                                    excessive memory usage.
+                                </p>
+
+                            </div>
+                        </td>
+                    </tr>
+
+                </table>
+            </div>
+        </div>
+
         <!--API Settings-->
         <div class="panel panel-form">
             <div class="panel-heading">
