@@ -21,6 +21,12 @@
 
     </Appenders>
     <Loggers>
+        <Logger name="org.hibernate.SQL" level="error" additivity="false">
+            <AppenderRef ref="CONSOLE" />
+        </Logger>
+        <Logger name="org.hibernate.type.descriptor.sql" level="error" additivity="false">
+            <AppenderRef ref="CONSOLE" />
+        </Logger>
         <Root level="INFO">
             <AppenderRef ref="SERVER_LOG"/>
         </Root>

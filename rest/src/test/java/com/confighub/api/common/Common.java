@@ -107,31 +107,33 @@ public class Common
                                              String labels )
     {
         CreateRepository createRepositoryAPI = new CreateRepository();
-        Response response = createRepositoryAPI.createRepository( userToken,
-                                                                  accountName,
-                                                                  repoName,
-                                                                  repoDescription,
-                                                                  isPrivate,
-                                                                  depth.getIndex(),
-                                                                  labels,
-                                                                  false );
+        Response response = createRepositoryAPI.createRepository(userToken,
+                accountName,
+                repoName,
+                repoDescription,
+                isPrivate,
+                depth.getIndex(),
+                labels,
+                false,
+                false);
         assertNotNull( response );
         assertEquals( 200, response.getStatus() );
 
         {
             UpdateRepositoryFeatures repoUpdateAPI = new UpdateRepositoryFeatures();
-            Response updateResponse = repoUpdateAPI.update( userToken,
-                                                            accountName,
-                                                            repoName,
-                                                            accountPass,
-                                                            false,
-                                                            true,
-                                                            true,
-                                                            false,
-                                                            false,
-                                                            true,
-                                                            true,
-                                                            false );
+            Response updateResponse = repoUpdateAPI.update(userToken,
+                    accountName,
+                    repoName,
+                    accountPass,
+                    false,
+                    true,
+                    true,
+                    false,
+                    false,
+                    true,
+                    true,
+                    false,
+                    false);
 
             assertNotNull( updateResponse );
             assertEquals( 200, updateResponse.getStatus() );

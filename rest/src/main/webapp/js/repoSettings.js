@@ -151,7 +151,8 @@ angular
                                 adminContextControlled: $scope.repo.adminContextControlled,
                                 tokenlessAPIPull: $scope.repo.tokenlessAPIPull,
                                 tokenlessAPIPush: $scope.repo.tokenlessAPIPush,
-                                confirmContextChange: $scope.repo.confirmContextChange
+                                confirmContextChange: $scope.repo.confirmContextChange,
+                                cachingEnabled: $scope.repo.cachingEnabled
                             };
                             $scope.isPrivate = $scope.repo.isPrivate;
 
@@ -211,6 +212,7 @@ angular
                             tokenlessAPIPull: $scope.features.tokenlessAPIPull,
                             tokenlessAPIPush: $scope.features.tokenlessAPIPush,
                             confirmContextChange: $scope.features.confirmContextChange,
+                            cachingEnabled: $scope.features.cachingEnabled,
                             password: password
                         };
 

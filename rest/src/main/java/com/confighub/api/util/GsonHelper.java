@@ -456,6 +456,7 @@ public abstract class GsonHelper
         json.addProperty("tokenlessAPIPull", repository.isAllowTokenFreeAPIPull());
         json.addProperty("tokenlessAPIPush", repository.isAllowTokenFreeAPIPush());
         json.addProperty("confirmContextChange", repository.isConfirmContextChange());
+        json.addProperty("cachingEnabled", repository.isCachingEnabled());
         json.add("labels", getRepositoryDepthLabels(repository));
 
         return json;

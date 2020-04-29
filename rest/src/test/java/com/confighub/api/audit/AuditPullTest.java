@@ -226,17 +226,18 @@ public class AuditPullTest
         // Enable access controls for this repository
         UpdateRepositoryFeatures repoUpdateAPI = new UpdateRepositoryFeatures();
         Response updateResponse = repoUpdateAPI.update(userToken,
-                                                       accountName,
-                                                       repoName,
-                                                       accountPass,
-                                                       false,
-                                                       true,
-                                                       true,
-                                                       false,
-                                                       false,
-                                                       false,
-                                                       false,
-                                                       false);
+                accountName,
+                repoName,
+                accountPass,
+                false,
+                true,
+                true,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false);
 
         assertNotNull(updateResponse);
         assertEquals(200, updateResponse.getStatus());

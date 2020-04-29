@@ -117,17 +117,18 @@ public class TokenTest
         // --------------------------------------------------------------------------
         UpdateRepositoryFeatures repoUpdateAPI = new UpdateRepositoryFeatures();
         Response updateResponse = repoUpdateAPI.update(userToken,
-                                                       accountName,
-                                                       repoName,
-                                                       accountPass,
-                                                       true,
-                                                       true,
-                                                       true,
-                                                       false,
-                                                       false,
-                                                       true,
-                                                       false,
-                                                       false);
+                accountName,
+                repoName,
+                accountPass,
+                true,
+                true,
+                true,
+                false,
+                false,
+                true,
+                false,
+                false,
+                false);
 
         assertNotNull(updateResponse);
         assertEquals(200, updateResponse.getStatus());
@@ -427,17 +428,18 @@ public class TokenTest
         // Enable access controls for this repository
         UpdateRepositoryFeatures repoUpdateAPI = new UpdateRepositoryFeatures();
         Response updateResponse = repoUpdateAPI.update(userToken,
-                                                       accountName,
-                                                       repoName,
-                                                       accountPass,
-                                                       true,
-                                                       true,
-                                                       true,
-                                                       false,
-                                                       false,
-                                                       true,
-                                                       true,
-                                                       false);
+                accountName,
+                repoName,
+                accountPass,
+                true,
+                true,
+                true,
+                false,
+                false,
+                true,
+                true,
+                false,
+                false);
 
         assertNotNull(updateResponse);
         assertEquals(200, updateResponse.getStatus());
