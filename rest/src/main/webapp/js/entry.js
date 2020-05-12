@@ -924,7 +924,7 @@
                         }
 
                         $scope.isContextChanged = function() {
-                            let tempContext = {}; // context level becomes undefined when moving to *, rather than the default ""
+                            tempContext = {};
                             for (level in $scope.context)
                                 tempContext[level] = $scope.context[level] ? $scope.context[level] : "";
                             if (JSON.stringify($scope.previousContext) != JSON.stringify(tempContext) && !$scope.entry.newProperty && !$scope.property.isNew ) {
