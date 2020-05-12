@@ -46,7 +46,8 @@ public class CreateRepository
                                      @FormParam("description") String description,
                                      @FormParam("private") boolean isPrivate,
                                      @FormParam("contextSize") int contextSize,
-                                     @FormParam("labels") String labelList)
+                                     @FormParam("labels") String labelList,
+                                     @FormParam("confirmContextChange") boolean confirmContextChange)
     {
         JsonObject json = new JsonObject();
         UserAccount user;
@@ -101,12 +102,11 @@ public class CreateRepository
                 {
                     if (!acc.getUser().equals(user))
                         throw new ConfigException(Error.Code.ACCOUNT_INVALID);
-
-                    store.createRepository(name, description, d, isPrivate, user, depthLabels);
+                    store.createRepository(name, description, d, isPrivate, user, depthLabels, confirmContextChange);
 
                 } else
                 {
-                    store.createRepository(name, description, d, isPrivate, acc.getOrganization(), depthLabels, user);
+                    store.createRepository(name, description, d, isPrivate, acc.getOrganization(), depthLabels, user, confirmContextChange);
                 }
 
                 store.commit();

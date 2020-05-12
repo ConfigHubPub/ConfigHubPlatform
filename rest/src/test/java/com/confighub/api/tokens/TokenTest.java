@@ -126,6 +126,7 @@ public class TokenTest
                                                        false,
                                                        false,
                                                        true,
+                                                       false,
                                                        false);
 
         assertNotNull(updateResponse);
@@ -435,7 +436,8 @@ public class TokenTest
                                                        false,
                                                        false,
                                                        true,
-                                                       true);
+                                                       true,
+                                                       false);
 
         assertNotNull(updateResponse);
         assertEquals(200, updateResponse.getStatus());

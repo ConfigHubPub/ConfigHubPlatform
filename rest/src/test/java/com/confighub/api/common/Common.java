@@ -113,7 +113,8 @@ public class Common
                                                                   repoDescription,
                                                                   isPrivate,
                                                                   depth.getIndex(),
-                                                                  labels );
+                                                                  labels,
+                                                                  false );
         assertNotNull( response );
         assertEquals( 200, response.getStatus() );
 
@@ -129,7 +130,8 @@ public class Common
                                                             false,
                                                             false,
                                                             true,
-                                                            true );
+                                                            true,
+                                                            false );
 
             assertNotNull( updateResponse );
             assertEquals( 200, updateResponse.getStatus() );

@@ -74,6 +74,7 @@ public class RepositoryDiffTracker
         o.securityProfilesEnabled = repository.isSecurityProfilesEnabled();
         o.contextClustersEnabled = repository.isContextClustersEnabled();
         o.isPrivate = repository.isPrivate();
+        o.confirmContextChange = repository.isConfirmContextChange();
 
         o.labels = new HashMap<>();
         for (Depth depth : repository.getDepth().getDepths())
@@ -163,6 +164,7 @@ public class RepositoryDiffTracker
         boolean securityProfilesEnabled;
         boolean contextClustersEnabled;
         boolean isPrivate;
+        boolean confirmContextChange;
         Map<Depth, String> labels;
 
         void setLabel(Depth depth, String label)
