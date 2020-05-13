@@ -24,6 +24,7 @@ import com.confighub.core.resolver.Context;
 import com.confighub.core.security.SecurityProfile;
 import com.confighub.core.store.Store;
 import com.confighub.core.utils.FileUtils;
+import com.confighub.core.utils.PropertiesSubstitutor;
 import com.confighub.core.utils.Utils;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -197,6 +198,15 @@ public class APIPull
     {
         EnumSet<Depth> depths = repository.getDepth().getDepths();
         JsonObject config = new JsonObject();
+
+        Map<PropertyKey, String> textPropertiesValues =
+                PropertiesSubstitutor.resolveTextSubstitutions(resolved, passwords);
+
+        for (PropertyKey key : textPropertiesValues.keySet()) {
+            Property property = resolved.get(key);
+            property.setValue(textPropertiesValues.get(key));
+        }
+
 
         if (!noFiles)
         {
