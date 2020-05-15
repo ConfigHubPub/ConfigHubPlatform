@@ -24,6 +24,7 @@ import com.confighub.core.store.Store;
 import com.confighub.core.user.UserAccount;
 import com.confighub.core.utils.DateTimeUtils;
 import com.confighub.core.utils.Utils;
+import com.google.common.base.Objects;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -105,6 +106,19 @@ public class Context
         }
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Context that = (Context) o;
+        return toString().equals(that.toString()) &&
+                getRepository().equals(that.getRepository());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(toString(), getRepository());
+    }
 
     protected boolean containsLevelAtDepth(Depth d, String levelName)
     {

@@ -109,7 +109,8 @@ angular
                         'private': true,
                         contextSize: $scope.contexts.length,
                         labels: getLabels(),
-                        confirmContextChange: $scope.repo.confirmContextChange ? $scope.repo.confirmContextChange : false
+                        confirmContextChange: $scope.repo.confirmContextChange ? $scope.repo.confirmContextChange : false,
+                        cachingEnabled: $scope.repo.enableCaching
                     };
 
                     $http({

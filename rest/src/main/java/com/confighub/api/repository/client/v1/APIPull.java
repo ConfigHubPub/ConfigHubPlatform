@@ -19,7 +19,13 @@ package com.confighub.api.repository.client.v1;
 
 import com.confighub.api.repository.client.AClientAccessValidation;
 import com.confighub.core.error.ConfigException;
-import com.confighub.core.repository.*;
+import com.confighub.core.repository.AbsoluteFilePath;
+import com.confighub.core.repository.Depth;
+import com.confighub.core.repository.LevelCtx;
+import com.confighub.core.repository.Property;
+import com.confighub.core.repository.PropertyKey;
+import com.confighub.core.repository.RepoFile;
+import com.confighub.core.repository.Repository;
 import com.confighub.core.resolver.Context;
 import com.confighub.core.security.SecurityProfile;
 import com.confighub.core.store.Store;
@@ -32,7 +38,11 @@ import com.google.gson.JsonObject;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import javax.ws.rs.*;
+import javax.ws.rs.GET;
+import javax.ws.rs.HeaderParam;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.EnumSet;
@@ -71,26 +81,10 @@ public class APIPull
         try
         {
             getRepositoryFromToken(clientToken, dateString, tagString, store);
+            validatePull(clientToken, contextString, version, appName, remoteIp, store, gson, securityProfiles);
 
-            validatePull(clientToken,
-                         contextString,
-                         version,
-                         appName,
-                         remoteIp,
-                         store,
-                         gson,
-                         securityProfiles);
-
-            getConfiguration(repository,
-                             context,
-                             resolved,
-                             passwords,
-                             json,
-                             noFiles,
-                             noProperties,
-                             includeComments,
-                             includeContext,
-                             gson);
+            getConfiguration(repository, context, resolved, passwords, json, noFiles, noProperties, includeComments,
+                    includeContext, gson);
 
             Response.ResponseBuilder response = Response.ok(gson.toJson(json), MediaType.APPLICATION_JSON);
             response.status(200);
@@ -144,25 +138,10 @@ public class APIPull
         try
         {
             getRepositoryFromUrl(account, repositoryName, tagString, dateString, store, true);
-            validatePull(null,
-                         contextString,
-                         version,
-                         appName,
-                         remoteIp,
-                         store,
-                         gson,
-                         securityProfiles);
+            validatePull(null, contextString, version, appName, remoteIp, store, gson, securityProfiles);
 
-            getConfiguration(repository,
-                             context,
-                             resolved,
-                             passwords,
-                             json,
-                             noFiles,
-                             noProperties,
-                             includeComments,
-                             includeContext,
-                             gson);
+            getConfiguration(repository, context, resolved, passwords, json, noFiles, noProperties, includeComments,
+                    includeContext, gson);
 
             Response.ResponseBuilder response = Response.ok(gson.toJson(json), MediaType.APPLICATION_JSON);
             response.status(200);
