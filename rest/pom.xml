@@ -3,9 +3,13 @@
 
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>ConfigHub</groupId>
+    <parent>
+        <artifactId>ConfigHub</artifactId>
+        <groupId>ConfigHub</groupId>
+        <version>${revision}</version>
+    </parent>
+
     <artifactId>ConfigHub-Rest</artifactId>
-    <version>1.8.4</version>
     <name>ConfigHub REST</name>
     <packaging>war</packaging>
 
@@ -14,7 +18,7 @@
         <dependency>
             <groupId>ConfigHub</groupId>
             <artifactId>ConfigHub-Core</artifactId>
-            <version>1.8.4</version>
+            <version>${revision}</version>
         </dependency>
 
         <dependency>

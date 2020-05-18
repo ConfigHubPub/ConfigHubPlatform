@@ -51,7 +51,7 @@ import java.util.concurrent.ConcurrentMap;
 public abstract class AClientAccessValidation
 {
     private static final Logger log = LogManager.getFormatterLogger(AClientAccessValidation.class);
-    private static final ConcurrentMap<com.confighub.core.resolver.Context, ImmutableMap<PropertyKey, Property>> contextPropertiesCache = ConcurrentContextPropertiesCache.getInstance();
+    private static final ConcurrentContextPropertiesCache contextPropertiesCache = ConcurrentContextPropertiesCache.getInstance();
 
     @Context
     private HttpServletRequest request;

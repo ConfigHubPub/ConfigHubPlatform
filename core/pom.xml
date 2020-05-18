@@ -12,9 +12,13 @@
 
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>ConfigHub</groupId>
+    <parent>
+        <artifactId>ConfigHub</artifactId>
+        <groupId>ConfigHub</groupId>
+        <version>${revision}</version>
+    </parent>
+
     <artifactId>ConfigHub-Core</artifactId>
-    <version>1.8.4</version>
     <name>ConfigHub Core</name>
 
     <dependencies>
