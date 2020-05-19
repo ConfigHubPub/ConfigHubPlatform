@@ -8,11 +8,14 @@
 
     <groupId>ConfigHub</groupId>
     <artifactId>ConfigHub</artifactId>
-    <version>1.8.4</version>
+    <version>${revision}</version>
     <name>ConfigHub Parent</name>
     <packaging>pom</packaging>
     <modules>
         <module>core</module>
         <module>rest</module>
     </modules>
+    <properties>
+        <revision>1.9.0</revision>
+    </properties>
 </project>

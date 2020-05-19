@@ -20,6 +20,7 @@ package com.confighub.api.repository.admin.settings;
 import com.confighub.api.repository.admin.AAdminAccessValidation;
 import com.confighub.api.util.GsonHelper;
 import com.confighub.core.error.ConfigException;
+import com.confighub.core.model.ConcurrentContextPropertiesCache;
 import com.confighub.core.repository.CtxLevel;
 import com.confighub.core.repository.PropertyKey;
 import com.confighub.core.store.Store;
@@ -133,6 +134,11 @@ public class UpdateRepositoryFeatures
             store.begin();
             store.update(repository, user);
             store.commit();
+
+            if (!cachingEnabled)
+            {
+                ConcurrentContextPropertiesCache.getInstance().removeByRepository(repository);  // ensure memory freed when caching disabled
+            }
 
             json.addProperty("success", true);
             json.add("repository", GsonHelper.repositoryToJSON(repository));
