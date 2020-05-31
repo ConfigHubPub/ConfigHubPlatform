@@ -33,7 +33,6 @@ WEBAPPS_ROOT=/usr/local/tomee/webapps/ROOT
 rm -rf ${WEBAPPS_ROOT} || exit $?
 echo "Unzipping ROOT.war..."
 unzip -o ${WEBAPPS_ROOT}.war -d ${WEBAPPS_ROOT} >/dev/null || exit $?
-cp -av /ROOT-js ${WEBAPPS_ROOT}/js || exit $?
 
 echo "Writing ${WEBAPPS_ROOT}/WEB-INF/resources.xml"
 envsubst < /dev-resources.xml.tpl > ${WEBAPPS_ROOT}/WEB-INF/resources.xml || exit $?
