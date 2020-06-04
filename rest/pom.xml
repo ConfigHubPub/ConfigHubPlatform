@@ -107,15 +107,6 @@
                 </configuration>
             </plugin>
 
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-war-plugin</artifactId>
-                <version>3.0.0</version>
-                <configuration>
-                    <warSourceExcludes>js/**</warSourceExcludes>
-                </configuration>
-            </plugin>
-
             <!--TomEE-->
             <plugin>
                 <groupId>org.apache.openejb.maven</groupId>
