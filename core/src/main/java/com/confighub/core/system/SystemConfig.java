@@ -57,6 +57,10 @@ public class SystemConfig
     @Column( name = "encrypted" )
     private boolean encrypted = false;
 
+    @Override
+    public Long getId() {
+        return id;
+    }
 
     public JsonObject toJson()
     {

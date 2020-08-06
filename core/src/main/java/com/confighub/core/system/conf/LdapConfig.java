@@ -2,7 +2,12 @@ package com.confighub.core.system.conf;
 
 import com.confighub.core.auth.TrustAllX509TrustManager;
 import com.confighub.core.system.SystemConfig;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 import org.apache.directory.ldap.client.api.LdapConnectionConfig;
 
 import java.net.URI;
