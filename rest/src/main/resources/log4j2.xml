@@ -9,7 +9,7 @@
     <Appenders>
 
         <File name="SERVER_LOG"
-              fileName="${syslog.path}/configHub.log"
+              fileName="${sys:log.path}/configHub.log"
               append="true"
               ignoreExceptions="false">
             <PatternLayout pattern="${layout}"/>

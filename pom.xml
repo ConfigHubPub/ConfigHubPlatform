@@ -16,6 +16,6 @@
         <module>rest</module>
     </modules>
     <properties>
-        <revision>1.9.2</revision>
+        <revision>1.9.3</revision>
     </properties>
 </project>
