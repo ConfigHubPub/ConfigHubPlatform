@@ -19,12 +19,18 @@ package com.confighub.api.repository.user.property;
 
 import com.confighub.api.repository.user.AUserAccessValidation;
 import com.confighub.core.error.ConfigException;
-import com.confighub.core.model.ConcurrentContextPropertiesCache;
+import com.confighub.core.model.ConcurrentContextFilenameResponseCache;
+import com.confighub.core.model.ConcurrentContextJsonObjectCache;
 import com.confighub.core.store.Store;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 
-import javax.ws.rs.*;
+import javax.ws.rs.FormParam;
+import javax.ws.rs.HeaderParam;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
@@ -55,7 +61,8 @@ public class DeleteKeyAndProperties
             store.deleteKeyAndProperties(user, repository, key, spPassword);
             store.commit();
 
-            ConcurrentContextPropertiesCache.getInstance().removeByRepository(repository);
+            ConcurrentContextJsonObjectCache.getInstance().removeByRepository(repository);
+            ConcurrentContextFilenameResponseCache.getInstance().removeByRepository(repository);
 
             json.addProperty("success", true);
             return Response.ok(gson.toJson(json), MediaType.APPLICATION_JSON).build();

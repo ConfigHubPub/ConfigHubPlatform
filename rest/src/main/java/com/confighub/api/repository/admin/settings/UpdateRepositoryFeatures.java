@@ -20,7 +20,8 @@ package com.confighub.api.repository.admin.settings;
 import com.confighub.api.repository.admin.AAdminAccessValidation;
 import com.confighub.api.util.GsonHelper;
 import com.confighub.core.error.ConfigException;
-import com.confighub.core.model.ConcurrentContextPropertiesCache;
+import com.confighub.core.model.ConcurrentContextFilenameResponseCache;
+import com.confighub.core.model.ConcurrentContextJsonObjectCache;
 import com.confighub.core.repository.CtxLevel;
 import com.confighub.core.repository.PropertyKey;
 import com.confighub.core.store.Store;
@@ -30,7 +31,12 @@ import com.google.gson.JsonObject;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import javax.ws.rs.*;
+import javax.ws.rs.FormParam;
+import javax.ws.rs.HeaderParam;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.Collection;
@@ -137,7 +143,9 @@ public class UpdateRepositoryFeatures
 
             if (!cachingEnabled)
             {
-                ConcurrentContextPropertiesCache.getInstance().removeByRepository(repository);  // ensure memory freed when caching disabled
+                // ensure memory freed when caching disabled
+                ConcurrentContextFilenameResponseCache.getInstance().removeByRepository(repository);
+                ConcurrentContextJsonObjectCache.getInstance().removeByRepository(repository);
             }
 
             json.addProperty("success", true);

@@ -5006,7 +5006,7 @@ public class Store
             }
 
             AuditReader reader = AuditReaderFactory.get( em );
-            Number rev = reader.getRevisionNumberForDate( null == date ? new Date() : date );
+            Number rev = reader.getRevisionNumberForDate( date );
 
             AuditQuery kq = reader.createQuery().forEntitiesAtRevision( AbsoluteFilePath.class, rev );
             kq.add( AuditEntity.property( "repository" ).eq( repository ) );
