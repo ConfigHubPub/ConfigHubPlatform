@@ -20,7 +20,6 @@ package com.confighub.api.repository.client;
 import com.confighub.core.auth.Auth;
 import com.confighub.core.error.ConfigException;
 import com.confighub.core.error.Error;
-import com.confighub.core.model.ConcurrentContextPropertiesCache;
 import com.confighub.core.repository.CtxLevel;
 import com.confighub.core.repository.Property;
 import com.confighub.core.repository.PropertyKey;
@@ -40,24 +39,23 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.constraints.NotNull;
 import javax.ws.rs.core.Context;
 import java.lang.reflect.Type;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ConcurrentMap;
+import java.util.Objects;
 
 public abstract class AClientAccessValidation
 {
     private static final Logger log = LogManager.getFormatterLogger(AClientAccessValidation.class);
-    private static final ConcurrentContextPropertiesCache contextPropertiesCache = ConcurrentContextPropertiesCache.getInstance();
 
     @Context
     private HttpServletRequest request;
 
     protected Repository repository;
-    protected com.confighub.core.resolver.Context context;
     protected Token token;
     protected Tag tag;
     protected Date date;
@@ -178,22 +176,12 @@ public abstract class AClientAccessValidation
         setPasswords(store, repository, token, date, passwords);
     }
 
-
-    public void validatePull(String clientToken,
-                             String contextString,
-                             String version,
-                             String appName,
-                             String remoteIp,
-                             Store store,
-                             Gson gson,
-                             String securityProfiles)
-            throws ConfigException
+    protected com.confighub.core.resolver.Context resolveContext(final String contextString,
+                                                                 Store store)
     {
-
         // ToDo check context size is the same as the repository from the time as requested by the Tag/Label
         Collection<CtxLevel> ctx = ContextParser.contextFromApi( contextString, repository, store, null);
-
-        checkToken(clientToken, store);
+        com.confighub.core.resolver.Context context;
 
         try
         {
@@ -209,34 +197,34 @@ public abstract class AClientAccessValidation
         {
             throw new ConfigException(Error.Code.PARTIAL_CONTEXT);
         }
-
-        addJsonHeader(json, repository, contextString, context);
-        long start = System.currentTimeMillis();
-        resolved = resolveForClient();
-
-        log.info("Client [%s] from [%s] resolved %d keys in %d/ms > %s",
-                 appName,
-                 remoteIp,
-                 resolved.size(),
-                 (System.currentTimeMillis() - start),
-                 contextString);
-
-
-        processAuth(store, gson, securityProfiles, token, repository, date, passwords);
+        return context;
     }
 
-    private ImmutableMap<PropertyKey, Property> resolveForClient()
+    public void validatePull(@NotNull com.confighub.core.resolver.Context context,
+                             String appName,
+                             String remoteIp,
+                             Store store,
+                             Gson gson,
+                             String securityProfiles,
+                             boolean validateAuthOnly)
+            throws ConfigException
     {
-        if (!repository.isCachingEnabled())
+        long start = System.currentTimeMillis();
+        resolved = ImmutableMap.of();
+        if (!validateAuthOnly)
         {
-            return ImmutableMap.copyOf(context.resolveForClient());
+            resolved = ImmutableMap.copyOf(context.resolveForClient());
         }
 
-        if (!contextPropertiesCache.containsKey(context))
-        {
-            contextPropertiesCache.putIfAbsent(context, ImmutableMap.copyOf(context.resolveForClient()));
-        }
-        return contextPropertiesCache.get(context);
+        log.info("Client [{}] from [{}] resolved {} keys in {}/ms > {} for repository [{}]",
+                appName,
+                remoteIp,
+                resolved.size(),
+                (System.currentTimeMillis() - start),
+                context.toString(),
+                repository.getName());
+
+        processAuth(store, gson, securityProfiles, token, repository, date, passwords);
     }
 
     public static void addJsonHeader(final JsonObject json,
@@ -296,8 +284,7 @@ public abstract class AClientAccessValidation
         setPasswords(store, repository, token, date, passwords);
     }
 
-
-    private void checkToken(final String clientToken, final Store store)
+    protected void checkToken(final String clientToken, final Store store)
             throws ConfigException
     {
         if (!Utils.isBlank(clientToken))
@@ -317,10 +304,8 @@ public abstract class AClientAccessValidation
             {
                 throw new ConfigException(Error.Code.NON_ACTIVE_TOKEN);
             }
-
         }
     }
-
 
     private static void setPasswords(final Store store,
                                      final Repository repository,
@@ -345,5 +330,4 @@ public abstract class AClientAccessValidation
             }
         }
     }
-
 }

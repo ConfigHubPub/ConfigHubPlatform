@@ -19,26 +19,26 @@ package com.confighub.api.repository.client.v1;
 
 import com.confighub.api.repository.client.AClientAccessValidation;
 import com.confighub.core.error.ConfigException;
+import com.confighub.core.model.ConcurrentContextFilenameResponseCache;
 import com.confighub.core.repository.AbsoluteFilePath;
 import com.confighub.core.repository.RepoFile;
+import com.confighub.core.resolver.Context;
 import com.confighub.core.resolver.RepositoryFilesResolver;
 import com.confighub.core.store.Store;
 import com.confighub.core.utils.FileUtils;
 import com.google.gson.Gson;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.HeaderParam;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.core.Response;
+import java.util.Objects;
 
 @Path("/rawFile")
 public class APIPullFile
-        extends AClientAccessValidation
-{
-    private static final Logger log = LogManager.getLogger("API");
+        extends AClientAccessValidation {
+    private static final ConcurrentContextFilenameResponseCache cache = ConcurrentContextFilenameResponseCache.getInstance();
 
     @GET
     @Path("/{account}/{repository}")
@@ -59,12 +59,10 @@ public class APIPullFile
         try
         {
             getRepositoryFromUrl(account, repositoryName, tagString, dateString, store, true);
-            validatePull(null, contextString, version, appName, remoteIp, store, gson, securityProfiles);
-
-            AbsoluteFilePath absoluteFilePath = store.getAbsFilePath(repository, absPath, date);
-            RepoFile file = RepositoryFilesResolver.fullContextResolveForPath(absoluteFilePath, context);
-
-            return fileResponse(file, absoluteFilePath, store);
+            checkToken(null, store);
+            Context context = resolveContext(contextString, store);
+            validatePull(context, appName, remoteIp, store, gson, securityProfiles, cache.containsKey(context, absPath));
+            return getResponse(context, absPath, store);
         }
         catch (ConfigException e)
         {
@@ -99,12 +97,10 @@ public class APIPullFile
         try
         {
             getRepositoryFromToken(clientToken, dateString, tagString, store);
-            validatePull(clientToken, contextString, version, appName, remoteIp, store, gson, securityProfiles);
-
-            AbsoluteFilePath absoluteFilePath = store.getAbsFilePath(repository, absPath, date);
-            RepoFile file = RepositoryFilesResolver.fullContextResolveForPath(absoluteFilePath, context);
-
-            return fileResponse(file, absoluteFilePath, store);
+            checkToken(clientToken, store);
+            Context context = resolveContext(contextString, store);
+            validatePull(context, appName, remoteIp, store, gson, securityProfiles, cache.containsKey(context, absPath));
+            return getResponse(context, absPath, store);
         }
         catch (ConfigException e)
         {
@@ -120,19 +116,35 @@ public class APIPullFile
         }
     }
 
-    private Response fileResponse(RepoFile file, AbsoluteFilePath absoluteFilePath, final Store store)
+    private Response getResponse(Context context, String absPath, Store store)
     {
-        if (null != file)
+        Response response = cache.get(context, absPath);
+        if (Objects.isNull(response))
         {
-            Response.ResponseBuilder response = Response.ok(FileUtils.resolveFile(context, file, resolved, passwords),
-                                                            absoluteFilePath.getContentType());
-            response.status(200);
+            AbsoluteFilePath absoluteFilePath = store.getAbsFilePath(repository, absPath, date);
+            RepoFile file = RepositoryFilesResolver.fullContextResolveForPath(absoluteFilePath, context);
+            response = fileResponse(context, file, absoluteFilePath);
+        }
 
-            return response.build();
-        } else
+        if (repository.isCachingEnabled())
         {
-            Response.ResponseBuilder response = Response.noContent();
-            return response.build();
+            cache.putIfAbsent(context, absPath, response);
+        }
+
+        return response;
+    }
+
+    private Response fileResponse(Context context, RepoFile file, AbsoluteFilePath absoluteFilePath)
+    {
+        if (Objects.isNull(file))
+        {
+            return Response.noContent().build();
+        }
+        else
+        {
+            return Response.ok(FileUtils.resolveFile(context, file, resolved, passwords),
+                    absoluteFilePath.getContentType())
+                    .build();
         }
     }
 

@@ -35,8 +35,6 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.HeaderParam;
@@ -47,13 +45,22 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.EnumSet;
 import java.util.Map;
+import java.util.Objects;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Path("/pull")
 @Produces("application/json")
 public class APIPull
         extends AClientAccessValidation
 {
-    private static final Logger log = LogManager.getLogger("API");
+    private static final ConcurrentHashMap<Context, JsonObject> cache = new ConcurrentHashMap<>();
+
+    private Gson getGson(boolean pretty)
+    {
+        return pretty
+                ? new GsonBuilder().setPrettyPrinting().serializeNulls().create()
+                : new GsonBuilder().serializeNulls().create();
+    }
 
     @GET
     public Response get(@HeaderParam("Client-Token") String clientToken,
@@ -71,25 +78,17 @@ public class APIPull
                         @HeaderParam("Include-Value-Context") boolean includeContext)
     {
         Store store = new Store();
-        Gson gson;
-
-        if (pretty)
-            gson = new GsonBuilder().setPrettyPrinting().serializeNulls().create();
-        else
-            gson = new GsonBuilder().serializeNulls().create();
+        Gson gson = getGson(pretty);
 
         try
         {
             getRepositoryFromToken(clientToken, dateString, tagString, store);
-            validatePull(clientToken, contextString, version, appName, remoteIp, store, gson, securityProfiles);
+            checkToken(clientToken, store);
+            Context context = resolveContext(contextString, store);
+            validatePull(context, appName, remoteIp, store, gson, securityProfiles, cache.containsKey(context));
 
-            getConfiguration(repository, context, resolved, passwords, json, noFiles, noProperties, includeComments,
-                    includeContext, gson);
-
-            Response.ResponseBuilder response = Response.ok(gson.toJson(json), MediaType.APPLICATION_JSON);
-            response.status(200);
-
-            return response.build();
+            JsonObject json = getConfiguration(gson, contextString, context, includeComments, noFiles, noProperties, includeContext);
+            return Response.ok(gson.toJson(json), MediaType.APPLICATION_JSON).build();
         }
         catch (ConfigException e)
         {
@@ -109,7 +108,6 @@ public class APIPull
         }
     }
 
-
     @GET
     @Path("/{account}/{repository}")
     public Response get(@PathParam("account") String account,
@@ -128,26 +126,17 @@ public class APIPull
                         @HeaderParam("No-Properties") boolean noProperties)
     {
         Store store = new Store();
-        Gson gson;
-
-        if (pretty)
-            gson = new GsonBuilder().setPrettyPrinting().serializeNulls().create();
-        else
-            gson = new GsonBuilder().serializeNulls().create();
+        Gson gson = getGson(pretty);
 
         try
         {
             getRepositoryFromUrl(account, repositoryName, tagString, dateString, store, true);
-            validatePull(null, contextString, version, appName, remoteIp, store, gson, securityProfiles);
+            checkToken(null, store);
+            Context context = resolveContext(contextString, store);
+            validatePull(context, appName, remoteIp, store, gson, securityProfiles, cache.containsKey(context));
 
-            getConfiguration(repository, context, resolved, passwords, json, noFiles, noProperties, includeComments,
-                    includeContext, gson);
-
-            Response.ResponseBuilder response = Response.ok(gson.toJson(json), MediaType.APPLICATION_JSON);
-            response.status(200);
-
-            return response.build();
-
+            JsonObject json = getConfiguration(gson, contextString, context, includeComments, noFiles, noProperties, includeContext);
+            return Response.ok(gson.toJson(json), MediaType.APPLICATION_JSON).build();
         }
         catch (ConfigException e)
         {
@@ -161,6 +150,30 @@ public class APIPull
         {
             store.close();
         }
+    }
+
+    private JsonObject getConfiguration(Gson gson,
+                                        String contextString,
+                                        Context context,
+                                        boolean includeComments,
+                                        boolean noFiles,
+                                        boolean noProperties,
+                                        boolean includeContext)
+    {
+        JsonObject json = cache.get(context);
+        if (Objects.isNull(json))
+        {
+            json = getConfiguration(repository, context, resolved, passwords, new JsonObject(), noFiles, noProperties,
+                    includeComments, includeContext, gson);
+        }
+
+        if (repository.isCachingEnabled())
+        {
+            cache.putIfAbsent(context, json);
+        }
+
+        addJsonHeader(json, repository, contextString, context);
+        return json;
     }
 
     public static JsonObject getConfiguration(final Repository repository,
@@ -193,7 +206,6 @@ public class APIPull
 
             json.add("files", filesJson);
         }
-
 
         if (!noProperties)
         {

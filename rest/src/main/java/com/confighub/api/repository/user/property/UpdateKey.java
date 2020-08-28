@@ -19,7 +19,8 @@ package com.confighub.api.repository.user.property;
 
 import com.confighub.api.repository.user.AUserAccessValidation;
 import com.confighub.core.error.ConfigException;
-import com.confighub.core.model.ConcurrentContextPropertiesCache;
+import com.confighub.core.model.ConcurrentContextFilenameResponseCache;
+import com.confighub.core.model.ConcurrentContextJsonObjectCache;
 import com.confighub.core.repository.PropertyKey;
 import com.confighub.core.store.Store;
 import com.confighub.core.utils.Pair;
@@ -84,7 +85,8 @@ public class UpdateKey
             json.addProperty("status", updateStatus.cdr.name());
             json.addProperty("success", true);
 
-            ConcurrentContextPropertiesCache.getInstance().removeByRepository(repository);
+            ConcurrentContextJsonObjectCache.getInstance().removeByRepository(repository);
+            ConcurrentContextFilenameResponseCache.getInstance().removeByRepository(repository);
 
             return Response.ok(gson.toJson(json), MediaType.APPLICATION_JSON).build();
         }
