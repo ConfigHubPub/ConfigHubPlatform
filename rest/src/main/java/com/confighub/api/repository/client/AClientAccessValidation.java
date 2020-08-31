@@ -214,15 +214,22 @@ public abstract class AClientAccessValidation
         if (!validateAuthOnly)
         {
             resolved = ImmutableMap.copyOf(context.resolveForClient());
+            log.info("Client [%s] from [%s] resolved %d keys in %d/ms > %s for repository [%s]",
+                    appName,
+                    remoteIp,
+                    resolved.size(),
+                    (System.currentTimeMillis() - start),
+                    context.toString(),
+                    repository.getName());
         }
-
-        log.info("Client [{}] from [{}] resolved {} keys in {}/ms > {} for repository [{}]",
-                appName,
-                remoteIp,
-                resolved.size(),
-                (System.currentTimeMillis() - start),
-                context.toString(),
-                repository.getName());
+        else
+        {
+            log.info("Client [%s] from [%s] validated only > %s for repository [%s]",
+                    appName,
+                    remoteIp,
+                    context.toString(),
+                    repository.getName());
+        }
 
         processAuth(store, gson, securityProfiles, token, repository, date, passwords);
     }
