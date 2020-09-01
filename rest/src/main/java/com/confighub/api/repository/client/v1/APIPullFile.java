@@ -27,6 +27,8 @@ import com.confighub.core.resolver.RepositoryFilesResolver;
 import com.confighub.core.store.Store;
 import com.confighub.core.utils.FileUtils;
 import com.google.gson.Gson;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.HeaderParam;
@@ -37,7 +39,9 @@ import java.util.Objects;
 
 @Path("/rawFile")
 public class APIPullFile
-        extends AClientAccessValidation {
+        extends AClientAccessValidation
+{
+    private static final Logger log = LogManager.getFormatterLogger(APIPullFile.class);
     private static final ConcurrentContextFilenameResponseCache cache = ConcurrentContextFilenameResponseCache.getInstance();
 
     @GET
@@ -118,17 +122,37 @@ public class APIPullFile
 
     private Response getResponse(Context context, String absPath, Store store)
     {
+        long start = System.currentTimeMillis();
         Response response = cache.get(context, absPath);
+        boolean wasFound = Objects.nonNull(response);
+        log.info("Cache found [%s] in %d/ms > %s for repository [%s] and path [%s]",
+                wasFound,
+                System.currentTimeMillis() - start,
+                context.toString(),
+                repository.getName(),
+                absPath);
         if (Objects.isNull(response))
         {
+            start = System.currentTimeMillis();
             AbsoluteFilePath absoluteFilePath = store.getAbsFilePath(repository, absPath, date);
             RepoFile file = RepositoryFilesResolver.fullContextResolveForPath(absoluteFilePath, context);
             response = fileResponse(context, file, absoluteFilePath);
+            log.info("Response built in %d/ms > %s for repository [%s] and path [%s]",
+                    System.currentTimeMillis() - start,
+                    context.toString(),
+                    repository.getName(),
+                    absPath);
         }
 
-        if (repository.isCachingEnabled())
+        if (repository.isCachingEnabled() && !wasFound)
         {
+            start = System.currentTimeMillis();
             cache.putIfAbsent(context, absPath, response);
+            log.info("Cache stored response in %d/ms > %s for repository [%s] and path [%s]",
+                    System.currentTimeMillis() - start,
+                    context.toString(),
+                    repository.getName(),
+                    absPath);
         }
 
         return response;

@@ -35,6 +35,8 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.HeaderParam;
@@ -53,6 +55,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class APIPull
         extends AClientAccessValidation
 {
+    private static final Logger log = LogManager.getFormatterLogger(APIPull.class);
     private static final ConcurrentHashMap<Context, JsonObject> cache = new ConcurrentHashMap<>();
 
     private Gson getGson(boolean pretty)
@@ -160,16 +163,33 @@ public class APIPull
                                         boolean noProperties,
                                         boolean includeContext)
     {
+        long start = System.currentTimeMillis();
         JsonObject json = cache.get(context);
+        boolean wasFound  = Objects.nonNull(json);
+        log.info("Cache found [%s] in %d/ms > %s for repository [%s]",
+                wasFound,
+                System.currentTimeMillis() - start,
+                context.toString(),
+                repository.getName());
         if (Objects.isNull(json))
         {
+            start = System.currentTimeMillis();
             json = getConfiguration(repository, context, resolved, passwords, new JsonObject(), noFiles, noProperties,
                     includeComments, includeContext, gson);
+            log.info("Response built in %d/ms > %s for repository [%s]",
+                    System.currentTimeMillis() - start,
+                    context.toString(),
+                    repository.getName());
         }
 
-        if (repository.isCachingEnabled())
+        if (repository.isCachingEnabled() && !wasFound)
         {
+            start = System.currentTimeMillis();
             cache.putIfAbsent(context, json);
+            log.info("Cache stored response in %d/ms > %s for repository [%s]",
+                    System.currentTimeMillis() - start,
+                    context.toString(),
+                    repository.getName());
         }
 
         addJsonHeader(json, repository, contextString, context);
