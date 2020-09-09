@@ -1,14 +1,11 @@
 package com.confighub.core.model;
 
 import com.confighub.core.repository.Repository;
-import com.confighub.core.resolver.Context;
 import com.confighub.core.utils.Pair;
 
 import javax.ws.rs.core.Response;
-import java.util.HashMap;
-import java.util.Objects;
 
-public class ConcurrentContextFilenameResponseCache extends HashMap<String, HashMap<Pair<Context, String>, Response>>
+public class ConcurrentContextFilenameResponseCache extends ConcurrentRepositoryCache<Pair<String, String>, Response>
 {
     private static final ConcurrentContextFilenameResponseCache instance = new ConcurrentContextFilenameResponseCache();
 
@@ -17,42 +14,29 @@ public class ConcurrentContextFilenameResponseCache extends HashMap<String, Hash
         return instance;
     }
 
-    public Response put(Context context, String str, Response response)
+    public Response put(Repository repository, String context, String str, Response response)
     {
         synchronized (this)
         {
-            HashMap<Pair<Context, String>, Response> map = getOrDefault(context.getRepository().getName(), new HashMap<>());
-            put(context.getRepository().getName(), map);
-            return map.put(new Pair<>(context, str), response);
+            return super.put(repository, new Pair<>(context.toLowerCase(), str), response);
         }
     }
 
-    public Response putIfAbsent(Context context, String str, Response response)
+    public Response putIfAbsent(Repository repository, String context, String str, Response response)
     {
         synchronized (this)
         {
-            HashMap<Pair<Context, String>, Response> map = getOrDefault(context.getRepository().getName(), new HashMap<>());
-            putIfAbsent(context.getRepository().getName(), map);
-            return map.putIfAbsent(new Pair<>(context, str), response);
+            return super.putIfAbsent(repository, new Pair<>(context.toLowerCase(), str), response);
         }
     }
 
-    public void removeByRepository(Repository repository)
+    public Response get(Repository repository, String context, String str)
     {
-        synchronized (this)
-        {
-            remove(repository.getName());
-        }
+        return super.get(repository, new Pair<>(context.toLowerCase(), str));
     }
 
-    public Response get(Context context, String str)
+    public boolean containsKey(Repository repository, String context, String str)
     {
-        HashMap<Pair<Context, String>, Response> map = getOrDefault(context.getRepository().getName(), new HashMap<>());
-        return map.get(new Pair<>(context, str));
-    }
-
-    public boolean containsKey(Context context, String str)
-    {
-        return Objects.nonNull(get(context, str));
+        return super.containsKey(repository, new Pair<>(context.toLowerCase(), str));
     }
 }

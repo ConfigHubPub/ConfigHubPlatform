@@ -19,6 +19,7 @@ package com.confighub.api.repository.client.v1;
 
 import com.confighub.api.repository.client.AClientAccessValidation;
 import com.confighub.core.error.ConfigException;
+import com.confighub.core.model.ConcurrentContextJsonObjectCache;
 import com.confighub.core.repository.AbsoluteFilePath;
 import com.confighub.core.repository.Depth;
 import com.confighub.core.repository.LevelCtx;
@@ -48,7 +49,6 @@ import javax.ws.rs.core.Response;
 import java.util.EnumSet;
 import java.util.Map;
 import java.util.Objects;
-import java.util.concurrent.ConcurrentHashMap;
 
 @Path("/pull")
 @Produces("application/json")
@@ -56,7 +56,7 @@ public class APIPull
         extends AClientAccessValidation
 {
     private static final Logger log = LogManager.getFormatterLogger(APIPull.class);
-    private static final ConcurrentHashMap<Context, JsonObject> cache = new ConcurrentHashMap<>();
+    private static final ConcurrentContextJsonObjectCache cache = ConcurrentContextJsonObjectCache.getInstance();
 
     private Gson getGson(boolean pretty)
     {
@@ -87,10 +87,9 @@ public class APIPull
         {
             getRepositoryFromToken(clientToken, dateString, tagString, store);
             checkToken(clientToken, store);
-            Context context = resolveContext(contextString, store);
-            validatePull(context, appName, remoteIp, store, gson, securityProfiles, cache.containsKey(context));
+            validatePull(contextString, appName, remoteIp, store, gson, securityProfiles, cache.containsKey(repository, contextString));
 
-            JsonObject json = getConfiguration(gson, contextString, context, includeComments, noFiles, noProperties, includeContext);
+            JsonObject json = getConfiguration(gson, contextString, store, includeComments, noFiles, noProperties, includeContext);
             return Response.ok(gson.toJson(json), MediaType.APPLICATION_JSON).build();
         }
         catch (ConfigException e)
@@ -135,10 +134,9 @@ public class APIPull
         {
             getRepositoryFromUrl(account, repositoryName, tagString, dateString, store, true);
             checkToken(null, store);
-            Context context = resolveContext(contextString, store);
-            validatePull(context, appName, remoteIp, store, gson, securityProfiles, cache.containsKey(context));
+            validatePull(contextString, appName, remoteIp, store, gson, securityProfiles, cache.containsKey(repository, contextString));
 
-            JsonObject json = getConfiguration(gson, contextString, context, includeComments, noFiles, noProperties, includeContext);
+            JsonObject json = getConfiguration(gson, contextString, store, includeComments, noFiles, noProperties, includeContext);
             return Response.ok(gson.toJson(json), MediaType.APPLICATION_JSON).build();
         }
         catch (ConfigException e)
@@ -157,25 +155,27 @@ public class APIPull
 
     private JsonObject getConfiguration(Gson gson,
                                         String contextString,
-                                        Context context,
+                                        Store store,
                                         boolean includeComments,
                                         boolean noFiles,
                                         boolean noProperties,
                                         boolean includeContext)
     {
         long start = System.currentTimeMillis();
-        JsonObject json = cache.get(context);
+        JsonObject json = cache.get(repository, contextString);
         boolean wasFound  = Objects.nonNull(json);
         log.info("Cache found [%s] in %d/ms > %s for repository [%s]",
                 wasFound,
                 System.currentTimeMillis() - start,
-                context.toString(),
+                contextString.toLowerCase(),
                 repository.getName());
         if (Objects.isNull(json))
         {
             start = System.currentTimeMillis();
+            Context context = resolveContext(contextString, store);
             json = getConfiguration(repository, context, resolved, passwords, new JsonObject(), noFiles, noProperties,
                     includeComments, includeContext, gson);
+            addJsonFixedHeader(json, repository, contextString, context);
             log.info("Response built in %d/ms > %s for repository [%s]",
                     System.currentTimeMillis() - start,
                     context.toString(),
@@ -185,14 +185,14 @@ public class APIPull
         if (repository.isCachingEnabled() && !wasFound)
         {
             start = System.currentTimeMillis();
-            cache.putIfAbsent(context, json);
+            cache.putIfAbsent(repository, contextString, json);
             log.info("Cache stored response in %d/ms > %s for repository [%s]",
                     System.currentTimeMillis() - start,
-                    context.toString(),
+                    contextString.toLowerCase(),
                     repository.getName());
         }
 
-        addJsonHeader(json, repository, contextString, context);
+        addJsonGeneratedOnHeader(json);
         return json;
     }
 

@@ -27,6 +27,7 @@ import com.confighub.core.repository.CtxLevel;
 import com.confighub.core.repository.Property;
 import com.confighub.core.repository.PropertyKey;
 import com.confighub.core.repository.RepoFile;
+import com.confighub.core.repository.Repository;
 import com.confighub.core.security.SecurityProfile;
 import com.confighub.core.security.Token;
 import com.confighub.core.store.Store;
@@ -477,12 +478,12 @@ public class APIPush
                 if ( propertyKey.dirty )
                 {
                     store.savePropertyKey( appName, repository, token, propertyKey, changeComment );
-                    ConcurrentContextJsonObjectCache.getInstance().removeByRepository(repository);
-                    ConcurrentContextFilenameResponseCache.getInstance().removeByRepository(repository);
                 }
             }
         }
 
         store.commit();
+        ConcurrentContextJsonObjectCache.getInstance().removeByRepository(repository);
+        ConcurrentContextFilenameResponseCache.getInstance().removeByRepository(repository);
     }
 }

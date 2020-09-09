@@ -199,7 +199,7 @@ public abstract class AClientAccessValidation
         return context;
     }
 
-    public void validatePull(@NotNull com.confighub.core.resolver.Context context,
+    public void validatePull(@NotNull String contextString,
                              String appName,
                              String remoteIp,
                              Store store,
@@ -212,6 +212,7 @@ public abstract class AClientAccessValidation
         resolved = ImmutableMap.of();
         if (!validateAuthOnly)
         {
+            com.confighub.core.resolver.Context context = resolveContext(contextString, store);
             resolved = ImmutableMap.copyOf(context.resolveForClient());
             log.info("Client [%s] from [%s] resolved %d keys in %d/ms > %s for repository [%s]",
                     appName,
@@ -226,19 +227,18 @@ public abstract class AClientAccessValidation
             log.info("Client [%s] from [%s] validated only > %s for repository [%s]",
                     appName,
                     remoteIp,
-                    context.toString(),
+                    contextString.toLowerCase(),
                     repository.getName());
         }
 
         processAuth(store, gson, securityProfiles, token, repository, date, passwords);
     }
 
-    public static void addJsonHeader(final JsonObject json,
+    public static void addJsonFixedHeader(final JsonObject json,
                                      final Repository repository,
                                      final String contextString,
                                      final com.confighub.core.resolver.Context context)
     {
-        json.addProperty("generatedOn", DateTimeUtils.standardDTFormatter.get().format(new Date()));
         json.addProperty("account", repository.getAccountName());
         json.addProperty("repo", repository.getName());
         json.addProperty("context", contextString);
@@ -246,6 +246,11 @@ public abstract class AClientAccessValidation
         if (null != context.getDate())
             json.addProperty("repoDate", DateTimeUtils.standardDTFormatter.get().format(context.getDate()));
 
+    }
+
+    public static void addJsonGeneratedOnHeader(final JsonObject json)
+    {
+        json.addProperty("generatedOn", DateTimeUtils.standardDTFormatter.get().format(new Date()));
     }
 
     public static void processAuth(Store store,

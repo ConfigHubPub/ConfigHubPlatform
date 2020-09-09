@@ -1,57 +1,40 @@
 package com.confighub.core.model;
 
 import com.confighub.core.repository.Repository;
-import com.confighub.core.resolver.Context;
 import com.google.gson.JsonObject;
 
-import java.util.HashMap;
-import java.util.Objects;
-
-public class ConcurrentContextJsonObjectCache extends HashMap<String, HashMap<Context, JsonObject>>
+public class ConcurrentContextJsonObjectCache extends ConcurrentRepositoryCache<String, JsonObject>
 {
-    private static final ConcurrentContextFilenameResponseCache instance = new ConcurrentContextFilenameResponseCache();
+    private static final ConcurrentContextJsonObjectCache instance = new ConcurrentContextJsonObjectCache();
 
-    public static ConcurrentContextFilenameResponseCache getInstance()
+    public static ConcurrentContextJsonObjectCache getInstance()
     {
         return instance;
     }
 
-    public JsonObject put(Context context, JsonObject value)
+    public JsonObject put(Repository repository, String context, JsonObject value)
     {
         synchronized (this)
         {
-            HashMap<Context, JsonObject> map = getOrDefault(context.getRepository().getName(), new HashMap<>());
-            put(context.getRepository().getName(), map);
-            return map.put(context, value);
+            return super.put(repository, context.toLowerCase(), value);
         }
     }
 
-    public JsonObject putIfAbsent(Context context, JsonObject value)
+    public JsonObject putIfAbsent(Repository repository, String context, JsonObject value)
     {
         synchronized (this)
         {
-            HashMap<Context, JsonObject> map = getOrDefault(context.getRepository().getName(), new HashMap<>());
-            put(context.getRepository().getName(), map);
-            return map.putIfAbsent(context, value);
+            return super.putIfAbsent(repository, context.toLowerCase(), value);
         }
     }
 
-    public void removeByRepository(Repository repository)
+    public JsonObject get(Repository repository, String context)
     {
-        synchronized (this)
-        {
-            remove(repository.getName());
-        }
+        return super.get(repository, context.toLowerCase());
     }
 
-    public JsonObject get(Context context)
+    public boolean containsKey(Repository repository, String context)
     {
-        HashMap<Context, JsonObject> map = getOrDefault(context.getRepository().getName(), new HashMap<>());
-        return map.get(context);
-    }
-
-    public boolean containsKey(Context context)
-    {
-        return Objects.nonNull(get(context));
+        return super.containsKey(repository, context.toLowerCase());
     }
 }

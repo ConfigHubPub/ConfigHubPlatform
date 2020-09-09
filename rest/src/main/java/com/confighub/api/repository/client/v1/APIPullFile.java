@@ -64,9 +64,8 @@ public class APIPullFile
         {
             getRepositoryFromUrl(account, repositoryName, tagString, dateString, store, true);
             checkToken(null, store);
-            Context context = resolveContext(contextString, store);
-            validatePull(context, appName, remoteIp, store, gson, securityProfiles, cache.containsKey(context, absPath));
-            return getResponse(context, absPath, store);
+            validatePull(contextString, appName, remoteIp, store, gson, securityProfiles, cache.containsKey(repository, contextString, absPath));
+            return getResponse(contextString, absPath, store);
         }
         catch (ConfigException e)
         {
@@ -102,9 +101,8 @@ public class APIPullFile
         {
             getRepositoryFromToken(clientToken, dateString, tagString, store);
             checkToken(clientToken, store);
-            Context context = resolveContext(contextString, store);
-            validatePull(context, appName, remoteIp, store, gson, securityProfiles, cache.containsKey(context, absPath));
-            return getResponse(context, absPath, store);
+            validatePull(contextString, appName, remoteIp, store, gson, securityProfiles, cache.containsKey(repository, contextString, absPath));
+            return getResponse(contextString, absPath, store);
         }
         catch (ConfigException e)
         {
@@ -120,20 +118,21 @@ public class APIPullFile
         }
     }
 
-    private Response getResponse(Context context, String absPath, Store store)
+    private Response getResponse(String contextString, String absPath, Store store)
     {
         long start = System.currentTimeMillis();
-        Response response = cache.get(context, absPath);
+        Response response = cache.get(repository, contextString, absPath);
         boolean wasFound = Objects.nonNull(response);
         log.info("Cache found [%s] in %d/ms > %s for repository [%s] and path [%s]",
                 wasFound,
                 System.currentTimeMillis() - start,
-                context.toString(),
+                contextString.toLowerCase(),
                 repository.getName(),
                 absPath);
         if (Objects.isNull(response))
         {
             start = System.currentTimeMillis();
+            Context context = resolveContext(contextString, store);
             AbsoluteFilePath absoluteFilePath = store.getAbsFilePath(repository, absPath, date);
             RepoFile file = RepositoryFilesResolver.fullContextResolveForPath(absoluteFilePath, context);
             response = fileResponse(context, file, absoluteFilePath);
@@ -147,10 +146,10 @@ public class APIPullFile
         if (repository.isCachingEnabled() && !wasFound)
         {
             start = System.currentTimeMillis();
-            cache.putIfAbsent(context, absPath, response);
+            cache.putIfAbsent(repository, contextString, absPath, response);
             log.info("Cache stored response in %d/ms > %s for repository [%s] and path [%s]",
                     System.currentTimeMillis() - start,
-                    context.toString(),
+                    contextString.toLowerCase(),
                     repository.getName(),
                     absPath);
         }
