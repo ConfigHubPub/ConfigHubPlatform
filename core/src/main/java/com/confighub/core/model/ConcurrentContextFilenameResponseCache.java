@@ -16,18 +16,12 @@ public class ConcurrentContextFilenameResponseCache extends ConcurrentRepository
 
     public Response put(Repository repository, String context, String str, Response response)
     {
-        synchronized (this)
-        {
-            return super.put(repository, new Pair<>(context.toLowerCase(), str), response);
-        }
+        return super.put(repository, new Pair<>(context.toLowerCase(), str), response);
     }
 
     public Response putIfAbsent(Repository repository, String context, String str, Response response)
     {
-        synchronized (this)
-        {
-            return super.putIfAbsent(repository, new Pair<>(context.toLowerCase(), str), response);
-        }
+        return super.putIfAbsent(repository, new Pair<>(context.toLowerCase(), str), response);
     }
 
     public Response get(Repository repository, String context, String str)
