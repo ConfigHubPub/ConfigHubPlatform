@@ -14,18 +14,12 @@ public class ConcurrentContextJsonObjectCache extends ConcurrentRepositoryCache<
 
     public JsonObject put(Repository repository, String context, JsonObject value)
     {
-        synchronized (this)
-        {
-            return super.put(repository, context.toLowerCase(), value);
-        }
+        return super.put(repository, context.toLowerCase(), value);
     }
 
     public JsonObject putIfAbsent(Repository repository, String context, JsonObject value)
     {
-        synchronized (this)
-        {
-            return super.putIfAbsent(repository, context.toLowerCase(), value);
-        }
+         return super.putIfAbsent(repository, context.toLowerCase(), value);
     }
 
     public JsonObject get(Repository repository, String context)
