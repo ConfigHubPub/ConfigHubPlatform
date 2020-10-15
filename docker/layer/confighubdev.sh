@@ -33,7 +33,7 @@ sed -i "s/<password>/${DB_PASS}/g" /confighub/server/conf/tomee.xml
 # Always do this step so the instance always comes up with the latest development package.
 WEBAPPS_ROOT=/confighub/server/webapps/ROOT
 rm -rf ${WEBAPPS_ROOT} || exit $?
-mv /ROOT.war ${WEBAPPS_ROOT}.war || exit $?
+cp /ROOT.war ${WEBAPPS_ROOT}.war || exit $?
 echo "Unzipping ROOT.war..."
 mkdir ${WEBAPPS_ROOT}
 unzip -o ${WEBAPPS_ROOT}.war -d ${WEBAPPS_ROOT} >/dev/null || exit $?

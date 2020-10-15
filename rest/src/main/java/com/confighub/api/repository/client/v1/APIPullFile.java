@@ -27,6 +27,8 @@ import com.confighub.core.resolver.RepositoryFilesResolver;
 import com.confighub.core.store.Store;
 import com.confighub.core.utils.FileUtils;
 import com.google.gson.Gson;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.HeaderParam;
@@ -37,7 +39,9 @@ import java.util.Objects;
 
 @Path("/rawFile")
 public class APIPullFile
-        extends AClientAccessValidation {
+        extends AClientAccessValidation
+{
+    private static final Logger log = LogManager.getFormatterLogger(APIPullFile.class);
     private static final ConcurrentContextFilenameResponseCache cache = ConcurrentContextFilenameResponseCache.getInstance();
 
     @GET
@@ -60,9 +64,8 @@ public class APIPullFile
         {
             getRepositoryFromUrl(account, repositoryName, tagString, dateString, store, true);
             checkToken(null, store);
-            Context context = resolveContext(contextString, store);
-            validatePull(context, appName, remoteIp, store, gson, securityProfiles, cache.containsKey(context, absPath));
-            return getResponse(context, absPath, store);
+            validatePull(contextString, appName, remoteIp, store, gson, securityProfiles, cache.containsKey(repository, contextString, absPath));
+            return getResponse(contextString, absPath, store);
         }
         catch (ConfigException e)
         {
@@ -98,9 +101,8 @@ public class APIPullFile
         {
             getRepositoryFromToken(clientToken, dateString, tagString, store);
             checkToken(clientToken, store);
-            Context context = resolveContext(contextString, store);
-            validatePull(context, appName, remoteIp, store, gson, securityProfiles, cache.containsKey(context, absPath));
-            return getResponse(context, absPath, store);
+            validatePull(contextString, appName, remoteIp, store, gson, securityProfiles, cache.containsKey(repository, contextString, absPath));
+            return getResponse(contextString, absPath, store);
         }
         catch (ConfigException e)
         {
@@ -116,19 +118,40 @@ public class APIPullFile
         }
     }
 
-    private Response getResponse(Context context, String absPath, Store store)
+    private Response getResponse(String contextString, String absPath, Store store)
     {
-        Response response = cache.get(context, absPath);
+        long start = System.currentTimeMillis();
+        Response response = cache.get(repository, contextString, absPath);
+        boolean wasFound = Objects.nonNull(response);
+        log.info("Cache found [%s] in %d/ms > %s for repository [%s] and path [%s]",
+                wasFound,
+                System.currentTimeMillis() - start,
+                contextString.toLowerCase(),
+                repository.getName(),
+                absPath);
         if (Objects.isNull(response))
         {
+            start = System.currentTimeMillis();
+            Context context = resolveContext(contextString, store);
             AbsoluteFilePath absoluteFilePath = store.getAbsFilePath(repository, absPath, date);
             RepoFile file = RepositoryFilesResolver.fullContextResolveForPath(absoluteFilePath, context);
             response = fileResponse(context, file, absoluteFilePath);
+            log.info("Response built in %d/ms > %s for repository [%s] and path [%s]",
+                    System.currentTimeMillis() - start,
+                    context.toString(),
+                    repository.getName(),
+                    absPath);
         }
 
-        if (repository.isCachingEnabled())
+        if (repository.isCachingEnabled() && !wasFound)
         {
-            cache.putIfAbsent(context, absPath, response);
+            start = System.currentTimeMillis();
+            cache.putIfAbsent(repository, contextString, absPath, response);
+            log.info("Cache stored response in %d/ms > %s for repository [%s] and path [%s]",
+                    System.currentTimeMillis() - start,
+                    contextString.toLowerCase(),
+                    repository.getName(),
+                    absPath);
         }
 
         return response;

@@ -22,7 +22,11 @@ import com.confighub.api.repository.client.v1.APIPull;
 import com.confighub.api.repository.user.AUserAccessValidation;
 import com.confighub.core.error.ConfigException;
 import com.confighub.core.error.Error;
-import com.confighub.core.repository.*;
+import com.confighub.core.repository.CtxLevel;
+import com.confighub.core.repository.Property;
+import com.confighub.core.repository.PropertyKey;
+import com.confighub.core.repository.Repository;
+import com.confighub.core.repository.Tag;
 import com.confighub.core.resolver.Context;
 import com.confighub.core.store.Store;
 import com.confighub.core.utils.ContextParser;
@@ -34,10 +38,20 @@ import com.google.gson.JsonObject;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import javax.ws.rs.*;
+import javax.ws.rs.FormParam;
+import javax.ws.rs.HeaderParam;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.util.*;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.TreeMap;
 
 @Path("/getJSONDiff")
 @Produces("application/json")
@@ -130,7 +144,8 @@ public class GetJSONDiff
             throw new ConfigException(Error.Code.PARTIAL_CONTEXT);
 
         JsonObject json = new JsonObject();
-        AClientAccessValidation.addJsonHeader(json, specificRepo, contextString, context);
+        AClientAccessValidation.addJsonFixedHeader(json, specificRepo, contextString, context);
+        AClientAccessValidation.addJsonGeneratedOnHeader(json);
 
         Map<String, String> aPasswords = new HashMap<>();
         AClientAccessValidation.processAuth(store, gson, securityProfiles, null, specificRepo, date, aPasswords);
