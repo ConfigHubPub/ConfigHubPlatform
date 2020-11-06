@@ -20,14 +20,13 @@ package com.confighub.api.repository.client.v1;
 import com.confighub.api.repository.client.AClientAccessValidation;
 import com.confighub.core.error.ConfigException;
 import com.confighub.core.error.Error;
-import com.confighub.core.model.ConcurrentContextFilenameResponseCache;
+import com.confighub.core.model.ConcurrentContextFilenameFileContentsCache;
 import com.confighub.core.model.ConcurrentContextJsonObjectCache;
 import com.confighub.core.repository.AbsoluteFilePath;
 import com.confighub.core.repository.CtxLevel;
 import com.confighub.core.repository.Property;
 import com.confighub.core.repository.PropertyKey;
 import com.confighub.core.repository.RepoFile;
-import com.confighub.core.repository.Repository;
 import com.confighub.core.security.SecurityProfile;
 import com.confighub.core.security.Token;
 import com.confighub.core.store.Store;
@@ -348,8 +347,8 @@ public class APIPush
                                   : null;
 
                     store.deleteKeyAndProperties( appName, repository, token, key, pass, changeComment );
+                    ConcurrentContextFilenameFileContentsCache.getInstance().removeByRepository(repository);
                     ConcurrentContextJsonObjectCache.getInstance().removeByRepository(repository);
-                    ConcurrentContextFilenameResponseCache.getInstance().removeByRepository(repository);
                     continue;
                 }
 
@@ -483,7 +482,7 @@ public class APIPush
         }
 
         store.commit();
+        ConcurrentContextFilenameFileContentsCache.getInstance().removeByRepository(repository);
         ConcurrentContextJsonObjectCache.getInstance().removeByRepository(repository);
-        ConcurrentContextFilenameResponseCache.getInstance().removeByRepository(repository);
     }
 }

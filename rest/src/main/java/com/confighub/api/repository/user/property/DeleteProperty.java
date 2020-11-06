@@ -19,7 +19,7 @@ package com.confighub.api.repository.user.property;
 
 import com.confighub.api.repository.user.AUserAccessValidation;
 import com.confighub.core.error.ConfigException;
-import com.confighub.core.model.ConcurrentContextFilenameResponseCache;
+import com.confighub.core.model.ConcurrentContextFilenameFileContentsCache;
 import com.confighub.core.model.ConcurrentContextJsonObjectCache;
 import com.confighub.core.store.Store;
 import com.google.gson.Gson;
@@ -56,8 +56,8 @@ public class DeleteProperty
             store.deleteProperty(user, repository, propertyId, spPassword);
             store.commit();
 
+            ConcurrentContextFilenameFileContentsCache.getInstance().removeByRepository(repository);
             ConcurrentContextJsonObjectCache.getInstance().removeByRepository(repository);
-            ConcurrentContextFilenameResponseCache.getInstance().removeByRepository(repository);
 
             json.addProperty("success", true);
             return Response.ok(gson.toJson(json), MediaType.APPLICATION_JSON).build();
