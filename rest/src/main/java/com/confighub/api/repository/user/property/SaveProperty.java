@@ -19,7 +19,7 @@ package com.confighub.api.repository.user.property;
 
 import com.confighub.api.repository.user.AUserAccessValidation;
 import com.confighub.core.error.ConfigException;
-import com.confighub.core.model.ConcurrentContextFilenameResponseCache;
+import com.confighub.core.model.ConcurrentContextFilenameFileContentsCache;
 import com.confighub.core.model.ConcurrentContextJsonObjectCache;
 import com.confighub.core.repository.CtxLevel;
 import com.confighub.core.repository.PropertyKey;
@@ -121,8 +121,8 @@ public class SaveProperty
             json.addProperty("success", true);
             json.addProperty("id", propertyId);
 
+            ConcurrentContextFilenameFileContentsCache.getInstance().removeByRepository(repository);
             ConcurrentContextJsonObjectCache.getInstance().removeByRepository(repository);
-            ConcurrentContextFilenameResponseCache.getInstance().removeByRepository(repository);
 
             return Response.ok(gson.toJson(json), MediaType.APPLICATION_JSON).build();
 

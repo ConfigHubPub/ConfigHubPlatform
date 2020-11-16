@@ -20,7 +20,7 @@ package com.confighub.api.repository.admin.settings;
 import com.confighub.api.repository.admin.AAdminAccessValidation;
 import com.confighub.api.util.GsonHelper;
 import com.confighub.core.error.ConfigException;
-import com.confighub.core.model.ConcurrentContextFilenameResponseCache;
+import com.confighub.core.model.ConcurrentContextFilenameFileContentsCache;
 import com.confighub.core.model.ConcurrentContextJsonObjectCache;
 import com.confighub.core.repository.CtxLevel;
 import com.confighub.core.repository.PropertyKey;
@@ -144,7 +144,7 @@ public class UpdateRepositoryFeatures
             if (!cachingEnabled)
             {
                 // ensure memory freed when caching disabled
-                ConcurrentContextFilenameResponseCache.getInstance().removeByRepository(repository);
+                ConcurrentContextFilenameFileContentsCache.getInstance().removeByRepository(repository);
                 ConcurrentContextJsonObjectCache.getInstance().removeByRepository(repository);
             }
 

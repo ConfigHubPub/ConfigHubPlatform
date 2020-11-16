@@ -19,7 +19,8 @@ package com.confighub.api.repository.client.v1;
 
 import com.confighub.api.repository.client.AClientAccessValidation;
 import com.confighub.core.error.ConfigException;
-import com.confighub.core.model.ConcurrentContextFilenameResponseCache;
+import com.confighub.core.model.ConcurrentContextFilenameFileContentsCache;
+import com.confighub.core.model.ContentsAndType;
 import com.confighub.core.repository.AbsoluteFilePath;
 import com.confighub.core.repository.RepoFile;
 import com.confighub.core.resolver.Context;
@@ -42,7 +43,7 @@ public class APIPullFile
         extends AClientAccessValidation
 {
     private static final Logger log = LogManager.getFormatterLogger(APIPullFile.class);
-    private static final ConcurrentContextFilenameResponseCache cache = ConcurrentContextFilenameResponseCache.getInstance();
+    private static final ConcurrentContextFilenameFileContentsCache cache = ConcurrentContextFilenameFileContentsCache.getInstance();
 
     @GET
     @Path("/{account}/{repository}")
@@ -121,54 +122,44 @@ public class APIPullFile
     private Response getResponse(String contextString, String absPath, Store store)
     {
         long start = System.currentTimeMillis();
-        Response response = cache.get(repository, contextString, absPath);
-        boolean wasFound = Objects.nonNull(response);
+        ContentsAndType contentsAndType = cache.get(repository, contextString, absPath);
         log.info("Cache found [%s] in %d/ms > %s for repository [%s] and path [%s]",
-                wasFound,
+                Objects.nonNull(contentsAndType),
                 System.currentTimeMillis() - start,
                 contextString.toLowerCase(),
                 repository.getName(),
                 absPath);
-        if (Objects.isNull(response))
+        if (Objects.isNull(contentsAndType))
         {
             start = System.currentTimeMillis();
             Context context = resolveContext(contextString, store);
             AbsoluteFilePath absoluteFilePath = store.getAbsFilePath(repository, absPath, date);
             RepoFile file = RepositoryFilesResolver.fullContextResolveForPath(absoluteFilePath, context);
-            response = fileResponse(context, file, absoluteFilePath);
+            if (Objects.isNull(file))
+            {
+                return Response.noContent().build();
+            }
+            contentsAndType = new ContentsAndType(
+                    FileUtils.resolveFile(context, file, resolved, passwords),
+                    absoluteFilePath.getContentType());
             log.info("Response built in %d/ms > %s for repository [%s] and path [%s]",
                     System.currentTimeMillis() - start,
                     context.toString(),
                     repository.getName(),
                     absPath);
+
+            if (repository.isCachingEnabled())
+            {
+                start = System.currentTimeMillis();
+                cache.putIfAbsent(repository, contextString, absPath, contentsAndType);
+                log.info("Cache stored response in %d/ms > %s for repository [%s] and path [%s]",
+                        System.currentTimeMillis() - start,
+                        contextString.toLowerCase(),
+                        repository.getName(),
+                        absPath);
+            }
         }
 
-        if (repository.isCachingEnabled() && !wasFound)
-        {
-            start = System.currentTimeMillis();
-            cache.putIfAbsent(repository, contextString, absPath, response);
-            log.info("Cache stored response in %d/ms > %s for repository [%s] and path [%s]",
-                    System.currentTimeMillis() - start,
-                    contextString.toLowerCase(),
-                    repository.getName(),
-                    absPath);
-        }
-
-        return response;
+        return Response.ok(contentsAndType.getContents(), contentsAndType.getType()).build();
     }
-
-    private Response fileResponse(Context context, RepoFile file, AbsoluteFilePath absoluteFilePath)
-    {
-        if (Objects.isNull(file))
-        {
-            return Response.noContent().build();
-        }
-        else
-        {
-            return Response.ok(FileUtils.resolveFile(context, file, resolved, passwords),
-                    absoluteFilePath.getContentType())
-                    .build();
-        }
-    }
-
 }
