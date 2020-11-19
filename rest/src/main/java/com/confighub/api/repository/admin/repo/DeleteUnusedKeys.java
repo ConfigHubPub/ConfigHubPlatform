@@ -19,6 +19,8 @@ package com.confighub.api.repository.admin.repo;
 
 import com.confighub.api.repository.admin.AAdminAccessValidation;
 import com.confighub.core.error.ConfigException;
+import com.confighub.core.model.ConcurrentContextFilenameFileContentsCache;
+import com.confighub.core.model.ConcurrentContextJsonObjectCache;
 import com.confighub.core.store.Store;
 import com.confighub.core.utils.Utils;
 import com.google.gson.Gson;
@@ -58,6 +60,8 @@ public class DeleteUnusedKeys
                 store.deleteUnusedKeys(user, repository, keyList);
             }
             store.commit();
+            ConcurrentContextFilenameFileContentsCache.getInstance().removeByRepository(repository);
+            ConcurrentContextJsonObjectCache.getInstance().removeByRepository(repository);
 
             json.addProperty("success", true);
             return Response.ok(gson.toJson(json), MediaType.APPLICATION_JSON).build();

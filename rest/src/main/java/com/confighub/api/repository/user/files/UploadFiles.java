@@ -19,6 +19,8 @@ package com.confighub.api.repository.user.files;
 
 import com.confighub.api.repository.user.AUserAccessValidation;
 import com.confighub.core.error.ConfigException;
+import com.confighub.core.model.ConcurrentContextFilenameFileContentsCache;
+import com.confighub.core.model.ConcurrentContextJsonObjectCache;
 import com.confighub.core.repository.CtxLevel;
 import com.confighub.core.repository.RepoFile;
 import com.confighub.core.store.Store;
@@ -100,6 +102,8 @@ public class UploadFiles
                                                     password,
                                                     changeComment);
             store.commit();
+            ConcurrentContextFilenameFileContentsCache.getInstance().removeByRepository(repository);
+            ConcurrentContextJsonObjectCache.getInstance().removeByRepository(repository);
 
             json.add("file", newFile.toJson());
             json.addProperty("success", true);

@@ -18,6 +18,8 @@
 package com.confighub.api.repository.owner;
 
 import com.confighub.core.error.ConfigException;
+import com.confighub.core.model.ConcurrentContextFilenameFileContentsCache;
+import com.confighub.core.model.ConcurrentContextJsonObjectCache;
 import com.confighub.core.store.Store;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
@@ -60,6 +62,8 @@ public class DeleteRepository
             store.begin();
             store.deleteRepository( repository, user );
             store.commit();
+            ConcurrentContextFilenameFileContentsCache.getInstance().removeByRepository(repository);
+            ConcurrentContextJsonObjectCache.getInstance().removeByRepository(repository);
 
             json.addProperty( "success", true );
         }

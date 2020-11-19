@@ -20,6 +20,8 @@ package com.confighub.api.repository.user.context;
 import com.confighub.api.repository.user.AUserAccessValidation;
 import com.confighub.core.error.ConfigException;
 import com.confighub.core.error.Error;
+import com.confighub.core.model.ConcurrentContextFilenameFileContentsCache;
+import com.confighub.core.model.ConcurrentContextJsonObjectCache;
 import com.confighub.core.repository.CtxLevel;
 import com.confighub.core.store.Store;
 import com.confighub.core.utils.Utils;
@@ -97,6 +99,8 @@ public class SaveOrUpdateContextItem
                                                      assignedIds,
                                                      depthLabel);
             store.commit();
+            ConcurrentContextFilenameFileContentsCache.getInstance().removeByRepository(repository);
+            ConcurrentContextJsonObjectCache.getInstance().removeByRepository(repository);
 
             json.addProperty("success", true);
             json.add("ci",

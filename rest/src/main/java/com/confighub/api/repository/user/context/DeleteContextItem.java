@@ -19,6 +19,8 @@ package com.confighub.api.repository.user.context;
 
 import com.confighub.api.repository.user.AUserAccessValidation;
 import com.confighub.core.error.ConfigException;
+import com.confighub.core.model.ConcurrentContextFilenameFileContentsCache;
+import com.confighub.core.model.ConcurrentContextJsonObjectCache;
 import com.confighub.core.repository.CtxLevel;
 import com.confighub.core.store.Store;
 import com.google.gson.Gson;
@@ -65,6 +67,8 @@ public class DeleteContextItem
                 store.begin();
                 store.deleteLevel(user, repository, ci);
                 store.commit();
+                ConcurrentContextFilenameFileContentsCache.getInstance().removeByRepository(repository);
+                ConcurrentContextJsonObjectCache.getInstance().removeByRepository(repository);
             }
 
             json.addProperty("success", true);

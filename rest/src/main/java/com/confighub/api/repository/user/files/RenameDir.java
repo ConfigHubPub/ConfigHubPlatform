@@ -20,6 +20,8 @@ package com.confighub.api.repository.user.files;
 import com.confighub.api.repository.user.AUserAccessValidation;
 import com.confighub.core.error.ConfigException;
 import com.confighub.core.error.Error;
+import com.confighub.core.model.ConcurrentContextFilenameFileContentsCache;
+import com.confighub.core.model.ConcurrentContextJsonObjectCache;
 import com.confighub.core.store.Store;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
@@ -59,6 +61,8 @@ public class RenameDir
             store.begin();
             store.renameDirectory(repository, user, oldPath, newPath);
             store.commit();
+            ConcurrentContextFilenameFileContentsCache.getInstance().removeByRepository(repository);
+            ConcurrentContextJsonObjectCache.getInstance().removeByRepository(repository);
 
             json.addProperty("success", true);
 
