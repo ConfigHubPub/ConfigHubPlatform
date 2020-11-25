@@ -19,6 +19,8 @@ package com.confighub.api.repository.user.tags;
 
 import com.confighub.api.repository.user.AUserAccessValidation;
 import com.confighub.core.error.ConfigException;
+import com.confighub.core.model.ConcurrentContextFilenameFileContentsCache;
+import com.confighub.core.model.ConcurrentContextJsonObjectCache;
 import com.confighub.core.store.TagStore;
 import com.confighub.core.utils.DateTimeUtils;
 import com.google.gson.Gson;
@@ -67,6 +69,8 @@ public class CreateTag
             store.begin();
             store.createTag(user, repository, name, readme, time);
             store.commit();
+            ConcurrentContextFilenameFileContentsCache.getInstance().removeByRepository(repository);
+            ConcurrentContextJsonObjectCache.getInstance().removeByRepository(repository);
 
             json.addProperty("success", true);
             return Response.ok(gson.toJson(json), MediaType.APPLICATION_JSON).build();

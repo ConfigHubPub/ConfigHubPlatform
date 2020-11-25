@@ -20,6 +20,8 @@ package com.confighub.api.repository.admin.settings;
 import com.confighub.api.repository.admin.AAdminAccessValidation;
 import com.confighub.api.util.GsonHelper;
 import com.confighub.core.error.ConfigException;
+import com.confighub.core.model.ConcurrentContextFilenameFileContentsCache;
+import com.confighub.core.model.ConcurrentContextJsonObjectCache;
 import com.confighub.core.repository.Depth;
 import com.confighub.core.store.Store;
 import com.google.gson.Gson;
@@ -68,6 +70,8 @@ public class RemoveContextLevel
             store.begin();
             store.removeContextRank(repository, user, depth);
             store.commit();
+            ConcurrentContextFilenameFileContentsCache.getInstance().removeByRepository(repository);
+            ConcurrentContextJsonObjectCache.getInstance().removeByRepository(repository);
 
             json.addProperty("success", true);
             json.add("repo", GsonHelper.repositoryToJSON(repository));

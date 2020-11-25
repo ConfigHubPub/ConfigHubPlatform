@@ -19,6 +19,8 @@ package com.confighub.api.repository.user.files;
 
 import com.confighub.api.repository.user.AUserAccessValidation;
 import com.confighub.core.error.ConfigException;
+import com.confighub.core.model.ConcurrentContextFilenameFileContentsCache;
+import com.confighub.core.model.ConcurrentContextJsonObjectCache;
 import com.confighub.core.store.Store;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
@@ -56,6 +58,8 @@ public class DeleteDir
             store.begin();
             store.deleteDirectory(repository, user, path);
             store.commit();
+            ConcurrentContextFilenameFileContentsCache.getInstance().removeByRepository(repository);
+            ConcurrentContextJsonObjectCache.getInstance().removeByRepository(repository);
 
             json.addProperty("success", true);
 
