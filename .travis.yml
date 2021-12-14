@@ -1,9 +1,0 @@
-language: java
-jdk: oraclejdk8
-sudo: required
-dist: trusty
-services:
-  - docker
-script:
-  - mvn clean test package
-  - docker build -t confighub -f ./docker/Dockerfile docker/
