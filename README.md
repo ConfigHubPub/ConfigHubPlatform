@@ -1,4 +1,4 @@
-# ConfigHub Platform [![Build Status](https://travis-ci.org/ConfigHubPub/ConfigHubPlatform.svg?branch=master)](https://travis-ci.org/ConfigHubPub/ConfigHubPlatform)
+# ConfigHub Platform [![Build Status](https://github.com/ConfigHubPub/ConfigHubPlatform/actions/workflows/build.yml/badge.svg)](https://github.com/ConfigHubPub/ConfigHubPlatform/actions/workflows/build.yml) [![Docker Status](https://github.com/ConfigHubPub/ConfigHubPlatform/actions/workflows/docker.yml/badge.svg)](https://github.com/ConfigHubPub/ConfigHubPlatform/actions/workflows/docker.yml)
 
 Full [Installation instructions](http://docs.confighub.com/en/latest/pages/getting_started.html) are available at [docs.confighub.com](http://docs.confighub.com/en/latest)
 
