@@ -23,7 +23,7 @@ envsubst < /grant.sql.tpl > /tmp/grant.sql
 mysql -h"${DB_HOST}" -u"${DB_SUPERUSER}" -p"${DB_SUPERPASS}" < /tmp/grant.sql || exit $?
 
 echo "Initializing database..."
-java -jar /ConfigHubDBManager.jar -t mysql -r "jdbc:mysql://${DB_HOST}:3306/${DB_NAME}" -u"${DB_USER}" -p"${DB_PASS}" || exit $?
+java -jar /ConfigHubDBManager-${DB_VERSION}.jar -t mysql -r "jdbc:mysql://${DB_HOST}:3306/${DB_NAME}" -u"${DB_USER}" -p"${DB_PASS}" || exit $?
 
 sed -i "s/127.0.0.1/${DB_HOST}/g" /confighub/server/conf/tomee.xml
 sed -i "s/<Database_Name>/${DB_NAME}/g" /confighub/server/conf/tomee.xml

@@ -1,6 +1,7 @@
 FROM        java:8-alpine
 
-ENV         VERSION="v1.9.7"
+ENV         VERSION="v1.9.11"
+ENV         DB_VERSION="1.9.1"
 
 RUN         apk update && apk add --no-cache \
                 wget \
@@ -23,9 +24,9 @@ RUN         apk update && apk add --no-cache \
             && rm /bin/sh && ln -s /bin/bash /bin/sh
             # Fixes a bug where /bin/sh on alpine can't do <<<.
 
-COPY       docker/layer /
-COPY       docker/ConfigHubDBManager.jar /
-COPY       rest/target/ROOT.war /
+COPY        docker/layer /
+RUN         wget https://github.com/ConfigHubPub/Database-Manager/releases/download/v${DB_VERSION}/ConfigHubDBManager-${DB_VERSION}.jar
+COPY        rest/target/ROOT.war /
 
-EXPOSE     80 443
-ENTRYPOINT ["/confighubdev.sh"]
+EXPOSE      80 443
+ENTRYPOINT  ["/confighubdev.sh"]
