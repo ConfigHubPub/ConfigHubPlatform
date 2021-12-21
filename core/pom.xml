@@ -144,6 +144,12 @@
             <groupId>org.apache.directory.api</groupId>
             <artifactId>api-all</artifactId>
             <version>1.0.2</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>antlr</groupId>
+                    <artifactId>antlr</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
 
