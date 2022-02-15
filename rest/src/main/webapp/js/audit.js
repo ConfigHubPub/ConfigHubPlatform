@@ -857,11 +857,20 @@ angular
                                     }).then(function successCallback(response)
                                     {
                                         if (response.data.success) {
-                                            if (revType == 'Delete')
-                                                $scope.oldContent = response.data.value;
-                                            else {
-                                                $scope.oldContent = response.data.old;
-                                                $scope.currContent = response.data.value;
+                                            if (revType == 'Delete') {
+                                                if (angular.isObject(response.data.value) || angular.isArray(response.data.value))
+                                                    $scope.oldContent = JSON.stringify(response.data.value, null, 4).split("\n");
+                                                else
+                                                    $scope.oldContent = response.data.value.split("\n");
+                                            } else {
+                                                if (angular.isObject(response.data.old) || angular.isArray(response.data.old))
+                                                    $scope.oldContent = JSON.stringify(response.data.old, null, 4).split("\n");
+                                                else
+                                                    $scope.oldContent = response.data.old.split("\n");
+                                                if (angular.isObject(response.data.value) || angular.isArray(response.data.value))
+                                                    $scope.currContent = JSON.stringify(response.data.value, null, 4).split("\n");
+                                                else
+                                                    $scope.currContent = response.data.value.split("\n");
                                             }
                                             $scope.encryptionState = 0;
                                         }
