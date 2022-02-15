@@ -1675,8 +1675,6 @@ public class Store
 
             // ToDo: should we save assignments
 
-            saveOrUpdateAudited( user, repository, ctxLevel );
-
             if ( updatePropertyContextStrings )
             {
                 if ( null != ctxLevel.getProperties() )
@@ -1690,6 +1688,7 @@ public class Store
                 }
             }
 
+            saveOrUpdateAudited( user, repository, ctxLevel );
             return ctxLevel;
         }
 
