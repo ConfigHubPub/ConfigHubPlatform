@@ -52,8 +52,8 @@ public class RemoveAdminOrOwner
 
         try
         {
-            UserAccount userAccount = store.getUserByUsername(userAccountName);
-            if (null == userAccount)
+            UserAccount adminOrOwnerUserAccount = store.getUserByUsername(userAccountName);
+            if (null == adminOrOwnerUserAccount)
             {
                 json.addProperty("success", true);
                 return Response.ok(gson.toJson(json), MediaType.APPLICATION_JSON).build();
@@ -62,17 +62,17 @@ public class RemoveAdminOrOwner
             int status = validate(orgAccName, token, store);
             if (0 != status) return Response.status(status).build();
 
-            if (!organization.isOwnerOrAdmin(userAccount))
+            if (!organization.isOwnerOrAdmin(adminOrOwnerUserAccount))
             {
                 json.addProperty("success", true);
                 return Response.ok(gson.toJson(json), MediaType.APPLICATION_JSON).build();
             }
 
             store.begin();
-            if (organization.isOwner(userAccount))
-                store.removeOwner(organization, user);
+            if (organization.isOwner(adminOrOwnerUserAccount))
+                store.removeOwner(organization, user, adminOrOwnerUserAccount);
             else
-                store.removeAdministrator(organization, user);
+                store.removeAdministrator(organization, user, adminOrOwnerUserAccount);
             store.commit();
 
             json.addProperty("success", true);
