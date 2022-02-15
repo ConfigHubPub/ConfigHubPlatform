@@ -983,50 +983,76 @@
                             addComment = angular.element(document.querySelector('#changeCommentField')).length > 0;
 
                             secretService.authAndExec($scope, null, kd.spName, function() {
-                                $http({
-                                    method: 'POST',
-                                    url: '/rest/saveProperty/' + $scope.account + "/" + $scope.repoName,
-                                    data: $httpParamSerializer({
-                                        key: kd.key,
-                                        comment: kd.comment,
-                                        deprecated: kd.deprecated,
-                                        vdt: kd.vdt,
-                                        pushEnabled: kd.pushEnabled,
-                                        value: $scope.value,
-                                        active: $scope.active,
-                                        context: contextParam($scope.context),
-                                        changeComment: addComment ? $scope.changeComment : '',
-                                        propertyId: $scope.property.id,
-                                        spPassword: secretService.get(kd.spName),
-                                        spName: kd.spName
-                                    }),
-                                    headers: {'Content-Type': 'application/x-www-form-urlencoded'}
-                                }).then(function(response)
-                                {
-                                    if (!response.data.success) {
-                                        if (response.data.circularRef) {
-                                            $scope.circularRef = response.data.circularRef;
-                                            $scope.errorMessage = null;
-                                        }
-                                        else {
-                                            $scope.errorMessage = response.data.message;
-                                            $scope.circularRef = null;
-                                        }
-                                    }
-                                    else
+                                if($scope.property.encryptionState == 1 && ! $scope.property.decriptValidated) {
+                                    $http({
+                                        method: 'POST',
+                                        url: '/rest/decryptValue/' + $scope.account + "/" + $scope.repoName,
+                                        data: $httpParamSerializer({
+                                            propertyId: $scope.property.id,
+                                            spPassword: secretService.get($scope.entry[$scope.side].spName)
+                                        }),
+                                        headers: {'Content-Type': 'application/x-www-form-urlencoded'}
+                                    }).then(function(response)
                                     {
-                                        $scope.conflictProperty = null;
-                                        $scope.conflict = false;
+                                        if (response.data.success) {
+                                            setValue(response.data.value);
+                                            saveProperty();
+                                        } else {
+                                            $scope.errorMessage = response.data.message;
+                                        }
 
-                                        $scope.entryUpdatePostValueModification($scope.getKey($scope.side));
-                                        $scope.disableValueEditor($scope.property, $scope.side);
-
-                                        if ($scope.postValueSaveCallback)
-                                            $scope.postValueSaveCallback();
-                                    }
-                                });
+                                    });
+                                } else {
+                                    saveProperty();
+                                }
                             });
                         };
+
+                        function saveProperty()
+                        {
+                            $http({
+                                method: 'POST',
+                                url: '/rest/saveProperty/' + $scope.account + "/" + $scope.repoName,
+                                data: $httpParamSerializer({
+                                    key: kd.key,
+                                    comment: kd.comment,
+                                    deprecated: kd.deprecated,
+                                    vdt: kd.vdt,
+                                    pushEnabled: kd.pushEnabled,
+                                    value: $scope.value,
+                                    active: $scope.active,
+                                    context: contextParam($scope.context),
+                                    changeComment: addComment ? $scope.changeComment : '',
+                                    propertyId: $scope.property.id,
+                                    spPassword: secretService.get(kd.spName),
+                                    spName: kd.spName
+                                }),
+                                headers: {'Content-Type': 'application/x-www-form-urlencoded'}
+                            }).then(function(response)
+                            {
+                                if (!response.data.success) {
+                                    if (response.data.circularRef) {
+                                        $scope.circularRef = response.data.circularRef;
+                                        $scope.errorMessage = null;
+                                    }
+                                    else {
+                                        $scope.errorMessage = response.data.message;
+                                        $scope.circularRef = null;
+                                    }
+                                }
+                                else
+                                {
+                                    $scope.conflictProperty = null;
+                                    $scope.conflict = false;
+
+                                    $scope.entryUpdatePostValueModification($scope.getKey($scope.side));
+                                    $scope.disableValueEditor($scope.property, $scope.side);
+
+                                    if ($scope.postValueSaveCallback)
+                                        $scope.postValueSaveCallback();
+                                }
+                            });
+                        }
 
                         $scope.deleteValue = function()
                         {
