@@ -29,7 +29,7 @@ services:
       - database
   database:
     container_name: database.dev
-    image: mariadb:10
+    image: mariadb:10.8.2
     command: mysqld --general-log=1 --general-log-file=/var/log/mysql/mysql.log --skip-networking=0 --lower_case_table_names=1
     restart: always
     ports:

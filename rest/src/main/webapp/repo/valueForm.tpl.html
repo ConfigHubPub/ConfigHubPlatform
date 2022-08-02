@@ -130,6 +130,7 @@
                             <div class="ace-wrapper-value fill"
                                  id="li_{{side}}_{{property.id ? property.id : 'n'}}"
                                  ng-model="$parent.$parent.value"
+                                 ng-change="validateJson(value)"
                                  style="line-height: 18px !important"
                                  ui-ace="{
                                     mode: 'json',
