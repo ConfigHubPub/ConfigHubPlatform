@@ -45,6 +45,13 @@
                     </li>
                 </ul>
             </div>
+            <span ng-if="shouldDisplayCommitData()" class="revision pull-right">
+                <span ng-if="commit.author" class="user"><a ui-sref="owner({accountName: commit.author})">{{ commit.author }}</a> |</span>
+                <span ng-if="commit.appId" class="user">via API: {{ commit.appId }} | </span>
+                <span class="change-ts"> {{ commit.ts | amCalendar }} </span> |
+                #<a href ng-click="commit.raw = !commit.raw">{{ commit.rev }}</a>
+                <!--#{{ commit.rev }}-->
+            </span>
         </div>
     </div>
 </div>

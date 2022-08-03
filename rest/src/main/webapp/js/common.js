@@ -152,6 +152,32 @@ angular
         };
     })
 
+    .animation('.diff-slider', function ()
+    {
+        return {
+            enter: function (element, done)
+            {
+                jQuery(element).hide().slideDown(0);
+            },
+
+            leave: function (element, done)
+            {
+                jQuery(element).slideUp(0);
+            },
+
+            removeClass: function(element, className, done)
+            {
+                if (className === 'ng-hide')
+                    jQuery(element).hide().slideDown(0);
+            },
+
+            addClass: function(element, className, done) {
+                if (className === 'ng-hide')
+                    jQuery(element).slideUp(0);
+            }
+        };
+    })
+
     .factory('focus', ['$timeout', '$window', function($timeout, $window) {
         return function(id) {
             $timeout(function() {

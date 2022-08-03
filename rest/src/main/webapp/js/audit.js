@@ -35,7 +35,187 @@ angular
                 $scope.repoName = $stateParams.name;
                 $scope.account = $stateParams.owner;
             }])
+    .directive('propertyAudit', ['store', function(store)
+    {
+        return {
+            restrict: 'A',
+            templateUrl: 'repo/audit/propertyAudit.tpl.html',
+            scope: true,
+            controller:
+                ['$scope', '$http', '$stateParams', '$httpParamSerializer', '$filter', 'store', 'contextService',
+                    function($scope, $http, $stateParams, $httpParamSerializer, $filter, store, contextService)
+                    {
+                        var t = store.get("repoAuditTypes"),
+                            firstId = 0,
+                            lastId = 0,
+                            orderBy = $filter('orderBy'),
+                            v = store.get("splitView");
 
+                        $scope.sideBySide = v ? true : false;
+                        $scope.toggleSideBySide = function ()
+                        {
+                            $scope.sideBySide = !$scope.sideBySide;
+                            $scope.$emit('sideBySide', $scope.sideBySide);
+                            store.set("splitView", $scope.sideBySide);
+                            getRepoAudit(false);
+                        };
+
+                        $scope.repoContext = { loaded: false };
+                        contextService.contextElements($scope.date, null, $scope.account, $scope.repoName).then(function(ctx) {
+                            $scope.repoContext = ctx;
+                            $scope.repoContext.loaded = true;
+                        });
+
+                        $scope.tsFormat = tsFormat;
+
+                        if (!$scope.mode)
+                            $scope.mode = 'all';
+
+                        $scope.$watch('auditRefreshCnt', function(newVal, oldVal)
+                        {
+                            $scope.goToLatest();
+                        }, true);
+
+                        $scope.labels = {};
+                        $scope.attention = false;
+
+                        $scope.toggleAttention = function() {
+                            $scope.attention = !$scope.attention;
+                            $scope.goToLatest();
+                        };
+
+
+
+                        if (t) {
+                            $scope.selectedTypes = JSON.parse(t);
+                        }
+                        else
+                        {
+                            $scope.selectedTypes = ["Config"];
+                            store.set("repoAuditTypes", JSON.stringify($scope.selectedTypes));
+                        }
+
+                        $scope.recordTypes = [
+                            { "value": "Config", "label": "<i class='dlbl props'></i> Properties" },
+                            { "value": "Files", "label": "<i class='dlbl files'></i> Files" },
+                            { "value": "Tokens", "label": "<i class='dlbl token'></i> Tokens" },
+                            { "value": "Security", "label": "<i class='dlbl security'></i> Security" },
+                            { "value": "Tags", "label": "<i class='dlbl tags'></i> Tags" },
+                            { "value": "Teams", "label": "<i class='dlbl team'></i> Teams" },
+                            { "value": "RepoSettings", "label": "<i class='dlbl repo'></i> Settings" }
+                        ];
+
+                        $scope.goToLatest = function()
+                        {
+                            firstId = 0;
+                            lastId = 0;
+                            getRepoAudit();
+                        };
+
+                        $scope.move = function(forward)
+                        {
+                            getRepoAudit(forward);
+                        };
+
+                        $scope.updateSearch = function()
+                        {
+                            store.set("repoAuditTypes", JSON.stringify($scope.selectedTypes));
+                            firstId = 0;
+                            lastId = 0;
+                            getRepoAudit()
+                        };
+
+                        $scope.audit = [];
+                        $scope.lastCommitNo = -1;
+
+                        $scope.loadMore = function(commit)
+                        {
+                            t = Math.floor(commit.count / 10);
+                            if (t > 500) t = 500;
+                            if (t < 100) t = 100;
+                            commit.limit += t;
+                        };
+
+                        $scope.getCommitModifications = function(commit)
+                        {
+                            commit.loading = true;
+
+                            $http({
+                                method: 'GET',
+                                url: '/rest/getCommit/' + $scope.account + "/" + $scope.repoName,
+                                params: { rev: commit.rev },
+                                headers: {'Content-Type': 'application/x-www-form-urlencoded'}
+                            }).then(function successCallback(response) {
+                                commit.records = response.data.audit[0].records;
+                                commit.overloaded = false;
+                            });
+                        };
+
+                        function getRepoAudit(forward)
+                        {
+                            if (!$scope.account || !$scope.repoName)
+                                return;
+
+                            $http({
+                                method: 'POST',
+                                url: '/rest/getPropertyAudit/' + $scope.account + "/" + $scope.repoName + "/" + $scope.property.id,
+                                data: $httpParamSerializer({
+                                    recordTypes: $scope.selectedTypes.join(','),
+                                    max: 10,
+                                    starting: null == forward ? firstId : forward ? lastId : firstId,
+                                    direction: null == forward ? 0 : forward ? 1 : -1,
+                                    attention: $scope.attention
+                                }),
+                                headers: {'Content-Type': 'application/x-www-form-urlencoded'}
+                            }).then(function successCallback(response)
+                            {
+
+                                if (response.data.success)
+                                {
+                                    $scope.labels = response.data.labels;
+                                    $scope.audit = orderBy(response.data.audit, '-ts');
+
+                                    if ($scope.audit && $scope.audit.length > 0) {
+                                        firstId = $scope.audit[0].rev;
+                                        lastId = $scope.audit[$scope.audit.length-1].rev;
+                                    }
+                                }
+                            });
+                        }
+
+                        $scope.getLabel = function(placement)
+                        {
+                            if ($scope.labels[placement])
+                                return $scope.labels[placement];
+
+                            return "Label not found";
+                        };
+
+                        $scope.editComment = function(commit, comment)
+                        {
+                            $http({
+                                method: 'POST',
+                                url: '/rest/editCommitComment/' + $scope.account + "/" + $scope.repoName,
+                                data: $httpParamSerializer({
+                                    commitId: commit.rev,
+                                    comment: comment
+                                }),
+                                headers: {'Content-Type': 'application/x-www-form-urlencoded'}
+                            }).then(function successCallback(response)
+                            {
+                                if (response.data.success)
+                                {
+                                    commit.comment = comment;
+                                    commit.editComment = false;
+                                }
+                                else
+                                    commit.error = response.data.message;
+                            });
+                        }
+
+                    }]
+        }
+    }])
     .directive('repoAudit', ['store', function(store)
     {
         return {
@@ -736,9 +916,8 @@ angular
             restrict: "A",
             templateUrl: 'repo/audit/valueDiff.tpl.html',
             scope: true,
-            controller: ['$scope', '$http', '$httpParamSerializer', 'secretService',
-                function($scope, $http, $httpParamSerializer, secretService) {
-
+            controller: ['$scope', '$attrs', '$http', '$httpParamSerializer', 'secretService',
+                function($scope, $attrs, $http, $httpParamSerializer, secretService) {
 
                     var entry = $scope.record.entry,
                         diff = entry.diff,
@@ -755,9 +934,17 @@ angular
                     $scope.currContext = entry.levels;
 
                     $scope.commit.hasKey = false;
+                    $scope.shouldDisplayCommitData = function()
+                    {
+                        return $attrs.hasOwnProperty('shouldDisplayConcisely');
+                    };
+
                     $scope.showKey = function()
                     {
-                        if ($scope.commit.hasKey) return false;
+                        if ($scope.commit.hasKey || $attrs.hasOwnProperty('shouldDisplayConcisely'))
+                        {
+                            return false;
+                        }
 
                         for (i in $scope.commit.records)
                         {

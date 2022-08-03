@@ -1,0 +1,53 @@
+<div class="panel panel-form panel-diff panel-record" style="margin-bottom: 0px">
+    <div class="alert alert-danger" ng-if="commit.error">{{ commit.error }}</div>
+
+    <div class="panel-body">
+
+        <div class="record too-many-records" ng-if="commit.overloaded">
+            <div>There are {{ commit.count }} changes in this commit.</div>
+            <div>
+                <a eat-click-if="commit.loading"
+                   ng-if="!commit.loading"
+                   ng-click="getCommitModifications(commit)">
+                    Show changes
+                </a>
+                <span ng-if="commit.loading">
+                    Loading <i class="fa fa-spinner fa-spin fa-fw"></i>
+                </span>
+            </div>
+        </div>
+
+        <div ng-if="!commit.overloaded"
+             ng-repeat="record in commit.records | orderObjectByInt:'pr':true | limitTo: commit.limit">
+
+            <div class="record {{ record.type }}"
+                 ng-class="{'last-record': $last}"
+                 ng-switch="record.type">
+
+                <div ng-switch-when="propertyKey" key-diff class="a-record"></div>
+                <div ng-switch-when="property" property-diff class="a-record" should-display-concisely></div>
+                <div ng-switch-when="contextItem" context-item-diff class="a-record"></div>
+                <div ng-switch-when="securityProfile" security-profile-diff class="a-record"></div>
+                <div ng-switch-when="repository" repository-diff class="a-record"></div>
+                <div ng-switch-when="token" token-diff class="a-record"></div>
+                <div ng-switch-when="team" team-diff class="a-record"></div>
+                <div ng-switch-when="accessRule" rule-diff class="a-record"></div>
+                <div ng-switch-when="tag" tag-diff class="a-record"></div>
+                <div ng-switch-when="repoFile" file-diff class="a-record"></div>
+                <div ng-switch-when="absFilePath" dir-diff class="a-record"></div>
+
+                <div ng-switch-default class="a-record">
+                    <pre class="diff">{{ record }}</pre>
+                </div>
+            </div>
+        </div>
+
+        <div class="load-more" ng-if="commit.limit < commit.records.length">
+            <a ng-click="loadMore(commit)">Load more ...</a>
+        </div>
+
+    </div>
+
+    <div ng-show="commit.raw" class="panel-footer v"><pre class="debug">{{ commit | json }}</pre></div>
+
+</div>

@@ -68,6 +68,16 @@
                             value.isEdited = true;
                         };
 
+                        $scope.toggleHistoryViewer = function (value)
+                        {
+                            $window.getSelection().removeAllRanges();
+                            if (value.shouldShowHistory == null) {
+                                value.shouldShowHistory = true;
+                            } else {
+                                value.shouldShowHistory = !value.shouldShowHistory;
+                            }
+                        }
+
                         var ll,
                             value,
                             pair,
@@ -319,7 +329,7 @@
                         $scope.entryUpdatePostValueModification = function(key)
                         {
                             // refresh entry
-                            $scope.postValueModification(key, $scope.entry.allValues, 
+                            $scope.postValueModification(key, $scope.entry.allValues,
                                 function() {
                                     if ($scope.entry.newProperty)
                                         $scope.getAllValuesForDetachedEntry($scope.entry.key, $scope.entry, $scope.entry.allValues);

@@ -1334,6 +1334,15 @@ a.blog-subscribe {
     background-color: transparent;
 }
 
+.history-btn {
+    position: relative;
+    top: 3px;
+    color: #3f3f3f;
+    font-size: 14px;
+    border: none;
+    background-color: transparent;
+}
+
 .dotted-bottom {
     border-bottom: 1px dashed #ccc;
 }
@@ -2142,7 +2151,7 @@ ul.ed-help-list li:before {
 
 .sorters a,
 .sorters a:visited,
-.sorters a:hover 
+.sorters a:hover
 {
     color: #333;
 }
