@@ -1406,9 +1406,13 @@
                             if (response.data.success)
                             {
                                 o.saved = true;
-                                $state.go('repo.files', {
+                                $scope.message = response.data.message;
+                                $state.go('repo.file', 
+                                {
                                     owner: $scope.account,
-                                    name: $scope.repoName
+                                    name: $scope.repoName,
+                                    id: response.data.id,
+                                    fullPath: response.data.absPath
                                 });
                             } else {
 
