@@ -30,10 +30,13 @@ import com.google.gson.JsonObject;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.text.SimpleDateFormat;
+import java.util.Collection;
+import java.util.Date;
+
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.util.Collection;
 
 
 @Path( "/saveConfigFile" )
@@ -115,6 +118,10 @@ public class SaveConfigFile
 
             json.addProperty( "success", true );
             json.addProperty( "id", file.getId() );
+            json.addProperty( "absPath", file.getAbsFilePath().getAbsPath() );
+
+            String timestamp = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'").format(new Date());
+            json.addProperty( "message", "File successfully updated! (Timestamp: " + timestamp + ")" );
 
             return Response.ok( gson.toJson( json ), MediaType.APPLICATION_JSON ).build();
         }
