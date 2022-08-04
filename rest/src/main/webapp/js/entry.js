@@ -790,7 +790,9 @@
                                 case 'Map':
                                     $scope.validateMap();
                                     break;
-
+                                case 'JSON':
+                                    $scope.validateJson($scope.value);
+                                    break;
                                 default:
                                     $scope.validType = true;
                                     break;
@@ -869,6 +871,28 @@
                             $scope.validType = allGood;
                         };
 
+                        // -----------------------------------------------------------------------
+                        // Value-Data-Type::JSON
+                        // -----------------------------------------------------------------------
+                        $scope.validateJson = function(value)
+                        {
+                            if (null == value)
+                            {
+                                $scope.validType = true;
+                            }
+                            else
+                            {
+                                try
+                                {
+                                    JSON.parse(value);
+                                    $scope.validType = true;
+                                }
+                                catch(e)
+                                {
+                                    $scope.validType = false;
+                                }
+                            }
+                        };
 
                         // -----------------------------------------------------------------------
                         // Navigation
