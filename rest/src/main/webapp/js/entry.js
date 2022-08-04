@@ -647,7 +647,7 @@
                                     + editor.renderer.scrollBar.getWidth();
 
                                 if (newHeight > 500)
-                                    return;
+                                    newHeight = 500;
 
                                 e = angular.element(document.querySelector('#li_' + $scope.side + '_' + ($scope.property.id ? $scope.property.id : 'n')));
                                 e.height(newHeight.toString() + "px");
