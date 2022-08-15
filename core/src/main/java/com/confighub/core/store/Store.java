@@ -4108,15 +4108,19 @@ public class Store
         try
         {
             StringBuilder hql = new StringBuilder();
+            Map<String, Object> userParams = new HashMap<>();
 
-            hql.append( "SELECT r FROM RevisionEntry r WHERE repositoryId = " ).append( repository.getId() ).append( " " );
-            hql.append( "AND searchKey like '%|" ).append( forKey ).append( "|%' " );
+            hql.append( "SELECT r FROM RevisionEntry r WHERE repositoryId = :repositoryId AND searchKey LIKE :searchKey" );
+            userParams.put( "repositoryId", repository.getId() );
+            userParams.put( "searchKey", "%|" + forKey + "|%" );
+
             if ( null != forUserId )
             {
-                hql.append( "AND userId = " ).append( forUserId ).append( " " );
+                hql.append( " AND userId = :userId" );
+                userParams.put( "userId", forUserId );
             }
 
-            return getAuditCommits( getRevisions( max, starting, direction, hql.toString() ) );
+            return getAuditCommits( getRevisions( max, starting, direction, hql.toString(), userParams ) );
         }
         catch ( NoResultException e )
         {
@@ -4164,33 +4168,28 @@ public class Store
         try
         {
             StringBuilder hql = new StringBuilder();
+            Map<String, Object> userParams = new HashMap<>();
 
-            hql.append( "SELECT r FROM RevisionEntry r WHERE repositoryId = " ).append( repository.getId() ).append( " " );
+            hql.append( "SELECT r FROM RevisionEntry r WHERE repositoryId = :repositoryId" );
+            userParams.put( "repositoryId", repository.getId() );
 
             if ( importantOnly )
             {
-                hql.append( "AND notify = true " );
+                hql.append( " AND notify = true" );
             }
             else
             {
-                hql.append( "AND commitGroup IN (" );
-                for ( int i = 0; i < commitGroup.size(); i++ )
-                {
-                    hql.append( "'" ).append( commitGroup.get( i ).name() ).append( "'" );
-                    if ( i + 1 < commitGroup.size() )
-                    {
-                        hql.append( "," );
-                    }
-                }
-                hql.append( ") " );
+                hql.append( " AND commitGroup IN (:commitGroup)" );
+                userParams.put( "commitGroup", commitGroup );
             }
 
             if ( null != forUserId )
             {
-                hql.append( "AND userId = " ).append( forUserId ).append( " " );
+                hql.append( " AND userId = :userId" );
+                userParams.put( "userId", forUserId );
             }
 
-            return getAuditCommits( getRevisions( max, starting, direction, hql.toString() ) );
+            return getAuditCommits( getRevisions( max, starting, direction, hql.toString(), userParams ) );
         }
         catch ( NoResultException e )
         {
@@ -4254,7 +4253,8 @@ public class Store
     private List<RevisionEntry> getRevisions( int max,
                                               final long starting,
                                               final int direction,
-                                              String baseHql )
+                                              String baseHql,
+                                              Map<String, Object> baseUserParams )
           throws ConfigException
     {
         if ( max > 100 )
@@ -4266,53 +4266,47 @@ public class Store
             max = 10;
         }
 
+        HashMap<String, Object> userParams = new HashMap<>(baseUserParams);
         StringBuilder hql = new StringBuilder();
         hql.append( baseHql );
 
         if ( 0 == starting && 0 == direction )
         {
-            hql.append( "ORDER BY id DESC" );
+            hql.append( " ORDER BY id DESC" );
         }
         else if ( direction > 0 )
         {
-            hql.append( "AND id < " ).append( starting ).append( " " );
-            hql.append( "ORDER BY id DESC" );
+            hql.append( " AND id < :startingId ORDER BY id DESC" );
+            userParams.put("startingId", starting);
         }
         else
         {
-            hql.append( "AND id > " ).append( starting ).append( " " );
-            hql.append( "ORDER BY id ASC" );
+            hql.append( " AND id > :startingId ORDER BY id ASC" );
+            userParams.put("startingId", starting);
         }
 
-        Query query = em.createQuery( hql.toString(), RevisionEntry.class )
-                        .setLockMode( LockModeType.NONE )
-                        .setMaxResults( max );
-        List<RevisionEntry> revs = query.getResultList();
-
-        if ( direction < 0 && revs.size() < max )
+        List<RevisionEntry> revs = executeQuery( max, hql.toString(), userParams );
+        if ( revs.size() < max && direction != 0  )
         {
+            userParams = new HashMap<>( baseUserParams );
             hql = new StringBuilder();
             hql.append( baseHql );
-            hql.append( "ORDER BY id DESC" );
-
-            query = em.createQuery( hql.toString(), RevisionEntry.class )
-                      .setLockMode( LockModeType.NONE )
-                      .setMaxResults( max );
-            revs = query.getResultList();
-        }
-        else if ( direction > 0 && revs.size() < max )
-        {
-            hql = new StringBuilder();
-            hql.append( baseHql );
-            hql.append( "ORDER BY id ASC" );
-
-            query = em.createQuery( hql.toString(), RevisionEntry.class )
-                      .setLockMode( LockModeType.NONE )
-                      .setMaxResults( max );
-            revs = query.getResultList();
+            hql.append( " ORDER BY id " + (direction > 0 ? "ASC" : "DESC") );
+            revs = executeQuery( max, hql.toString(), userParams );
         }
 
         return revs;
+    }
+
+    private List<RevisionEntry> executeQuery( int max,
+                                              String queryString,
+                                              Map<String, Object> userParams )
+    {
+        Query query = em.createQuery( queryString, RevisionEntry.class )
+                        .setLockMode( LockModeType.NONE )
+                        .setMaxResults( max );
+        userParams.forEach( ( param, value ) -> query.setParameter( param, value ) );
+        return query.getResultList();
     }
 
 
