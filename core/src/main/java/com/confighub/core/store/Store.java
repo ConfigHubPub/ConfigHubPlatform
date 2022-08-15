@@ -4203,6 +4203,76 @@ public class Store
         return null;
     }
 
+    public List<AuditRecord> getPropertyHistory( final Repository repository,
+                                                 final UserAccount user,
+                                                 int max,
+                                                 final long starting,
+                                                 final int direction,
+                                                 final Long forUserId,
+                                                 final long propertyId,
+                                                 final boolean importantOnly,
+                                                 List<RevisionEntry.CommitGroup> commitGroup )
+          throws ConfigException
+    {
+        if ( null == repository )
+        {
+            throw new ConfigException( Error.Code.MISSING_PARAMS );
+        }
+
+        if ( !repository.isDemo() && null == user )
+        {
+            throw new ConfigException( Error.Code.MISSING_PARAMS );
+        }
+
+        if ( !repository.hasReadAccess( user ) )
+        {
+            throw new ConfigException( Error.Code.USER_ACCESS_DENIED );
+        }
+
+        if ( !importantOnly && null == commitGroup )
+        {
+            commitGroup = defaultCommitGroupList;
+        }
+
+        try
+        {
+            StringBuilder hql = new StringBuilder();
+            Map<String, Object> userParams = new HashMap<>();
+
+            hql.append( "SELECT r FROM RevisionEntry r WHERE repositoryId = :repositoryId AND type LIKE '%Property%' AND revtype LIKE :propertyId" );
+            userParams.put( "repositoryId", repository.getId() );
+            userParams.put( "propertyId", "%\"" + propertyId + "\"%" );
+
+            if ( importantOnly )
+            {
+                hql.append( " AND notify = true" );
+            }
+            else
+            {
+                hql.append( " AND commitGroup IN (:commitGroup)" );
+                userParams.put( "commitGroup", commitGroup );
+            }
+
+            if ( null != forUserId )
+            {
+                hql.append( " AND userId = :userId" );
+                userParams.put( "userId", forUserId );
+            }
+
+            return getAuditCommits( getRevisions( max, starting, direction, hql.toString(), userParams ) );
+        }
+        catch ( NoResultException e )
+        {
+            return null;
+        }
+        catch ( Exception e )
+        {
+            handleException( e );
+        }
+
+        return null;
+    }
+
 
     public List<AuditRecord> getCommit( final Repository repository,
                                         final UserAccount user,

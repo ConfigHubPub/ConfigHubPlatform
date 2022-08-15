@@ -1,0 +1,44 @@
+<style ng-if="sideBySide">
+    .container-fluid,
+    .container {
+        margin-right: auto;
+        margin-left: auto;
+        padding-left: 15px;
+        padding-right: 15px;
+        width: 100%;
+    }
+</style>
+
+
+<div class="row">
+    <div class="col-xs-12">
+        <div class="row">
+            <div class="col-xs-12" style="padding-bottom: 5px; padding-top: 5px">
+                <div role="group" class="text-right-not-xs">
+
+                    <span class="obj-type pull-left">Property History</span>
+                    <button class="btn btn-sm btn-default only-icon" ng-class="{'active': sideBySide}"
+                        ng-click="toggleSideBySide()">
+                        Split
+                    </button>
+
+                    <div class="vertical-separator"></div>
+
+                    <button class="btn btn-sm btn-default only-icon" ng-click="move(false)">
+                        <i class="fa fa-chevron-left"></i>
+                    </button>
+
+                    <button class="btn btn-sm btn-default only-icon" ng-click="move(true)">
+                        <i class="fa fa-chevron-right"></i>
+                    </button>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+
+<div ng-repeat="commit in audit | orderBy:'-ts'" class="margin-bottom20">
+    <div ng-include='"/repo/audit/propertyRecord.tpl.html"'></div>
+</div>
