@@ -1,4 +1,4 @@
-FROM        java:8-alpine
+FROM        openjdk:8-alpine
 
 ENV         VERSION="v1.9.13"
 
