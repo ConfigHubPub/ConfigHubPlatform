@@ -21,8 +21,6 @@ import com.confighub.core.auth.Auth;
 import com.confighub.core.error.ConfigException;
 import com.confighub.core.error.Error;
 import com.confighub.core.repository.CtxLevel;
-import com.confighub.core.repository.Property;
-import com.confighub.core.repository.PropertyKey;
 import com.confighub.core.repository.Repository;
 import com.confighub.core.repository.Tag;
 import com.confighub.core.security.SecurityProfile;
@@ -31,7 +29,6 @@ import com.confighub.core.store.Store;
 import com.confighub.core.utils.ContextParser;
 import com.confighub.core.utils.DateTimeUtils;
 import com.confighub.core.utils.Utils;
-import com.google.common.collect.ImmutableMap;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.reflect.TypeToken;
@@ -59,7 +56,6 @@ public abstract class AClientAccessValidation
     protected Tag tag;
     protected Date date;
     protected JsonObject json = new JsonObject();
-    protected ImmutableMap<PropertyKey, Property> resolved;
     protected Map<String, String> passwords = new HashMap<>();
 
     protected void getRepositoryFromToken(String clientToken, Store store)
@@ -204,33 +200,9 @@ public abstract class AClientAccessValidation
                              String remoteIp,
                              Store store,
                              Gson gson,
-                             String securityProfiles,
-                             boolean validateAuthOnly)
+                             String securityProfiles)
             throws ConfigException
     {
-        long start = System.currentTimeMillis();
-        resolved = ImmutableMap.of();
-        if (!validateAuthOnly)
-        {
-            com.confighub.core.resolver.Context context = resolveContext(contextString, store);
-            resolved = ImmutableMap.copyOf(context.resolveForClient());
-            log.info("Client [%s] from [%s] resolved %d keys in %d/ms > %s for repository [%s]",
-                    appName,
-                    remoteIp,
-                    resolved.size(),
-                    (System.currentTimeMillis() - start),
-                    context.toString(),
-                    repository.getName());
-        }
-        else
-        {
-            log.info("Client [%s] from [%s] validated only > %s for repository [%s]",
-                    appName,
-                    remoteIp,
-                    contextString.toLowerCase(),
-                    repository.getName());
-        }
-
         processAuth(store, gson, securityProfiles, token, repository, date, passwords);
     }
 

@@ -26,8 +26,6 @@ import com.confighub.core.resolver.Context;
 import com.confighub.core.security.Encryption;
 import com.google.gson.JsonObject;
 import org.apache.commons.lang.StringUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 import javax.ws.rs.core.MultivaluedMap;
 import java.util.*;
@@ -38,7 +36,6 @@ import static com.confighub.core.utils.Utils.keyPatternRegEx;
 
 public class FileUtils
 {
-    private static final Logger log = LogManager.getLogger(FileUtils.class);
     private static final Pattern keyNoDefault = Pattern.compile("(?<!\\\\)\\$\\{\\s*(" + keyPatternRegEx + ")\\s*}");
 
     public static Collection<String> getKeys(final String text)
@@ -53,8 +50,16 @@ public class FileUtils
 
     public static String resolveFile(final Context context,
                                      final RepoFile file,
-                                     Map<PropertyKey, Property> resolved,
                                      Map<String, String> passwords)
+            throws ConfigException
+    {
+        return resolveFile(context, file, passwords, new HashMap<String, Property>());
+    }
+
+    public static String resolveFile(final Context context,
+                                     final RepoFile file,
+                                     Map<String, String> passwords,
+                                     Map<String, Property> resolvedProperties)
             throws ConfigException
     {
         boolean encrypt = false;
@@ -71,15 +76,8 @@ public class FileUtils
             file.decryptFile(pass);
         }
 
-        Map<String, Property> propertyMap = new HashMap<>();
-        Map<String, PropertyKey> keyMap = new HashMap<>();
-        resolved.keySet().forEach(k -> {
-            propertyMap.put(k.getKey(), resolved.get(k));
-            keyMap.put(k.getKey(), k);
-        });
-
         String fileContent = file.getContent();
-        String patternString = "(?i)\\$\\{\\s*\\b(" + StringUtils.join(propertyMap.keySet(), "|") + ")\\b\\s*}";
+        String patternString = "(?i)\\$\\{\\s*\\b(" + Utils.keyPatternRegEx + ")\\b\\s*}";
         Pattern pattern = Pattern.compile(patternString);
         Matcher matcher = pattern.matcher(fileContent);
 
@@ -88,7 +86,12 @@ public class FileUtils
         while (matcher.find())
         {
             String key = matcher.group(1);
-            Property property = propertyMap.get(key);
+            Property property = resolvedProperties.get(key);
+            if (null == property)
+            {
+                property = context.resolvePropertyForClient(key);
+                resolvedProperties.put(key, property);
+            }
 
             // replace each key specification with the property value
             String value = "";
@@ -102,12 +105,12 @@ public class FileUtils
                     if (null == injectFile)
                         value = "[ ERROR: No file resolved ]";
                     else
-                        value = resolveFile(context, injectFile, resolved, passwords);
+                        value = resolveFile(context, injectFile, passwords, resolvedProperties);
                 } else
                 {
                     if (property.isEncrypted())
                     {
-                        String spName = keyMap.get(key).getSecurityProfile().getName();
+                        String spName = property.getPropertyKey().getSecurityProfile().getName();
                         if (passwords.containsKey(spName))
                             property.decryptValue(passwords.get(spName));
                     }

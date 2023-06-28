@@ -25,8 +25,6 @@ import com.confighub.core.repository.Property;
 import com.confighub.core.repository.PropertyKey;
 import com.confighub.core.store.Store;
 import com.confighub.core.utils.Utils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -39,13 +37,29 @@ import java.util.Set;
 public class RepositoryPropertiesResolver
         extends AResolver
 {
-    private static final Logger log = LogManager.getLogger("RepositoryResolver");
     private final boolean isClient;
 
     public RepositoryPropertiesResolver(final Store store, final boolean isClient)
     {
         super(store);
         this.isClient = isClient;
+    }
+
+    protected Property resolveProperty(final Context context, final String key)
+    {
+        Collection<Property> properties = store.getPropertiesForKey(context.repository, context.date, key).cdr;
+        Property heaviest = null;
+        for (Property property : properties)
+        {
+            if(isContextualMatchAudit(property.getDepthMap(), context))
+            {
+                if (null == heaviest || property.getContextWeight() > heaviest.getContextWeight())
+                {
+                    heaviest = property;
+                }
+            }
+        }
+        return heaviest;
     }
 
     protected Map<PropertyKey, Property> resolveClient(final Context context)

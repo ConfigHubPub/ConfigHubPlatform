@@ -2505,30 +2505,70 @@ public class Store
                                                                         String key )
           throws ConfigException
     {
-        AuditReader reader = AuditReaderFactory.get( em );
-        Number rev = reader.getRevisionNumberForDate( null == date ? new Date() : date );
+        PropertyKey propertyKey = null;
+        Collection<Property> properties = new ArrayList<>();
 
-        AuditQuery kq = reader.createQuery().forEntitiesAtRevision( PropertyKey.class, rev );
-        kq.add( AuditEntity.property( "repository" ).eq( repository ) );
-        kq.add( AuditEntity.property( "key" ).eq( key ) );
-
-        PropertyKey propertyKey;
-        try
+        if ( null == date )
         {
-            propertyKey = (PropertyKey) kq.getSingleResult();
+            try
+            {
+                propertyKey = (PropertyKey) em.createNamedQuery( "Key.getByKey" )
+                                              .setLockMode( LockModeType.NONE )
+                                              .setParameter( "key", key.toUpperCase() )
+                                              .setParameter( "repository", repository )
+                                              .getSingleResult();
+            }
+            catch ( NoResultException e )
+            {
+                return null;
+            }
+            catch ( Exception e )
+            {
+                handleException( e );
+                return null;
+            }
+
+            try
+            {
+                properties = em.createNamedQuery( "Property.getByPropertyKey" )
+                               .setLockMode( LockModeType.NONE )
+                               .setParameter( "propertyKey", propertyKey )
+                               .setParameter( "repository", repository )
+                               .getResultList();
+            }
+            catch ( NoResultException ignore )
+            {
+            }
+            catch ( Exception e )
+            {
+                handleException( e );
+            }
         }
-        catch ( NoResultException e )
+        else
         {
-            return null;
+            AuditReader reader = AuditReaderFactory.get( em );
+            Number rev = reader.getRevisionNumberForDate( null == date ? new Date() : date );
+
+            AuditQuery kq = reader.createQuery().forEntitiesAtRevision( PropertyKey.class, rev );
+            kq.add( AuditEntity.property( "repository" ).eq( repository ) );
+            kq.add( AuditEntity.property( "key" ).eq( key ) );
+
+            try
+            {
+                propertyKey = (PropertyKey) kq.getSingleResult();
+            }
+            catch ( NoResultException e )
+            {
+                return null;
+            }
+
+            AuditQuery query = reader.createQuery().forEntitiesAtRevision( Property.class, rev );
+            query.add( AuditEntity.property( "repository" ).eq( repository ) );
+            query.add( AuditEntity.relatedId( "propertyKey" ).eq( propertyKey.getId() ) );
+            properties = query.getResultList();
         }
 
-        AuditQuery query = reader.createQuery().forEntitiesAtRevision( Property.class, rev );
-        query.add( AuditEntity.property( "repository" ).eq( repository ) );
-        query.add( AuditEntity.relatedId( "propertyKey" ).eq( propertyKey.getId() ) );
-
-        Collection<Property> properties = query.getResultList();
         propertyKey.propertyCount = properties.size();
-
         return new Pair( propertyKey, properties );
     }
 
