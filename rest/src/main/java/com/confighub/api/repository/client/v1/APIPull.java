@@ -32,6 +32,7 @@ import com.confighub.core.security.SecurityProfile;
 import com.confighub.core.store.Store;
 import com.confighub.core.utils.FileUtils;
 import com.confighub.core.utils.Utils;
+import com.google.common.collect.ImmutableMap;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
@@ -47,6 +48,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.EnumSet;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
@@ -87,7 +89,7 @@ public class APIPull
         {
             getRepositoryFromToken(clientToken, dateString, tagString, store);
             checkToken(clientToken, store);
-            validatePull(contextString, appName, remoteIp, store, gson, securityProfiles, cache.containsKey(repository, contextString));
+            validatePull(contextString, appName, remoteIp, store, gson, securityProfiles);
 
             JsonObject json = getConfiguration(gson, contextString, store, includeComments, noFiles, noProperties, includeContext);
             return Response.ok(gson.toJson(json), MediaType.APPLICATION_JSON).build();
@@ -134,7 +136,7 @@ public class APIPull
         {
             getRepositoryFromUrl(account, repositoryName, tagString, dateString, store, true);
             checkToken(null, store);
-            validatePull(contextString, appName, remoteIp, store, gson, securityProfiles, cache.containsKey(repository, contextString));
+            validatePull(contextString, appName, remoteIp, store, gson, securityProfiles);
 
             JsonObject json = getConfiguration(gson, contextString, store, includeComments, noFiles, noProperties, includeContext);
             return Response.ok(gson.toJson(json), MediaType.APPLICATION_JSON).build();
@@ -173,7 +175,8 @@ public class APIPull
         {
             start = System.currentTimeMillis();
             Context context = resolveContext(contextString, store);
-            json = getConfiguration(repository, context, resolved, passwords, new JsonObject(), noFiles, noProperties,
+            ImmutableMap<PropertyKey, Property> allResolvedKeys = ImmutableMap.copyOf(context.resolveForClient());
+            json = getConfiguration(repository, context, allResolvedKeys, passwords, new JsonObject(), noFiles, noProperties,
                     includeComments, includeContext, gson);
             addJsonFixedHeader(json, repository, contextString, context);
             log.info("Response built in %d/ms > %s for repository [%s]",
@@ -214,11 +217,16 @@ public class APIPull
         {
             JsonObject filesJson = new JsonObject();
             Map<AbsoluteFilePath, RepoFile> fileMap = context.resolveAPIFiles();
+            Map<String, Property> resolvedKeyStrings = new HashMap<>();
+            for (Map.Entry<PropertyKey, Property> entry : resolved.entrySet())
+            {
+                resolvedKeyStrings.put(entry.getKey().getKey(), entry.getValue());
+            }
 
             for (AbsoluteFilePath path : fileMap.keySet())
             {
                 JsonObject fileJson = new JsonObject();
-                fileJson.addProperty("content", FileUtils.resolveFile(context, fileMap.get(path), resolved, passwords));
+                fileJson.addProperty("content", FileUtils.resolveFile(context, fileMap.get(path), passwords, resolvedKeyStrings));
                 fileJson.addProperty("content-type", path.getContentType());
 
                 filesJson.add(path.getAbsPath(), fileJson);

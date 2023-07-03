@@ -65,7 +65,7 @@ public class APIPullFile
         {
             getRepositoryFromUrl(account, repositoryName, tagString, dateString, store, true);
             checkToken(null, store);
-            validatePull(contextString, appName, remoteIp, store, gson, securityProfiles, cache.containsKey(repository, contextString, absPath));
+            validatePull(contextString, appName, remoteIp, store, gson, securityProfiles);
             return getResponse(contextString, absPath, store);
         }
         catch (ConfigException e)
@@ -102,7 +102,7 @@ public class APIPullFile
         {
             getRepositoryFromToken(clientToken, dateString, tagString, store);
             checkToken(clientToken, store);
-            validatePull(contextString, appName, remoteIp, store, gson, securityProfiles, cache.containsKey(repository, contextString, absPath));
+            validatePull(contextString, appName, remoteIp, store, gson, securityProfiles);
             return getResponse(contextString, absPath, store);
         }
         catch (ConfigException e)
@@ -140,7 +140,7 @@ public class APIPullFile
                 return Response.noContent().build();
             }
             contentsAndType = new ContentsAndType(
-                    FileUtils.resolveFile(context, file, resolved, passwords),
+                    FileUtils.resolveFile(context, file, passwords),
                     absoluteFilePath.getContentType());
             log.info("Response built in %d/ms > %s for repository [%s] and path [%s]",
                     System.currentTimeMillis() - start,

@@ -25,16 +25,12 @@ import com.confighub.core.user.UserAccount;
 import com.confighub.core.utils.DateTimeUtils;
 import com.confighub.core.utils.Utils;
 import com.google.common.base.Objects;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
 public class Context
 {
-    private static final Logger log = LogManager.getLogger(Context.class);
-
     protected final Map<Depth, Collection<CtxLevel>> elements = new HashMap<>();
     protected final Map<Depth, Collection<CtxLevel>> parents = new HashMap<>();
     protected final Set<Depth> wildcards = new HashSet<>();
@@ -223,6 +219,13 @@ public class Context
     {
         RepositoryPropertiesResolver resolver = new RepositoryPropertiesResolver(store, true);
         return resolver.resolveClient(this);
+    }
+
+    public Property resolvePropertyForClient(final String key)
+            throws ConfigException
+    {
+        RepositoryPropertiesResolver resolver = new RepositoryPropertiesResolver(store, true);
+        return resolver.resolveProperty(this, key);
     }
 
     /**

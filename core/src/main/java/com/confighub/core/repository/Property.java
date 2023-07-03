@@ -26,8 +26,6 @@ import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.Type;
@@ -39,7 +37,6 @@ import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EntityListeners;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Index;
@@ -72,6 +69,9 @@ import java.util.Set;
             @NamedQuery( name = "Property.get",
                          query = "SELECT p FROM Property p WHERE repository=:repository AND id=:id" ),
 
+            @NamedQuery( name = "Property.getByPropertyKey",
+                         query = "SELECT p FROM Property p WHERE repository=:repository AND propertyKey=:propertyKey" ),
+
             @NamedQuery( name = "Search.values",
                          query = "SELECT p FROM Property p WHERE " +
                                  "p.repository=:repository AND UPPER(p.value) LIKE :searchTerm" ),
@@ -85,8 +85,6 @@ import java.util.Set;
 public class Property
       extends AContextAwarePersistent
 {
-    private static final Logger log = LogManager.getLogger( Property.class );
-
     @Id
     @GeneratedValue
     private Long id;
