@@ -51,7 +51,7 @@ public class RepositoryPropertiesResolver
         Property heaviest = null;
         for (Property property : properties)
         {
-            if(isContextualMatchAudit(property.getDepthMap(), context))
+            if(property.isActive() && isContextualMatchAudit(property.getDepthMap(), context))
             {
                 if (null == heaviest || property.getContextWeight() > heaviest.getContextWeight())
                 {
