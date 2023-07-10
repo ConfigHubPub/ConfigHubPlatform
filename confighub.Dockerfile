@@ -1,6 +1,6 @@
 FROM        openjdk:8-alpine
 
-ENV         VERSION="v1.10.0"
+ENV         VERSION="v1.10.1"
 ENV         DB_VERSION="1.9.1"
 
 RUN         apk update && apk add --no-cache \
