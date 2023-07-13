@@ -25,7 +25,6 @@ import com.confighub.core.repository.RepoFile;
 import com.confighub.core.resolver.Context;
 import com.confighub.core.security.Encryption;
 import com.google.gson.JsonObject;
-import org.apache.commons.lang.StringUtils;
 
 import javax.ws.rs.core.MultivaluedMap;
 import java.util.*;
@@ -53,7 +52,7 @@ public class FileUtils
                                      Map<String, String> passwords)
             throws ConfigException
     {
-        return resolveFile(context, file, passwords, new HashMap<String, Property>());
+        return resolveFile(context, file, passwords, new HashMap<>());
     }
 
     public static String resolveFile(final Context context,
@@ -72,11 +71,59 @@ public class FileUtils
                 pass = file.getSecurityProfile().getDecodedPassword();
                 encrypt = true;
             }
-
             file.decryptFile(pass);
         }
 
-        String fileContent = file.getContent();
+        String resolvedContent = renderFileContents(context, file.getContent(), passwords, resolvedProperties, new HashSet<>());
+
+        if (encrypt)
+        {
+            resolvedContent = Encryption.encrypt(file.getSecurityProfile().getCipher(), resolvedContent, pass);
+        }
+        return resolvedContent;
+    }
+
+
+    private static String setValue(final Property property)
+    {
+        String value = property.getValue();
+
+        if (null == value)
+        {
+            PropertyKey.ValueDataType vdt = property.getPropertyKey().getValueDataType();
+
+            if (PropertyKey.ValueDataType.FileEmbed.equals(vdt)
+                || PropertyKey.ValueDataType.FileRef.equals(vdt))
+                return "";
+            else
+                return "null";
+        }
+
+        return value.replace("\\", "\\\\");
+    }
+
+    public static String previewFile(final Context context,
+                                     final String fileContent,
+                                     final MultivaluedMap<String, String> multiPasswords)
+    {
+        HashMap<String, String> singlePasswords = new HashMap<>();
+        for (Map.Entry<String, List<String>> passKV : multiPasswords.entrySet())
+        {
+            if (null != passKV.getValue() && !passKV.getValue().isEmpty())
+            {
+                singlePasswords.put(passKV.getKey(), passKV.getValue().get(0));
+            }
+        }
+        return renderFileContents(context, fileContent, singlePasswords, new HashMap<>(), new HashSet<>());
+    }
+
+
+    private static String renderFileContents(final Context context,
+                                             final String fileContent,
+                                             final Map<String, String> passwords,
+                                             Map<String, Property> resolvedProperties,
+                                             Set<Long> breadcrumbs)
+    {
         String patternString = "(?i)\\$\\{\\s*\\b(" + Utils.keyPatternRegEx + ")\\b\\s*}";
         Pattern pattern = Pattern.compile(patternString);
         Matcher matcher = pattern.matcher(fileContent);
@@ -101,92 +148,6 @@ public class FileUtils
                 if (null != property.getAbsoluteFilePath() &&
                     PropertyKey.ValueDataType.FileEmbed.equals(property.getPropertyKey().getValueDataType()))
                 {
-                    RepoFile injectFile = context.resolveFullContextFilePath(property.getAbsoluteFilePath());
-                    if (null == injectFile)
-                        value = "[ ERROR: No file resolved ]";
-                    else
-                        value = resolveFile(context, injectFile, passwords, resolvedProperties);
-                } else
-                {
-                    if (property.isEncrypted())
-                    {
-                        String spName = property.getPropertyKey().getSecurityProfile().getName();
-                        if (passwords.containsKey(spName))
-                            property.decryptValue(passwords.get(spName));
-                    }
-                    value = setValue(property);
-                }
-            }
-            matcher.appendReplacement(sb, Matcher.quoteReplacement(value));
-        }
-
-        matcher.appendTail(sb);
-        fileContent = sb.toString();
-
-        // Remove all escapes \${...}
-        fileContent = fileContent.replaceAll("\\\\\\$\\{", "\\$\\{");
-
-        if (encrypt)
-            fileContent = Encryption.encrypt(file.getSecurityProfile().getCipher(), fileContent, pass);
-
-        return fileContent;
-    }
-
-
-    private static String setValue(final Property property)
-    {
-        String value = property.getValue();
-
-        if (null == value)
-        {
-            PropertyKey.ValueDataType vdt = property.getPropertyKey().getValueDataType();
-
-            if (PropertyKey.ValueDataType.FileEmbed.equals(vdt)
-                || PropertyKey.ValueDataType.FileRef.equals(vdt))
-                return "";
-            else
-                return "null";
-        }
-
-        return value.replace("\\", "\\\\");
-    }
-
-    public static String previewFile(final Context context,
-                                     String fileContent,
-                                     Map<String, Property> resolved,
-                                     MultivaluedMap<String, String> passwords)
-    {
-        return previewFile(context, fileContent, resolved, passwords, new HashSet<>());
-    }
-
-    private static String previewFile(final Context context,
-                                      String fileContent,
-                                      Map<String, Property> resolved,
-                                      MultivaluedMap<String, String> passwords,
-                                      Set<Long> breadcrumbs)
-    {
-        Collection<String> keyStrings = FileUtils.getKeys(fileContent);
-
-        String patternString = "(?i)\\$\\{\\s*\\b(" + StringUtils.join(keyStrings, "|") + ")\\b\\s*}";
-        Pattern pattern = Pattern.compile(patternString);
-        Matcher matcher = pattern.matcher(fileContent);
-
-        StringBuffer sb = new StringBuffer();
-
-
-        while (matcher.find())
-        {
-            String key = matcher.group(1);
-            Property property = resolved.get(key);
-
-            // replace each key specification with the property value
-            String value = "";
-
-            if (null != property)
-            {
-                if (null != property.getAbsoluteFilePath() &&
-                    PropertyKey.ValueDataType.FileEmbed.equals(property.getPropertyKey().getValueDataType()))
-                {
                     if (breadcrumbs.contains(property.getAbsoluteFilePath().getId()))
                     {
                         JsonObject json = property.toJson();
@@ -200,33 +161,32 @@ public class FileUtils
                     if (null == injectFile)
                         value = "[ ERROR: No file resolved ]";
                     else
-                        value = previewFile(context, injectFile.getContent(), resolved, passwords, breadcrumbs);
+                        value = renderFileContents(context, injectFile.getContent(), passwords, resolvedProperties, breadcrumbs);
                 }
                 else
                 {
                     if (property.isEncrypted())
                     {
                         String spName = property.getPropertyKey().getSecurityProfile().getName();
-                        if (null != passwords && passwords.containsKey(spName))
-                        {
-                            String password = passwords.get(spName).get(0);
-                            if (!Utils.isBlank(password))
-                                property.decryptValue(password);
-                        }
+                        if (passwords.containsKey(spName))
+                            property.decryptValue(passwords.get(spName));
                     }
                     value = setValue(property);
                 }
             }
-
+            else
+            {
+                value = "[ ERROR: No property value resolved ]";
+            }
             matcher.appendReplacement(sb, Matcher.quoteReplacement(value));
         }
 
         matcher.appendTail(sb);
-        fileContent = sb.toString();
+        String renderedContent = sb.toString();
 
         // Remove all escapes \${...}
-        fileContent = fileContent.replaceAll("\\\\\\$\\{", "\\$\\{");
-        return fileContent;
+        renderedContent = renderedContent.replaceAll("\\\\\\$\\{", "\\$\\{");
+        return renderedContent;
     }
 
 

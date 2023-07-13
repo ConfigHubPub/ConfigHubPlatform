@@ -2503,6 +2503,15 @@ public class Store
     public Pair<PropertyKey, Collection<Property>> getPropertiesForKey( final Repository repository,
                                                                         final Date date,
                                                                         String key )
+            throws ConfigException
+    {
+        return getPropertiesForKey(repository, date, key, null);
+    }
+
+    public Pair<PropertyKey, Collection<Property>> getPropertiesForKey( final Repository repository,
+                                                                        final Date date,
+                                                                        String key,
+                                                                        String contextRegex )
           throws ConfigException
     {
         PropertyKey propertyKey = null;
@@ -2530,11 +2539,23 @@ public class Store
 
             try
             {
-                properties = em.createNamedQuery( "Property.getByPropertyKey" )
-                               .setLockMode( LockModeType.NONE )
-                               .setParameter( "propertyKey", propertyKey )
-                               .setParameter( "repository", repository )
-                               .getResultList();
+                if ( null == contextRegex )
+                {
+                    properties = em.createNamedQuery( "Property.getByPropertyKey" )
+                                   .setLockMode( LockModeType.NONE )
+                                   .setParameter( "propertyKey", propertyKey )
+                                   .setParameter( "repository", repository )
+                                   .getResultList();
+                }
+                else
+                {
+                    properties = em.createNamedQuery( "Property.getByPropertyKeyWithContextRegex" )
+                                   .setLockMode( LockModeType.NONE )
+                                   .setParameter( "propertyKey", propertyKey )
+                                   .setParameter( "repository", repository )
+                                   .setParameter( "contextRegex", contextRegex )
+                                   .getResultList();
+                }
             }
             catch ( NoResultException ignore )
             {

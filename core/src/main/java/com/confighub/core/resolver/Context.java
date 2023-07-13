@@ -25,8 +25,12 @@ import com.confighub.core.user.UserAccount;
 import com.confighub.core.utils.DateTimeUtils;
 import com.confighub.core.utils.Utils;
 import com.google.common.base.Objects;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 public class Context
@@ -38,6 +42,7 @@ public class Context
     protected final Store store;
     protected final Date date;
     protected final boolean all;
+    protected String regexPattern;
 
     private final EnumSet<Depth> depths;
 
@@ -135,6 +140,32 @@ public class Context
         return false;
     }
 
+    protected String getDatabaseRegexPattern() {
+        if (null != this.regexPattern)
+        {
+            return this.regexPattern;
+        }
+
+        String contextJson = toJson().toString();
+        String patternString = "(,\"n\":[^}]+)";
+        Pattern pattern = Pattern.compile(patternString);
+        Matcher matcher = pattern.matcher(contextJson);
+
+        StringBuffer sb = new StringBuffer();
+        while (matcher.find())
+        {
+            String optionalContent = matcher.group(1);
+            matcher.appendReplacement(sb, "(" + optionalContent + ")?");
+        }
+        matcher.appendTail(sb);
+
+        this.regexPattern = sb.toString();
+        this.regexPattern = this.regexPattern.replace("[", "^\\[");
+        this.regexPattern = this.regexPattern.replace("]", "\\]$");
+
+        return this.regexPattern;
+    }
+
     public boolean isAudit() { return null != this.date; }
 
     private void add(final CtxLevel ctxLevel )
@@ -162,6 +193,33 @@ public class Context
             else
                 w.add(depth);
         }
+    }
+
+    public static JsonArray contextItemsToJSON(Repository repository, Collection<CtxLevel> context)
+    {
+        JsonArray json = new JsonArray();
+        if (null == repository || null == context)
+        {
+            return json;
+        }
+
+        for (Depth depth : repository.getDepth().getDepths())
+        {
+            JsonObject ljson = new JsonObject();
+            ljson.addProperty("p", depth.getPlacement());
+            for (CtxLevel l : context)
+            {
+                if (l.getDepth() == depth)
+                {
+                    ljson.addProperty("n", l.getName());
+                    ljson.addProperty("t", l.isStandalone() ? 0 : l.isMember() ? 1 : 2);
+                    ljson.addProperty("w", l.getContextScore());
+                    break;
+                }
+            }
+            json.add(ljson);
+        }
+        return json;
     }
 
     public Collection<CtxLevel> getContextItems()
@@ -225,7 +283,7 @@ public class Context
             throws ConfigException
     {
         RepositoryPropertiesResolver resolver = new RepositoryPropertiesResolver(store, true);
-        return resolver.resolveProperty(this, key);
+        return resolver.resolveProperty(this, key, getDatabaseRegexPattern());
     }
 
     /**
@@ -312,6 +370,12 @@ public class Context
     {
         LiteralKeyResolver resolver = new LiteralKeyResolver(store);
         return resolver.resolve(this, key, allValues);
+    }
+
+
+    public JsonArray toJson()
+    {
+        return Context.contextItemsToJSON(repository, getContextItems());
     }
 
     @Override

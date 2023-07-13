@@ -320,47 +320,22 @@ public abstract class AContextAwarePersistent
     public abstract JsonObject toJson();
 
 
-    private static CtxLevel getLevelAt( Depth d,
-                                        Set<CtxLevel> context )
-    {
-        if ( null == context )
-        {
-            return null;
-        }
-        for ( CtxLevel l : context )
-        {
-            if ( l.getDepth() == d )
-            {
-                return l;
-            }
-        }
-        return null;
-    }
-
-
     public final void updateContextString()
     {
         this.contextWeight = 0;
-        JsonArray json = new JsonArray();
         for ( Depth depth : this.repository.getDepth().getDepths() )
         {
-            CtxLevel l;
-            JsonObject ljson = new JsonObject();
-            ljson.addProperty( "p", depth.getPlacement() );
-
-            if ( null != ( l = getLevelAt( depth, this.context ) ) )
+            for ( CtxLevel l : this.context )
             {
-                ljson.addProperty( "n", l.getName() );
-                ljson.addProperty( "t", l.isStandalone() ? 0 : l.isMember() ? 1 : 2 );
-                ljson.addProperty( "w", l.getContextScore() );
-
-                this.contextWeight += l.getContextScore();
+                if ( l.getDepth() == depth )
+                {
+                    this.contextWeight += l.getContextScore();
+                    break;
+                }
             }
-
-            json.add( ljson );
         }
 
-        this.contextJson = json.toString();
+        this.contextJson = Context.contextItemsToJSON(this.repository, this.context).toString();
     }
 
 

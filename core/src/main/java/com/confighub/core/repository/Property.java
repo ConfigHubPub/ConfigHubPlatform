@@ -72,6 +72,9 @@ import java.util.Set;
             @NamedQuery( name = "Property.getByPropertyKey",
                          query = "SELECT p FROM Property p WHERE repository=:repository AND propertyKey=:propertyKey" ),
 
+            @NamedQuery( name = "Property.getByPropertyKeyWithContextRegex",
+                         query = "SELECT p FROM Property p WHERE repository=:repository AND propertyKey=:propertyKey AND regexp(p.contextJson, :contextRegex) = 1" ),
+
             @NamedQuery( name = "Search.values",
                          query = "SELECT p FROM Property p WHERE " +
                                  "p.repository=:repository AND UPPER(p.value) LIKE :searchTerm" ),

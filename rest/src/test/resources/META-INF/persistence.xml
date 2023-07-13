@@ -30,7 +30,7 @@
             <property name="javax.persistence.jdbc.driver" value="org.h2.Driver"/>
 
             <!-- Hibernate properties -->
-            <property name="hibernate.dialect" value="org.hibernate.dialect.H2Dialect"/>
+            <property name="hibernate.dialect_resolvers" value="com.confighub.core.store.dialect.ExtendedDialectResolver"/>
             <property name="hibernate.hbm2ddl.auto" value="create-drop"/>
 
             <property name="hibernate.c3p0.acquire_increment" value="10"/>
