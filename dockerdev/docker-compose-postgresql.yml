@@ -1,0 +1,43 @@
+version: "3.2"
+services:
+  confighub:
+    container_name: dev.postgresql.confighub
+    build:
+      context: ..
+      dockerfile: dockerdev/Dockerfile
+    ports:
+      - "5080:5080"
+      - "8008:8008"
+      - "8443:443"
+      - "80:80"
+    volumes:
+      - ../rest/target:/buildtarget:z
+    environment:
+      CATALINA_OPTS: "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5080 \
+                      -Dcom.sun.management.jmxremote=true \
+                      -Dcom.sun.management.jmxremote.port=8008 \
+                      -Dcom.sun.management.jmxremote.rmi.port=8008 \
+                      -Dcom.sun.management.jmxremote.ssl=false \
+                      -Dcom.sun.management.jmxremote.authenticate=false \
+                      -Dcom.sun.management.jmxremote.local.only=false \
+                      -Djava.security.policy=all.policy \
+                      -Djava.rmi.server.hostname=localhost"
+      DB_TYPE: postgresql
+      DB_HOST: postgresql
+      DB_NAME: confighub
+      DB_USERNAME: confighub
+      DB_PASSWORD: confighub
+    links:
+      - postgresql
+  postgresql:
+    container_name: dev.postgresql.db
+    image: postgres:13-buster
+    command: --logging_collector=on
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./database-entrypoint-initdb.d:/docker-entrypoint-initdb.d:z
+    environment:
+      POSTGRES_DB: confighub
+      POSTGRES_USER: confighub
+      POSTGRES_PASSWORD: confighub
