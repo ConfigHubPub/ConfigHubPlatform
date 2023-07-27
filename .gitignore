@@ -6,5 +6,5 @@ target
 *.ipr
 *.iws
 .idea/*
-docker/ConfigHubDBManager.jar
-docker/database-entrypoint-initdb.d/*
+dockerdev/database-entrypoint-initdb.d/*
+dockerdev/layer/ConfigHubDBManager*.jar
