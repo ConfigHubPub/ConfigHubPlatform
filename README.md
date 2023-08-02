@@ -12,8 +12,8 @@ The ConfigHub server application has the following prerequisites:
 
 ## Database Schema
 
-Schema is liquibase managed by an application found in [Database-Manager](https://github.com/ConfigHubPub/Database-Manager) 
-repo.  A pre-compiled JAR is included with each ConfigHub Platform release. 
+Schema is liquibase managed by an application found in [Database-Manager](https://github.com/ConfigHubPub/Database-Manager)
+repo.  A pre-compiled JAR is included with each ConfigHub Platform release.
 
 ## Issue Tracking
 
@@ -22,7 +22,7 @@ Found a bug? Have an idea for an improvement? Feel free to [add an issue](../../
 
 ## Contributing
 
-Help us build the future of configuration management and be part of a project that is changing how 
+Help us build the future of configuration management and be part of a project that is changing how
 configuration is leveraged across teams every day.
 
 Follow the [contributors guide](https://www.confighub.org/community) and read [the contributing instructions](CONTRIBUTING.md) to get started.
@@ -37,8 +37,8 @@ Execute with following:
 docker run -d \
     -p 8080:80 \
     -p 8443:443 \
+    -e DB_TYPE=mysql \
     -e DB_URL=jdbc:mysql://<databaseHost>:3306/ConfigHub \
-    -e DB_DRIVER=com.mysql.jdbc.Driver \
     -e DB_USERNAME=<username> \
     -e DB_PASSWORD=<password> \
     --name confighub \
@@ -47,7 +47,7 @@ docker run -d \
 
 You may also use PostgreSQL database with
 ```
-    -e DB_DRIVER=org.postgresql.Driver
+    -e DB_TYPE=postgresql
     -e DB_URL=jdbc:postgresql://<databaseHost>:5432/ConfigHubPSQL
 ```
 
