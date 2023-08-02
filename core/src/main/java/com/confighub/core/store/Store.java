@@ -451,15 +451,16 @@ public class Store
 
 
     public Organization removeOwner( final Organization organization,
+                                     final UserAccount user,
                                      final UserAccount owner )
           throws ConfigException
     {
-        if ( Utils.anyNull( organization, owner ) )
+        if ( Utils.anyNull( organization, user, owner ) )
         {
             throw new ConfigException( Error.Code.MISSING_PARAMS );
         }
 
-        if ( !organization.isOwner( owner ) )
+        if ( !organization.isOwner( user ) )
         {
             throw new ConfigException( Error.Code.USER_ACCESS_DENIED );
         }
@@ -472,20 +473,21 @@ public class Store
 
 
     public Organization removeAdministrator( final Organization organization,
-                                             final UserAccount owner )
-          throws ConfigException
+                                             final UserAccount user,
+                                             final UserAccount administrator )
+    throws ConfigException
     {
-        if ( Utils.anyNull( organization, owner ) )
+        if ( Utils.anyNull( organization, user, administrator ) )
         {
             throw new ConfigException( Error.Code.MISSING_PARAMS );
         }
 
-        if ( !organization.isOwner( owner ) )
+        if ( !organization.isOwner( user ) )
         {
             throw new ConfigException( Error.Code.USER_ACCESS_DENIED );
         }
 
-        organization.removeAdministrator( owner );
+        organization.removeAdministrator( administrator );
 
         saveOrUpdateNonAudited( organization );
         return organization;
