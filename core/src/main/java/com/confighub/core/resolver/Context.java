@@ -140,32 +140,6 @@ public class Context
         return false;
     }
 
-    protected String getDatabaseRegexPattern() {
-        if (null != this.regexPattern)
-        {
-            return this.regexPattern;
-        }
-
-        String contextJson = toJson().toString();
-        String patternString = "(,\"n\":[^}]+)";
-        Pattern pattern = Pattern.compile(patternString);
-        Matcher matcher = pattern.matcher(contextJson);
-
-        StringBuffer sb = new StringBuffer();
-        while (matcher.find())
-        {
-            String optionalContent = matcher.group(1);
-            matcher.appendReplacement(sb, "(" + optionalContent + ")?");
-        }
-        matcher.appendTail(sb);
-
-        this.regexPattern = sb.toString();
-        this.regexPattern = this.regexPattern.replace("[", "^\\[");
-        this.regexPattern = this.regexPattern.replace("]", "\\]$");
-
-        return this.regexPattern;
-    }
-
     public boolean isAudit() { return null != this.date; }
 
     private void add(final CtxLevel ctxLevel )
@@ -283,7 +257,7 @@ public class Context
             throws ConfigException
     {
         RepositoryPropertiesResolver resolver = new RepositoryPropertiesResolver(store, true);
-        return resolver.resolveProperty(this, key, getDatabaseRegexPattern());
+        return resolver.resolveProperty(this, key);
     }
 
     /**
