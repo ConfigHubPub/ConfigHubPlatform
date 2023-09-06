@@ -30,7 +30,6 @@
             <property name="hibernate.format_sql" value="false"/>
             <property name="use_sql_comments" value="false"/>
             <property name="hibernate.transaction.flush_before_completion" value="true"/>
-            <property name="hibernate.dialect_resolvers" value="com.confighub.core.store.dialect.ExtendedDialectResolver"/>
 
             <!-- Envers -->
             <property name="org.hibernate.envers.store_data_at_delete" value="true"/>

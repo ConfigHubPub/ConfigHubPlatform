@@ -151,7 +151,7 @@ public class ContextParser
             String[] tokens = ctx.split(";");
             if (tokens.length == 0)
                 return context;
-            
+
             for (String token : tokens)
             {
                 String[] pair = token.split(":");
@@ -223,5 +223,30 @@ public class ContextParser
         }
 
         return context;
+    }
+
+    public static String contextToString( final Collection<CtxLevel> ctxLevels,
+                                          final Repository repository )
+    {
+        if ( Utils.anyNull(ctxLevels, repository) )
+        {
+            return "*";
+        }
+
+        List<String> ctxNames = new ArrayList<>();
+        for (Depth depth : repository.getDepth().getDepths())
+        {
+            String toAdd = "*";
+            for (CtxLevel l : ctxLevels)
+            {
+                if (l.getDepth() == depth)
+                {
+                    toAdd = l.getName().toLowerCase();
+                    break;
+                }
+            }
+            ctxNames.add(toAdd);
+        }
+        return Utils.join(ctxNames, ";");
     }
 }

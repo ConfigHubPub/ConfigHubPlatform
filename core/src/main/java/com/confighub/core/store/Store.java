@@ -32,6 +32,7 @@ import com.confighub.core.system.SystemConfig;
 import com.confighub.core.system.conf.LdapConfig;
 import com.confighub.core.user.Account;
 import com.confighub.core.user.UserAccount;
+import com.confighub.core.utils.ContextParser;
 import com.confighub.core.utils.FileUtils;
 import com.confighub.core.utils.Pair;
 import com.confighub.core.utils.Utils;
@@ -51,6 +52,7 @@ import org.hibernate.envers.query.AuditQuery;
 import javax.persistence.LockModeType;
 import javax.persistence.NoResultException;
 import javax.persistence.Query;
+
 import java.util.*;
 
 import static com.confighub.core.store.Store.KeyUpdateStatus.UPDATE;
@@ -59,7 +61,7 @@ import static com.confighub.core.store.Store.KeyUpdateStatus.UPDATE;
 public class Store
       extends AStore
 {
-    private static final Logger log = LogManager.getLogger( Store.class );
+    private static final Logger log = LogManager.getFormatterLogger( Store.class );
 
     // --------------------------------------------------------------------------------------------
     // User
@@ -1039,7 +1041,7 @@ public class Store
         repository.getFiles().forEach(AContextAwarePersistent::updateContextString);
         saveOrUpdateAudited( user, repository, repository );
 
-        log.info( "Inserting context hierarchy: " + label + " index: " + insertIndex );
+        log.info( "Inserting context hierarchy: %s index: %s", label, insertIndex );
 
         return repository;
     }
@@ -2053,6 +2055,8 @@ public class Store
 
                 propertyKey.setSecurityProfile( sp, spPassword );
             }
+
+            log.info( "Added property for repository [%s] with key [%s]", repository.getName(), key );
         }
 
         property.setPropertyKey( propertyKey );
@@ -2088,6 +2092,13 @@ public class Store
 
         validateWriteAccess( repository, user, property );
         saveOrUpdateAudited( user, repository, property, changeComment );
+
+        log.info( "Added property value > %s for repository [%s] and key [%s]: %s",
+                ContextParser.contextToString(context, repository),
+                repository.getName(),
+                key,
+                value != null ? value.replace("\n", "\\n") : "" );
+
         return property;
     }
 
@@ -2220,8 +2231,14 @@ public class Store
         property.setActive( active );
 
         validateWriteAccess( repository, user, property );
-
         saveOrUpdateAudited( user, repository, property, changeComment );
+
+        log.info( "Updated property value > %s for repository [%s] and key [%s]: %s",
+                ContextParser.contextToString(context, repository),
+                repository.getName(),
+                property.getPropertyKey().getKey(),
+                value != null ? value.replace("\n", "\\n") : "" );
+
         return property;
     }
 
@@ -2329,6 +2346,7 @@ public class Store
         }
 
         deleteAudited( user, repository, key );
+        log.info( "Deleted property for repository [%s] with key [%s]", repository.getName(), keyString );
         return true;
     }
 
@@ -2374,6 +2392,7 @@ public class Store
         }
 
         deleteAuditedViaAPI( appIdentity, repository, key, changeComment );
+        log.info( "Deleted property for repository [%s] with key [%s]", repository.getName(), keyString );
         return true;
     }
 
@@ -2420,15 +2439,23 @@ public class Store
         }
 
         String key = property.getKey();
+        String contextString = ContextParser.contextToString(property.getContext(), repository);
 
         boolean ret;
         ret = deleteAudited( user, repository, property );
+
+        log.info( "Deleted property value > %s for repository [%s] and key [%s]",
+                contextString,
+                repository.getName(),
+                key );
+
         PropertyKey propertyKey = getKey( repository, key );
 
         if ( propertyKey.getProperties().size() == 0 && ( null == propertyKey.getFiles() || propertyKey.getFiles()
                                                                                                        .size() == 0 ) )
         {
             ret &= deleteAudited( user, repository, propertyKey );
+            log.info( "Deleted property for repository [%s] with key [%s]", repository.getName(), key );
         }
 
         return ret;
@@ -2457,9 +2484,15 @@ public class Store
         validateWriteAccess( repository, token, property );
 
         String key = property.getKey();
+        String contextString = ContextParser.contextToString(property.getContext(), repository);
 
         boolean ret;
         ret = deleteAuditedViaAPI( appIdentity, repository, property, changeComment );
+
+        log.info( "Deleted property value > %s for repository [%s] and key [%s]",
+                contextString,
+                repository.getName(),
+                key );
 
         PropertyKey propertyKey = getKey( repository, key );
 
@@ -2472,6 +2505,7 @@ public class Store
                                                                                                        .size() == 0 ) )
         {
             ret &= deleteAuditedViaAPI( appIdentity, repository, propertyKey, changeComment );
+            log.info( "Deleted property for repository [%s] with key [%s]", repository.getName(), key );
         }
 
         return ret;
@@ -2505,15 +2539,6 @@ public class Store
                                                                         String key )
             throws ConfigException
     {
-        return getPropertiesForKey(repository, date, key, null);
-    }
-
-    public Pair<PropertyKey, Collection<Property>> getPropertiesForKey( final Repository repository,
-                                                                        final Date date,
-                                                                        String key,
-                                                                        String contextRegex )
-          throws ConfigException
-    {
         PropertyKey propertyKey = null;
         Collection<Property> properties = new ArrayList<>();
 
@@ -2539,23 +2564,11 @@ public class Store
 
             try
             {
-                if ( null == contextRegex )
-                {
-                    properties = em.createNamedQuery( "Property.getByPropertyKey" )
-                                   .setLockMode( LockModeType.NONE )
-                                   .setParameter( "propertyKey", propertyKey )
-                                   .setParameter( "repository", repository )
-                                   .getResultList();
-                }
-                else
-                {
-                    properties = em.createNamedQuery( "Property.getByPropertyKeyWithContextRegex" )
-                                   .setLockMode( LockModeType.NONE )
-                                   .setParameter( "propertyKey", propertyKey )
-                                   .setParameter( "repository", repository )
-                                   .setParameter( "contextRegex", contextRegex )
-                                   .getResultList();
-                }
+                properties = em.createNamedQuery( "Property.getByPropertyKey" )
+                                .setLockMode( LockModeType.NONE )
+                                .setParameter( "propertyKey", propertyKey )
+                                .setParameter( "repository", repository )
+                                .getResultList();
             }
             catch ( NoResultException ignore )
             {
@@ -2770,6 +2783,8 @@ public class Store
 
             validateWriteAccess( repository, user, propertyKey );
             saveOrUpdateAudited( user, repository, propertyKey, changeComment );
+
+            log.info( "Added property for repository [%s] with key [%s]", repository.getName(), newKeyString );
 
             return new Pair<>( propertyKey, KeyUpdateStatus.UPDATE );
         }
@@ -3260,6 +3275,8 @@ public class Store
 
             deleteAudited( user, repository, toDelete, changeComment );
         }
+
+        log.info( "Updated property for repository [%s] with key [%s]", repository.getName(), newKeyString );
         return new Pair<>( toSave, status );
     }
 
@@ -4772,6 +4789,13 @@ public class Store
 
         validateWriteAccess( repository, user, file );
         saveOrUpdateAudited( user, repository, file, changeComment );
+
+        log.info( "Added file > %s for repository [%s] with path [%s] and contents: %s",
+                ContextParser.contextToString(context, repository),
+                repository.getName(),
+                absPath,
+                content.replace("\n", "\\n") );
+
         return file;
     }
 
@@ -4822,6 +4846,13 @@ public class Store
 
         validateWriteAccess( repository, token, file );
         saveOrUpdateAuditedViaAPI( apiIdentifier, repository, file, changeComment );
+
+        log.info( "Added file > %s for repository [%s] with path [%s] and contents: %s",
+                ContextParser.contextToString(context, repository),
+                repository.getName(),
+                absPath,
+                content.replace("\n", "\\n") );
+
         return file;
     }
 
@@ -4996,6 +5027,7 @@ public class Store
 
         // If a file is being renamed, there are things to do.
         AbsoluteFilePath originalAbsoluteFilePath = file.getAbsFilePath();
+        String absPath = Utils.isBlank( path ) ? filename : path + "/" + filename;
         if ( null == originalAbsoluteFilePath.getPath() || !originalAbsoluteFilePath.getPath()
                                                                                     .equalsIgnoreCase( path ) ||
              !originalAbsoluteFilePath
@@ -5003,7 +5035,6 @@ public class Store
                    .equalsIgnoreCase(
                          filename ) )
         {
-            String absPath = Utils.isBlank( path ) ? filename : path + "/" + filename;
             AbsoluteFilePath absoluteFilePath = getAbsFilePath( repository, absPath, null );
             if ( null == absoluteFilePath )
             {
@@ -5106,6 +5137,12 @@ public class Store
             saveOrUpdateAudited( user, repository, file, changeComment );
         }
 
+        log.info( "Updated file > %s for repository [%s] with path [%s] and contents: %s",
+                ContextParser.contextToString(context, repository),
+                repository.getName(),
+                absPath,
+                content.replace("\n", "\\n") );
+
         return file;
     }
 
@@ -5172,6 +5209,7 @@ public class Store
             throw new ConfigException( Error.Code.FILE_NOT_FOUND );
         }
 
+        String contextString = ContextParser.contextToString(file.getContext(), repository);
         AbsoluteFilePath absoluteFilePath = file.getAbsFilePath();
         absoluteFilePath.removeFile( file );
 
@@ -5181,6 +5219,11 @@ public class Store
         {
             deleteAudited( user, repository, absoluteFilePath );
         }
+
+        log.info( "Deleted file > %s for repository [%s] with path [%s]",
+                contextString,
+                repository.getName(),
+                absoluteFilePath.getAbsPath() );
     }
 
 
@@ -5199,6 +5242,7 @@ public class Store
 
         validateWriteAccess( repository, token, file );
 
+        String contextString = ContextParser.contextToString(file.getContext(), repository);
         AbsoluteFilePath absoluteFilePath = file.getAbsFilePath();
         absoluteFilePath.removeFile( file );
 
@@ -5208,6 +5252,11 @@ public class Store
         {
             deleteAuditedViaAPI( appIdentity, repository, absoluteFilePath, changeComment );
         }
+
+        log.info( "Deleted file > %s for repository [%s] with path [%s]",
+                contextString,
+                repository.getName(),
+                absoluteFilePath.getAbsPath() );
     }
 
 

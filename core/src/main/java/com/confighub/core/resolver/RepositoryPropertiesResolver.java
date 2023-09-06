@@ -45,9 +45,9 @@ public class RepositoryPropertiesResolver
         this.isClient = isClient;
     }
 
-    protected Property resolveProperty(final Context context, final String key, final String contextRegex)
+    protected Property resolveProperty(final Context context, final String key)
     {
-        Collection<Property> properties = store.getPropertiesForKey(context.repository, context.date, key, contextRegex).cdr;
+        Collection<Property> properties = store.getPropertiesForKey(context.repository, context.date, key).cdr;
 
         Property heaviest = null;
         for (Property property : properties)
