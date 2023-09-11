@@ -162,6 +162,8 @@ public class FileUtils
                         value = "[ ERROR: No file resolved ]";
                     else
                         value = renderFileContents(context, injectFile.getContent(), passwords, resolvedProperties, breadcrumbs);
+
+                    breadcrumbs.remove(property.getAbsoluteFilePath().getId());
                 }
                 else
                 {
