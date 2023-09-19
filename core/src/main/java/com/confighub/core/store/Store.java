@@ -1981,6 +1981,8 @@ public class Store
     {
         validateWriteAccess( repository, token, propertyKey );
         saveOrUpdateAuditedViaAPI( appIdentity, repository, propertyKey, changeComment );
+
+        log.info( "Updated property key for repository [%s] with key [%s]", repository.getName(), propertyKey.getKey() );
     }
 
 
@@ -1993,6 +1995,12 @@ public class Store
     {
         validateWriteAccess( repository, token, property );
         saveOrUpdateAuditedViaAPI( appIdentity, repository, property, changeComment );
+
+        log.info( "Updated property value > %s for repository [%s] and key [%s]: %s",
+                ContextParser.contextToString(property.getContext(), repository),
+                repository.getName(),
+                property.getPropertyKey().getKey(),
+                property.getValue() != null ? property.getValue().replace("\n", "\\n") : "" );
     }
 
 
@@ -2056,7 +2064,7 @@ public class Store
                 propertyKey.setSecurityProfile( sp, spPassword );
             }
 
-            log.info( "Added property for repository [%s] with key [%s]", repository.getName(), key );
+            log.info( "Added property key for repository [%s] with key [%s]", repository.getName(), key );
         }
 
         property.setPropertyKey( propertyKey );
@@ -2346,7 +2354,7 @@ public class Store
         }
 
         deleteAudited( user, repository, key );
-        log.info( "Deleted property for repository [%s] with key [%s]", repository.getName(), keyString );
+        log.info( "Deleted property key for repository [%s] with key [%s]", repository.getName(), keyString );
         return true;
     }
 
@@ -2392,7 +2400,7 @@ public class Store
         }
 
         deleteAuditedViaAPI( appIdentity, repository, key, changeComment );
-        log.info( "Deleted property for repository [%s] with key [%s]", repository.getName(), keyString );
+        log.info( "Deleted property key for repository [%s] with key [%s]", repository.getName(), keyString );
         return true;
     }
 
@@ -2455,7 +2463,7 @@ public class Store
                                                                                                        .size() == 0 ) )
         {
             ret &= deleteAudited( user, repository, propertyKey );
-            log.info( "Deleted property for repository [%s] with key [%s]", repository.getName(), key );
+            log.info( "Deleted property key for repository [%s] with key [%s]", repository.getName(), key );
         }
 
         return ret;
@@ -2505,7 +2513,7 @@ public class Store
                                                                                                        .size() == 0 ) )
         {
             ret &= deleteAuditedViaAPI( appIdentity, repository, propertyKey, changeComment );
-            log.info( "Deleted property for repository [%s] with key [%s]", repository.getName(), key );
+            log.info( "Deleted property key for repository [%s] with key [%s]", repository.getName(), key );
         }
 
         return ret;
@@ -2784,7 +2792,7 @@ public class Store
             validateWriteAccess( repository, user, propertyKey );
             saveOrUpdateAudited( user, repository, propertyKey, changeComment );
 
-            log.info( "Added property for repository [%s] with key [%s]", repository.getName(), newKeyString );
+            log.info( "Added property key for repository [%s] with key [%s]", repository.getName(), newKeyString );
 
             return new Pair<>( propertyKey, KeyUpdateStatus.UPDATE );
         }
@@ -3276,7 +3284,7 @@ public class Store
             deleteAudited( user, repository, toDelete, changeComment );
         }
 
-        log.info( "Updated property for repository [%s] with key [%s]", repository.getName(), newKeyString );
+        log.info( "Updated property key for repository [%s] with key [%s]", repository.getName(), newKeyString );
         return new Pair<>( toSave, status );
     }
 
