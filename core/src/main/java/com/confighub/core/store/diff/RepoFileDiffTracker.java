@@ -36,6 +36,7 @@ public class RepoFileDiffTracker
     public void preRemove(APersisted obj)
     {
         obj.revType = APersisted.RevisionType.Delete;
+        setSearchKey(((RepoFile)obj).getAbsPath());
     }
 
     @PrePersist
@@ -47,7 +48,7 @@ public class RepoFileDiffTracker
     @PostPersist
     public void postPersist(APersisted obj)
     {
-
+        setSearchKey(((RepoFile)obj).getAbsPath());
     }
 
     @PostLoad
@@ -87,7 +88,10 @@ public class RepoFileDiffTracker
         }
 
         if (!Utils.equal(o.absPath, file.getAbsPath()))
+        {
             json.addProperty("absPath", o.absPath);
+            setSearchKey(o.absPath);
+        }
 
         if (!Utils.equal(o.contextJson, file.getContextJson()))
             json.add("context", new Gson().fromJson(o.contextJson, JsonArray.class));
@@ -99,6 +103,7 @@ public class RepoFileDiffTracker
             json.addProperty("active", o.active);
 
         file.diffJson = json.toString();
+        setSearchKey(file.getAbsPath());
     }
 
     private static class OriginalRepoFile

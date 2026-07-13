@@ -681,6 +681,7 @@
                 {
 
                     $scope.fileEditor = true;
+                    $scope.fileTokens = {};
 
                     $scope.repoName = $stateParams.name;
                     $scope.account = $stateParams.owner;
@@ -1256,6 +1257,7 @@
                         if ($scope.isPreview) return;
 
                         getTokens();
+                        $scope.fileTokens = curr;
 
                         newKeys = Object.keys(curr);
 

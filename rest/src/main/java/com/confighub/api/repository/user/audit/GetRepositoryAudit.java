@@ -61,6 +61,7 @@ public class GetRepositoryAudit
                         @FormParam("direction") int direction,
                         @FormParam("attention") boolean attention,
                         @FormParam("forUser") String forUser,
+                        @FormParam("searchTerm") String searchTerm,
                         @HeaderParam("Authorization") String token)
     {
         JsonObject json = new JsonObject();
@@ -95,6 +96,7 @@ public class GetRepositoryAudit
                                                              direction,
                                                              null,
                                                              attention,
+                                                             searchTerm,
                                                              commitGroup);
 
             json.addProperty("success", true);

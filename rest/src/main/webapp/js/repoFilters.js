@@ -16,6 +16,43 @@
  */
 
 {
+    function escapeRegex(str) {
+        return str.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, "\\$&");
+    }
+
+    // Splits space-separated search fields into plain OR-matched regexes ("res") and
+    // "key=value" AND clauses ("kvClauses" - key must match AND some property value must match).
+    function parseFields(fields)
+    {
+        var res = [],
+            kvClauses = [],
+            fi,
+            field,
+            eqIdx,
+            keyTerm,
+            valueTerm;
+
+        for (fi=0; fi<fields.length; fi++) {
+            field = fields[fi];
+            eqIdx = field.indexOf('=');
+
+            if (eqIdx >= 0) {
+                keyTerm = escapeRegex(field.substring(0, eqIdx).trim());
+                valueTerm = escapeRegex(field.substring(eqIdx + 1).trim());
+
+                kvClauses.push({
+                    keyRe: keyTerm ? new RegExp(keyTerm, 'i') : null,
+                    valueRe: new RegExp(valueTerm, 'i')
+                });
+            }
+            else {
+                res.push(new RegExp(escapeRegex(field), 'i'));
+            }
+        }
+
+        return { res: res, kvClauses: kvClauses };
+    }
+
     function gPropertyFilter(re, property, filtered, toPush)
     {
         if (re.test(property.value)) {
@@ -101,21 +138,16 @@
                 if (!localSearch || !fields || fields.length == 0)
                     return propertyList;
 
-                var res = [],
-                    fi,
-                    field,
+                var parsed = parseFields(fields),
+                    res = parsed.res,
+                    kvClauses = parsed.kvClauses,
                     added = false,
                     i,
                     re,
+                    clause,
                     filtered = [],
                     pi = 0,
                     property;
-
-
-                for (fi=0; fi<fields.length; fi++) {
-                    field = fields[fi].replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, "\\$&");
-                    res.push(new RegExp(field, 'i'));
-                }
 
                 if (entry.newProperty)
                     added = true;
@@ -128,22 +160,36 @@
                     }
                 }
 
-                if (!added) {
-                    for (; pi<propertyList.length; pi++)
-                    {
-                        property = propertyList[pi];
-                        for (i in res)
-                        {
-                            re = res[i];
-                            if (gPropertyFilter(re, property, filtered, property))
-                                break;
-                        }
-                    }
+                if (added)
+                    return propertyList;
 
-                    return filtered;
+                for (; pi<propertyList.length; pi++)
+                {
+                    property = propertyList[pi];
+                    for (i in res)
+                    {
+                        re = res[i];
+                        if (gPropertyFilter(re, property, filtered, property))
+                            break;
+                    }
                 }
 
-                return propertyList;
+                for (i = 0; i < kvClauses.length; i++)
+                {
+                    clause = kvClauses[i];
+
+                    if (clause.keyRe && !clause.keyRe.test(entry.key))
+                        continue;
+
+                    for (pi = 0; pi<propertyList.length; pi++)
+                    {
+                        property = propertyList[pi];
+                        if (filtered.indexOf(property) < 0 && clause.valueRe.test(property.value))
+                            filtered.push(property);
+                    }
+                }
+
+                return filtered;
             }
         })
 
@@ -154,21 +200,16 @@
                 if (!localSearch || !fields || fields.length == 0)
                     return propertyList;
 
-                var res = [],
-                    fi,
-                    field,
+                var parsed = parseFields(fields),
+                    res = parsed.res,
+                    kvClauses = parsed.kvClauses,
                     added = false,
                     i,
                     re,
+                    clause,
                     filtered = [],
                     pi,
                     pair;
-
-
-                for (fi=0; fi<fields.length; fi++) {
-                    field = fields[fi].replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, "\\$&");
-                    res.push(new RegExp(field, 'i'));
-                }
 
                 for (i in res)
                 {
@@ -184,40 +225,63 @@
                     }
                 }
 
-                if (!added) {
+                if (added)
+                    return propertyList;
 
-                    for (pi=0; pi<propertyList.length; pi++)
+                for (pi=0; pi<propertyList.length; pi++)
+                {
+                    pair = propertyList[pi];
+
+                    for (i in res)
                     {
-                        pair = propertyList[pi];
+                        re = res[i];
 
-                        for (i in res)
-                        {
-                            re = res[i];
-
-                            if (!added) {
-                                if (!added && pair[0]) added = gPropertyFilter(re, pair[0], filtered, pair);
-                                if (!added && pair[2]) added = gPropertyFilter(re, pair[2], filtered, pair);
-                            }
+                        if (!added) {
+                            if (!added && pair[0]) added = gPropertyFilter(re, pair[0], filtered, pair);
+                            if (!added && pair[2]) added = gPropertyFilter(re, pair[2], filtered, pair);
                         }
                     }
-
-                    return filtered;
                 }
 
-                return propertyList;
+                for (i = 0; i < kvClauses.length; i++)
+                {
+                    clause = kvClauses[i];
+
+                    if (clause.keyRe && !clause.keyRe.test(entry.key))
+                        continue;
+
+                    for (pi = 0; pi<propertyList.length; pi++)
+                    {
+                        pair = propertyList[pi];
+                        if (filtered.indexOf(pair) < 0 &&
+                            ((pair[0] && clause.valueRe.test(pair[0].value)) ||
+                             (pair[2] && clause.valueRe.test(pair[2].value))))
+                            filtered.push(pair);
+                    }
+                }
+
+                return filtered;
             }
         })
 
         .filter('keyFilter', function ()
         {
+            function escapeRegex(str) {
+                return str.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, "\\$&");
+            }
+
             return function (items, fields, localSearch)
             {
                 if (!localSearch || !fields || fields.length == 0)
                     return items;
 
                 var res = [],
+                    kvClauses = [],
                     fi,
                     field,
+                    eqIdx,
+                    keyTerm,
+                    valueTerm,
                     filtered = [],
                     added = false,
                     it = 0,
@@ -229,8 +293,22 @@
 
 
                 for (fi=0; fi<fields.length; fi++) {
-                    field = fields[fi].replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, "\\$&");
-                    res.push(new RegExp(field, 'i'));
+                    field = fields[fi];
+                    eqIdx = field.indexOf('=');
+
+                    // "key=value" syntax: require the key to match AND some property value to match
+                    if (eqIdx >= 0) {
+                        keyTerm = escapeRegex(field.substring(0, eqIdx).trim());
+                        valueTerm = escapeRegex(field.substring(eqIdx + 1).trim());
+
+                        kvClauses.push({
+                            keyRe: keyTerm ? new RegExp(keyTerm, 'i') : null,
+                            valueRe: new RegExp(valueTerm, 'i')
+                        });
+                    }
+                    else {
+                        res.push(new RegExp(escapeRegex(field), 'i'));
+                    }
                 }
 
 
@@ -262,12 +340,43 @@
                         }
                         if (added) break;
                     }
+
+                    if (added) continue;
+
+                    for (i = 0; i < kvClauses.length; i++)
+                    {
+                        var clause = kvClauses[i];
+
+                        if (clause.keyRe && !clause.keyRe.test(item.key))
+                            continue;
+
+                        for (pi = 0; pi<item.properties.length; pi++)
+                        {
+                            if (clause.valueRe.test(item.properties[pi].value)) {
+                                filtered.push(item);
+                                added = true;
+                                break;
+                            }
+                        }
+
+                        if (added) break;
+                    }
                 }
 
                 return filtered;
             }
         })
 
+        .filter('fileKeyFilter', function ()
+        {
+            return function (items, localSearch, fileTokens)
+            {
+                if (!localSearch || !fileTokens) return items;
+                return items.filter(function (item) {
+                    return fileTokens.hasOwnProperty(item.key);
+                });
+            };
+        })
 
         .filter('cmpKeyFilter', function ()
         {

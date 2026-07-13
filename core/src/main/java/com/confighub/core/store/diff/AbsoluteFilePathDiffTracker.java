@@ -34,6 +34,7 @@ public class AbsoluteFilePathDiffTracker
     public void preRemove(APersisted obj)
     {
         obj.revType = APersisted.RevisionType.Delete;
+        setSearchKey(((AbsoluteFilePath)obj).getAbsPath());
     }
 
     @PrePersist
@@ -45,7 +46,7 @@ public class AbsoluteFilePathDiffTracker
     @PostPersist
     public void postPersist(APersisted obj)
     {
-
+        setSearchKey(((AbsoluteFilePath)obj).getAbsPath());
     }
 
     @PostLoad
@@ -74,9 +75,13 @@ public class AbsoluteFilePathDiffTracker
         AbsoluteFilePath absoluteFilePath = (AbsoluteFilePath)obj;
 
         if (!Utils.equal(o.absFilePath, absoluteFilePath.getAbsPath()))
+        {
             json.addProperty("absPath", o.absFilePath);
+            setSearchKey(o.absFilePath);
+        }
 
         absoluteFilePath.diffJson = json.toString();
+        setSearchKey(absoluteFilePath.getAbsPath());
     }
 
     private static class OriginalAbsFilePath

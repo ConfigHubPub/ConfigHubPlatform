@@ -529,7 +529,7 @@
                         <div new-property></div>
 
                         <div style="padding-top: 10px;" ng-if="!loading" class="slider">
-                            <div dir-paginate="entry in config | orderObjectBy:'key':reverse | keyFilter:searchQuery:localSearch | itemsPerPage: pageSize track by entry.id"
+                            <div dir-paginate="entry in config | orderObjectBy:'key':reverse | fileKeyFilter:localSearch:fileTokens | keyFilter:searchQuery:localSearch | itemsPerPage: pageSize track by entry.id"
                                  current-page="currentPage">
                                 <div repo-entry entry="entry" ng-cloak></div>
                             </div>

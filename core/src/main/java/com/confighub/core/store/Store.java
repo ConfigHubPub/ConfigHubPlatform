@@ -511,6 +511,27 @@ public class Store
                                                                        final String searchTerm )
           throws ConfigException
     {
+        return searchKeysAndValues( user, repository, dateObj, searchTerm, null );
+    }
+
+    /**
+     * @param user
+     * @param repository
+     * @param keyTerm    matched against key name/comment. May be blank when valueTerm is provided,
+     *                   in which case the value match is not restricted to specific keys.
+     * @param valueTerm  when provided, restricts results to properties whose value matches this term,
+     *                   scoped to keys matching keyTerm (AND semantics). When null, keyTerm is matched
+     *                   against both keys/comments and values (legacy OR semantics).
+     * @return Map<PropertyKey, Collection<Property>> of keys and values that contain the searchTerm
+     * @throws ConfigException
+     */
+    public Map<PropertyKey, Collection<Property>> searchKeysAndValues( final UserAccount user,
+                                                                       final Repository repository,
+                                                                       final Date dateObj,
+                                                                       final String keyTerm,
+                                                                       final String valueTerm )
+          throws ConfigException
+    {
         if ( Utils.anyNull( repository ) )
         {
             throw new ConfigException( Error.Code.MISSING_PARAMS );
@@ -519,6 +540,11 @@ public class Store
         if ( !repository.hasReadAccess( user ) )
         {
             throw new ConfigException( Error.Code.USER_ACCESS_DENIED );
+        }
+
+        if ( null != valueTerm )
+        {
+            return searchKeysWithValue( repository, dateObj, keyTerm, valueTerm );
         }
 
         List<PropertyKey> keys = null;
@@ -531,7 +557,7 @@ public class Store
                 keys = em.createNamedQuery( "Search.keysAndComments" )
                          .setLockMode( LockModeType.NONE )
                          .setParameter( "repository", repository )
-                         .setParameter( "searchTerm", "%" + searchTerm.toUpperCase() + "%" )
+                         .setParameter( "searchTerm", "%" + keyTerm.toUpperCase() + "%" )
                          .getResultList();
             }
             catch ( NoResultException ignore )
@@ -547,7 +573,7 @@ public class Store
                 props = em.createNamedQuery( "Search.values" )
                           .setLockMode( LockModeType.NONE )
                           .setParameter( "repository", repository )
-                          .setParameter( "searchTerm", "%" + searchTerm.toUpperCase() + "%" )
+                          .setParameter( "searchTerm", "%" + keyTerm.toUpperCase() + "%" )
                           .getResultList();
             }
             catch ( NoResultException ignore )
@@ -565,14 +591,14 @@ public class Store
 
             AuditQuery query = reader.createQuery().forEntitiesAtRevision( PropertyKey.class, rev );
             query.add( AuditEntity.property( "repository" ).eq( repository ) );
-            query.add( AuditEntity.or( AuditEntity.property( "key" ).ilike( "%" + searchTerm + "%" ),
-                                       AuditEntity.property( "readme" ).ilike( "%" + searchTerm + "%" ) ) );
+            query.add( AuditEntity.or( AuditEntity.property( "key" ).ilike( "%" + keyTerm + "%" ),
+                                       AuditEntity.property( "readme" ).ilike( "%" + keyTerm + "%" ) ) );
 
             keys = query.getResultList();
 
             query = reader.createQuery().forEntitiesAtRevision( Property.class, rev );
             query.add( AuditEntity.property( "repository" ).eq( repository ) );
-            query.add( AuditEntity.property( "value" ).ilike( "%" + searchTerm + "%" ) );
+            query.add( AuditEntity.property( "value" ).ilike( "%" + keyTerm + "%" ) );
 
             props = query.getResultList();
         }
@@ -605,6 +631,102 @@ public class Store
                 }
             } );
         }
+        return keyListMap;
+    }
+
+    /**
+     * Finds properties whose value matches valueTerm, restricted to keys matching keyTerm (AND semantics).
+     * When keyTerm is blank, the value match is not restricted to specific keys.
+     */
+    private Map<PropertyKey, Collection<Property>> searchKeysWithValue( final Repository repository,
+                                                                        final Date dateObj,
+                                                                        final String keyTerm,
+                                                                        final String valueTerm )
+          throws ConfigException
+    {
+        Set<Long> allowedKeyIds = null;
+        List<Property> props;
+
+        if ( null == dateObj )
+        {
+            if ( !Utils.isBlank( keyTerm ) )
+            {
+                List<PropertyKey> matchedKeys;
+                try
+                {
+                    matchedKeys = em.createNamedQuery( "Search.keysAndComments" )
+                                    .setLockMode( LockModeType.NONE )
+                                    .setParameter( "repository", repository )
+                                    .setParameter( "searchTerm", "%" + keyTerm.toUpperCase() + "%" )
+                                    .getResultList();
+                }
+                catch ( NoResultException ignore )
+                {
+                    matchedKeys = new ArrayList<>();
+                }
+
+                allowedKeyIds = new HashSet<>();
+                for ( PropertyKey k : matchedKeys )
+                    allowedKeyIds.add( k.getId() );
+
+                if ( allowedKeyIds.isEmpty() )
+                    return new HashMap<>();
+            }
+
+            try
+            {
+                props = em.createNamedQuery( "Search.values" )
+                          .setLockMode( LockModeType.NONE )
+                          .setParameter( "repository", repository )
+                          .setParameter( "searchTerm", "%" + valueTerm.toUpperCase() + "%" )
+                          .getResultList();
+            }
+            catch ( NoResultException ignore )
+            {
+                props = new ArrayList<>();
+            }
+        }
+        else
+        {
+            AuditReader reader = AuditReaderFactory.get( em );
+            Number rev = reader.getRevisionNumberForDate( dateObj );
+
+            if ( !Utils.isBlank( keyTerm ) )
+            {
+                AuditQuery keyQuery = reader.createQuery().forEntitiesAtRevision( PropertyKey.class, rev );
+                keyQuery.add( AuditEntity.property( "repository" ).eq( repository ) );
+                keyQuery.add( AuditEntity.or( AuditEntity.property( "key" ).ilike( "%" + keyTerm + "%" ),
+                                              AuditEntity.property( "readme" ).ilike( "%" + keyTerm + "%" ) ) );
+
+                List<PropertyKey> matchedKeys = keyQuery.getResultList();
+
+                allowedKeyIds = new HashSet<>();
+                for ( PropertyKey k : matchedKeys )
+                    allowedKeyIds.add( k.getId() );
+
+                if ( allowedKeyIds.isEmpty() )
+                    return new HashMap<>();
+            }
+
+            AuditQuery valueQuery = reader.createQuery().forEntitiesAtRevision( Property.class, rev );
+            valueQuery.add( AuditEntity.property( "repository" ).eq( repository ) );
+            valueQuery.add( AuditEntity.property( "value" ).ilike( "%" + valueTerm + "%" ) );
+
+            props = valueQuery.getResultList();
+        }
+
+        Map<PropertyKey, Collection<Property>> keyListMap = new HashMap<>();
+        final Set<Long> allowedKeyIdsFinal = allowedKeyIds;
+
+        for ( Property p : props )
+        {
+            PropertyKey key = p.getPropertyKey();
+            if ( null != allowedKeyIdsFinal && !allowedKeyIdsFinal.contains( key.getId() ) )
+                continue;
+
+            keyListMap.computeIfAbsent( key, k -> new ArrayList<>() ).add( p );
+        }
+
         return keyListMap;
     }
 
@@ -4228,6 +4350,7 @@ public class Store
                                                final int direction,
                                                final Long forUserId,
                                                final boolean importantOnly,
+                                               final String searchTerm,
                                                List<RevisionEntry.CommitGroup> commitGroup )
           throws ConfigException
     {
@@ -4273,6 +4396,12 @@ public class Store
             {
                 hql.append( " AND userId = :userId" );
                 userParams.put( "userId", forUserId );
+            }
+
+            if (!Utils.isBlank(searchTerm))
+            {
+                hql.append(" AND (LOWER(changeComment) LIKE :searchTerm OR LOWER(searchKey) LIKE :searchTerm)" );
+                userParams.put("searchTerm", "%" + searchTerm.toLowerCase() + "%");
             }
 
             return getAuditCommits( getRevisions( max, starting, direction, hql.toString(), userParams ) );

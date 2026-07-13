@@ -17,6 +17,25 @@
 
                 <div class="col-xs-12">
                     <div role="group" class="text-right-not-xs">
+                        <div class="input-group input-group-sm pull-left" style="max-width: 240px; margin-right: 6px;">
+                            <div class="input-group-btn">
+                                <button type="button"
+                                        class="btn btn-link dropdown-toggle form-control"
+                                        ng-class="{'search-focus': auditSearchFocus}">
+                                    <i class="fa fa-search padded-right sixes"></i>
+                                </button>
+                            </div>
+                            <input type="text"
+                                   ng-focus="auditSearchFocus=true"
+                                   ng-blur="auditSearchFocus=false"
+                                   ng-model="searchQuery"
+                                   ng-trim="false"
+                                   ng-change="searchAudit()"
+                                   class="form-control input-sm nbl"
+                                  spellcheck="false"
+                                   placeholder="key, file, or comment"
+                                   ng-model-options="{ updateOn: 'default blur', debounce: { 'default': 1000, 'blur': 0 } }">
+                        </div>
 
                         <button class="btn btn-sm btn-default only-icon pull-left"
                                 ng-hide="mode == 'key'"

@@ -59,7 +59,10 @@ public abstract class ADiffTracker
     {
         RevisionEntityContext revContext = ThreadLocalRevEntry.get();
         if (null == revContext)
+        {
             revContext = new RevisionEntityContext();
+            ThreadLocalRevEntry.set(revContext);
+        }
 
         revContext.setNotify(true);
     }
@@ -68,7 +71,10 @@ public abstract class ADiffTracker
     {
         RevisionEntityContext revContext = ThreadLocalRevEntry.get();
         if (null == revContext)
+        {
             revContext = new RevisionEntityContext();
+            ThreadLocalRevEntry.set(revContext);
+        }
 
         revContext.setSearchKey(key);
     }
@@ -77,7 +83,10 @@ public abstract class ADiffTracker
     {
         RevisionEntityContext revContext = ThreadLocalRevEntry.get();
         if (null == revContext)
+        {
             revContext = new RevisionEntityContext();
+            ThreadLocalRevEntry.set(revContext);
+        }
 
         revContext.setContextResize(true);
     }

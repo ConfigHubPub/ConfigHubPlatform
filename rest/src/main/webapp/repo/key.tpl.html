@@ -70,7 +70,13 @@
                     </span>
 
                     <span ng-if="entry[side].files > 0">
-                        <i class="spp"></i> <span class="key-btn">
+                        <i class="spp"></i> <a class="key-btn"
+                              ng-click="showKeyFiles(side)"
+                              data-placement="bottom-left"
+                              data-template-url="/repo/editor/keyFilesPopover.tpl.html"
+                              data-animation="am-flip-x"
+                              data-auto-close="1"
+                              bs-popover>
                             {{ entry[side].files }}
                              <ng-pluralize
                                      count="entry[side].files"
@@ -78,7 +84,7 @@
                                              '1': 'file',
                                              'other': 'files'}">
                              </ng-pluralize>&nbsp;
-                        </span>
+                        </a>
                     </span>
 
                     <span ng-if="entry[side].encrypted">

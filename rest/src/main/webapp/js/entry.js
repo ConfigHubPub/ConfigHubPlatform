@@ -26,8 +26,8 @@
                 restrict: "A",
                 templateUrl: 'repo/entry.tpl.html',
                 scope: true,
-                controller: ['$scope', '$rootScope', '$window', '$timeout', '$state', 'secretService',
-                    function ($scope, $rootScope, $window, $timeout, $state, secretService)
+                controller: ['$scope', '$rootScope', '$window', '$timeout', '$state', '$http', '$httpParamSerializer', 'secretService',
+                    function ($scope, $rootScope, $window, $timeout, $state, $http, $httpParamSerializer, secretService)
                     {
                         $scope.hover = false;
                         $scope.entry.allValues = false;
@@ -59,6 +59,37 @@
                         $scope.gotoSp = function(spName)
                         {
                             $state.go('repo.security-profiles', {owner: $scope.account, name: $scope.repoName, profile: spName });
+                        };
+
+                        $scope.getFile = function(file)
+                        {
+                            $state.go('repo.file', {
+                                owner: $scope.account,
+                                name: $scope.repoName,
+                                id: file.id,
+                                fullPath: file.fullPath,
+                                sp: file.spName
+                            });
+                        };
+
+                        $scope.showKeyFiles = function(side)
+                        {
+                            if ($scope.entry.f.k[side].filesLoading || $scope.entry.f.k[side].filesList)
+                                return;
+
+                            $scope.entry.f.k[side].filesLoading = true;
+
+                            $http({
+                                method: 'POST',
+                                url: '/rest/getKeyFiles/' + $scope.account + "/" + $scope.repoName,
+                                data: $httpParamSerializer({ key: $scope.entry.key }),
+                                headers: {'Content-Type': 'application/x-www-form-urlencoded'}
+                            }).then(function successCallback(response)
+                            {
+                                $scope.entry.f.k[side].filesLoading = false;
+                                if (response.data.success)
+                                    $scope.entry.f.k[side].filesList = response.data.files;
+                            });
                         };
 
                         $scope.enableValueEditor = function (value, side)
