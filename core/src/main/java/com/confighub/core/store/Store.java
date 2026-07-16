@@ -3447,6 +3447,44 @@ public class Store
     }
 
 
+    /**
+     * @param repository
+     * @param keyName exact key name
+     * @return timestamp (ms) of the earliest revision touching this key, i.e. when it was created,
+     *         or null if no revision history exists for it
+     */
+    public Long getKeyCreationTimestamp( final Repository repository, final String keyName )
+    {
+        if ( null == repository || Utils.isBlank( keyName ) )
+        {
+            return null;
+        }
+
+        try
+        {
+            List<RevisionEntry> revs = em.createQuery(
+                    "SELECT r FROM RevisionEntry r WHERE repositoryId = :repositoryId AND searchKey LIKE :searchKey " +
+                    "ORDER BY id ASC", RevisionEntry.class )
+                  .setLockMode( LockModeType.NONE )
+                  .setParameter( "repositoryId", repository.getId() )
+                  .setParameter( "searchKey", "%|" + keyName + "|%" )
+                  .setMaxResults( 1 )
+                  .getResultList();
+
+            return revs.isEmpty() ? null : revs.get( 0 ).getTimestamp();
+        }
+        catch ( NoResultException e )
+        {
+            return null;
+        }
+        catch ( Exception e )
+        {
+            handleException( e );
+            return null;
+        }
+    }
+
+
     public List<PropertyKey> nonTextTypeKeys( final Repository repository,
                                               final UserAccount user )
           throws ConfigException
