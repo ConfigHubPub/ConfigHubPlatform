@@ -3448,40 +3448,57 @@ public class Store
 
 
     /**
+     * Finds the creation timestamp (earliest revision) for every key whose name contains searchTerm,
+     * in a single query - as opposed to one lookup per key.
+     *
      * @param repository
-     * @param keyName exact key name
-     * @return timestamp (ms) of the earliest revision touching this key, i.e. when it was created,
-     *         or null if no revision history exists for it
+     * @param searchTerm substring matched against key names, same as used by {@link #searchKey}
+     * @return Map of exact key name -> timestamp (ms) it was created. Keys with no revision history
+     *         (e.g. predating searchKey tracking) are simply absent from the map.
      */
-    public Long getKeyCreationTimestamp( final Repository repository, final String keyName )
+    public Map<String, Long> getKeyCreationTimestamps( final Repository repository, final String searchTerm )
     {
-        if ( null == repository || Utils.isBlank( keyName ) )
+        Map<String, Long> creationTimestamps = new HashMap<>();
+
+        if ( null == repository || Utils.isBlank( searchTerm ) )
         {
-            return null;
+            return creationTimestamps;
         }
 
         try
         {
             List<RevisionEntry> revs = em.createQuery(
-                    "SELECT r FROM RevisionEntry r WHERE repositoryId = :repositoryId AND searchKey LIKE :searchKey " +
-                    "ORDER BY id ASC", RevisionEntry.class )
+                    "SELECT r FROM RevisionEntry r WHERE repositoryId = :repositoryId AND " +
+                    "LOWER(searchKey) LIKE :searchTerm ORDER BY id ASC", RevisionEntry.class )
                   .setLockMode( LockModeType.NONE )
                   .setParameter( "repositoryId", repository.getId() )
-                  .setParameter( "searchKey", "%|" + keyName + "|%" )
-                  .setMaxResults( 1 )
+                  .setParameter( "searchTerm", "%" + searchTerm.toLowerCase() + "%" )
                   .getResultList();
 
-            return revs.isEmpty() ? null : revs.get( 0 ).getTimestamp();
-        }
-        catch ( NoResultException e )
-        {
-            return null;
+            // Ascending order, so the first time we see a given key is its creation revision.
+            for ( RevisionEntry rev : revs )
+            {
+                String searchKeyField = rev.getSearchKey();
+                if ( Utils.isBlank( searchKeyField ) )
+                {
+                    continue;
+                }
+
+                for ( String key : searchKeyField.split( "\\|" ) )
+                {
+                    if ( !Utils.isBlank( key ) )
+                    {
+                        creationTimestamps.putIfAbsent( key, rev.getTimestamp() );
+                    }
+                }
+            }
         }
         catch ( Exception e )
         {
             handleException( e );
-            return null;
         }
+
+        return creationTimestamps;
     }
 
 

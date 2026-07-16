@@ -28,6 +28,7 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Search for keys by (partial) name, returning each match's id and creation date.
@@ -61,12 +62,14 @@ public class KeySearchDetails
             JsonArray keysJson = new JsonArray();
             if (null != keys)
             {
+                Map<String, Long> creationTimestamps = store.getKeyCreationTimestamps(repository, searchTerm);
+
                 for (PropertyKey key : keys)
                 {
                     JsonObject keyJson = new JsonObject();
                     keyJson.addProperty("key", key.getKey());
                     keyJson.addProperty("id", key.getId());
-                    keyJson.addProperty("createdOn", store.getKeyCreationTimestamp(repository, key.getKey()));
+                    keyJson.addProperty("createdOn", creationTimestamps.get(key.getKey()));
                     keysJson.add(keyJson);
                 }
             }
