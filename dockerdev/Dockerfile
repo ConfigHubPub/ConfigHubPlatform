@@ -1,4 +1,4 @@
-FROM        openjdk:8-alpine
+FROM        eclipse-temurin:8-jdk-alpine
 
 RUN         apk update && apk add --no-cache \
                 bash \
@@ -8,12 +8,12 @@ RUN         apk update && apk add --no-cache \
                 mariadb-client \
                 net-tools \
                 postgresql-client \
-                py-pip \
-                python \
+                py3-pip \
+                python3 \
                 tcpdump \
                 vim \
                 wget \
-            && pip install supervisor \
+            && pip3 install --break-system-packages supervisor \
             && mkdir /var/log/supervisord \
             && rm /bin/sh && ln -s /bin/bash /bin/sh
             # Fixes a bug where /bin/sh on alpine can't do <<<.

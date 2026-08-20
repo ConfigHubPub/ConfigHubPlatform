@@ -308,7 +308,7 @@ angular
                 return ( promise );
             }
 
-            function search(date, tag, account, repoName, searchTerm)
+            function search(date, tag, account, repoName, searchTerm, valueTerm)
             {
                 httpTimeout = $q.defer();
                 request = $http({
@@ -317,7 +317,8 @@ angular
                     params: {
                         ts: toUtc.toMS(date),
                         tag: tag,
-                        searchTerm: searchTerm
+                        searchTerm: searchTerm,
+                        valueTerm: valueTerm
                     },
                     timeout: httpTimeout.promise
                 });
@@ -472,23 +473,43 @@ angular
             {
                 if ($scope.localSearch) return;
 
-                if (!searchTerm || searchTerm.length == 0)
+                // searchTerm may be an array due to ng-list on the search input
+                var term = angular.isArray(searchTerm) ? searchTerm[0] : searchTerm;
+
+                if (!term || term.length == 0)
                 {
                     resolve(false, true);
                 }
                 else
                 {
+                    // Support "key=value" syntax to scope a value search to a specific property
+                    var keyTerm = term,
+                        valueTerm,
+                        eqIdx = term.indexOf('=');
+
+                    if (eqIdx >= 0)
+                    {
+                        keyTerm = term.substring(0, eqIdx).trim();
+                        valueTerm = term.substring(eqIdx + 1).trim();
+                    }
+
                     $scope.loading = true;
-                    $scope.lastRequest = resolverService.search(
+                    var thisRequest = resolverService.search(
                         $scope.date,
                         $scope.selectedTag,
                         $scope.account,
                         $scope.repoName,
-                        searchTerm);
+                        keyTerm,
+                        valueTerm);
+                    $scope.lastRequest = thisRequest;
 
-                    $scope.lastRequest.then(
+                    thisRequest.then(
                         function handlePropertiesResolve(properties)
                         {
+                            // Ignore if a newer request (eg. switching to Resolved mode) has since superseded this one
+                            if ($scope.lastRequest !== thisRequest || $scope.localSearch)
+                                return;
+
                             $scope.config = properties.config;
                             $scope.propertiesLoaded = true;
                             $scope.loading = false;
@@ -780,17 +801,22 @@ angular
                 else
                 {
                     $scope.loading = true;
-                    $scope.lastRequest = resolverService.resolveProperties($scope.allKeys,
+                    var thisRequest = resolverService.resolveProperties($scope.allKeys,
                         $scope.chosenContext,
                         $scope.date,
                         $scope.selectedTag,
                         editorInit.isLiteral(),
                         $scope.account,
                         $scope.repoName);
+                    $scope.lastRequest = thisRequest;
 
-                    $scope.lastRequest.then(
+                    thisRequest.then(
                         function handlePropertiesResolve(response)
                         {
+                            // Ignore if a newer request (eg. switching back to All mode) has since superseded this one
+                            if ($scope.lastRequest !== thisRequest)
+                                return;
+
                             if (response.error)
                             {
                                 if (resetAttempts == 0 && response.resetContext)

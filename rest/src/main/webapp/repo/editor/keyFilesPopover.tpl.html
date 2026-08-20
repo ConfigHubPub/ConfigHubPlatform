@@ -1,0 +1,19 @@
+<div class="popover" tabindex="-1">
+    <div class="arrow"></div>
+
+    <div class="popover-content" style="border-radius: 3px">
+        <div class="form-field-head">Used in</div>
+
+        <div ng-if="entry.f.k[side].filesLoading">
+            Loading <i class="fa fa-spinner fa-spin fa-fw"></i>
+        </div>
+
+        <div ng-if="!entry.f.k[side].filesLoading">
+            <div ng-repeat="file in entry.f.k[side].filesList" class="key-files-popover-row">
+                <a href ng-click="getFile(file); $hide()">
+                    <i class="fa fa-file-text-o"></i> {{ file.fullPath }}
+                </a>
+            </div>
+        </div>
+    </div>
+</div>

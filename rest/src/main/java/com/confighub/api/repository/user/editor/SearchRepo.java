@@ -52,6 +52,7 @@ public class SearchRepo
                         @QueryParam("ts") Long ts,
                         @QueryParam("tag") String tagLabel,
                         @QueryParam("searchTerm") String searchTerm,
+                        @QueryParam("valueTerm") String valueTerm,
                         @HeaderParam("Authorization") String token)
     {
         JsonObject json = new JsonObject();
@@ -74,7 +75,8 @@ public class SearchRepo
             Map<PropertyKey, Collection<Property>> keyListMap = store.searchKeysAndValues(user,
                                                                                           repository,
                                                                                           dateObj,
-                                                                                          searchTerm);
+                                                                                          searchTerm,
+                                                                                          valueTerm);
 
             log.info("[%s] Editor search found %d objects in %d/ms",
                      null == user ? "guest" : user.getUsername(),

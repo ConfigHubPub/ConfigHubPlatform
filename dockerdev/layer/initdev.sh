@@ -12,7 +12,7 @@ if [ "$DB_TYPE" == "mysql" ]; then
     export DB_URL="jdbc:mysql://${DB_HOST}:3306/${DB_NAME}"
 
     echo "Waiting for mysql db to start..."
-    while ! mysqladmin status -h"${DB_HOST}" -u"${DB_USERNAME}" -p"${DB_PASSWORD}" 2>/dev/null ; do
+    while ! mysqladmin --skip-ssl status -h"${DB_HOST}" -u"${DB_USERNAME}" -p"${DB_PASSWORD}" 2>/dev/null ; do
         sleep 1
     done
 

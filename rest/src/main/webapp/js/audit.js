@@ -51,6 +51,14 @@ function auditControllerFunc($scope, $http, $stateParams, $httpParamSerializer, 
 
     $scope.labels = {};
     $scope.attention = false;
+    $scope.searchQuery = '';
+
+    $scope.searchAudit = function() {
+        range.firstId = 0;
+        range.lastId = 0;
+        getAuditFunc(range);
+    };
+
 
     $scope.toggleAttention = function() {
         $scope.attention = !$scope.attention;
@@ -197,7 +205,8 @@ angular
                                     max: 10,
                                     starting: null == forward ? range.firstId : forward ? range.lastId : range.firstId,
                                     direction: null == forward ? 0 : forward ? 1 : -1,
-                                    attention: $scope.attention
+                                    attention: $scope.attention,
+                                    searchTerm: $scope.searchQuery
                                 }),
                                 headers: {'Content-Type': 'application/x-www-form-urlencoded'}
                             }).then(function successCallback(response)
@@ -247,7 +256,8 @@ angular
                                             max: 10,
                                             starting: null == forward ? range.firstId : forward ? range.lastId : range.firstId,
                                             direction: null == forward ? 0 : forward ? 1 : -1,
-                                            attention: $scope.attention
+                                            attention: $scope.attention,
+                                            searchTerm: $scope.searchQuery
                                         }),
                                         headers: {'Content-Type': 'application/x-www-form-urlencoded'}
                                     }).then(function successCallback(response)
